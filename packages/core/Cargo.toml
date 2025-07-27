@@ -8,6 +8,10 @@ version = "0.1.0"
 [lib]
 crate-type = ["cdylib"]
 
+[[bin]]
+name = "lazy_core_bin"
+path = "src/main.rs"
+
 [dependencies]
 base64 = "0.22.1"
 fast_image_resize = "5.2.0"
