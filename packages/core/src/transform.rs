@@ -89,17 +89,19 @@ impl PreviewOptions {
     PreviewOptions {
       width: None,
       height: None,
-      output_kind: options.placeholder_image_kind.clone().unwrap_or(PlaceholderImageOutputKind::Normal),
+      output_kind: options
+        .placeholder_image_kind
+        .clone()
+        .unwrap_or(PlaceholderImageOutputKind::Normal),
       replace_function_call: options.replace_function_call.unwrap_or(true),
       cache: options.cache.unwrap_or(true),
     }
-  } 
+  }
 }
 
 static RUSQLITE_FILE_NAME: &str = "lazycache.db";
 
 pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
-  println!("Transform called");
   if !options.file_path.ends_with(".tsx") {
     return None;
   }
@@ -136,6 +138,8 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
   let tasks = FuturesUnordered::new();
 
   let shared_data = Arc::new(Mutex::new(HashMap::new()));
+
+  let mut has_changes = false;
   // Traverse the AST
   let mut visitor = TransformVisitor {
     allocator: &allocator,
@@ -148,6 +152,7 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
     tasks,
     options: options.clone(),
     data: shared_data,
+    has_changes,
   };
 
   visitor.begin(&mut program).await;
@@ -160,7 +165,6 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
   let result = codegen.build(&program);
 
   let result_code: String = result.code;
-
 
   let sourcemap: Option<String> = {
     if result.map.is_some() {
@@ -187,6 +191,7 @@ struct TransformVisitor<'a> {
   tasks: FuturesUnordered<JoinHandle<()>>,
   options: TransformOptions,
   data: Arc<Mutex<HashMap<String, Data>>>,
+  has_changes: bool,
 }
 
 impl<'a> TransformVisitor<'a> {
@@ -197,13 +202,15 @@ impl<'a> TransformVisitor<'a> {
 
     self.pass = Pass::Second;
 
-    while let Some(result) = self.tasks.next().await {
-      println!("Task completed: {:?}", result);
+    if self.has_changes {
+      while let Some(result) = self.tasks.next().await {
+        println!("Task completed: {:?}", result);
+      }
+
+      let _ = self.push_hashmap_to_db();
+
+      self.visit_program(program);
     }
-
-    let _ = self.push_hashmap_to_db();
-
-    self.visit_program(program);
   }
 
   fn init_shared_data_from_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
@@ -245,7 +252,10 @@ impl<'a> TransformVisitor<'a> {
       if let Expression::StringLiteral(string_value) = image_url.as_expression().unwrap() {
         let url = string_value.value.to_string();
 
-        let exists_in_cache = { self.check_image_cache(url.clone(), preview_options.output_kind.clone())? };
+        self.has_changes = true;
+
+        let exists_in_cache =
+          { self.check_image_cache(url.clone(), preview_options.output_kind.clone())? };
 
         if exists_in_cache {
           println!("Image already cached: {}", url);
@@ -261,29 +271,51 @@ impl<'a> TransformVisitor<'a> {
     return Ok(());
   }
 
-  fn check_image_cache(&self, url: String, output_kind: PlaceholderImageOutputKind) -> Result<bool, Box<dyn std::error::Error + '_>> {
+  fn check_image_cache(
+    &self,
+    url: String,
+    output_kind: PlaceholderImageOutputKind,
+  ) -> Result<bool, Box<dyn std::error::Error + '_>> {
     let map = &self.data.lock()?;
-    Ok(map.contains_key(&url) && map.get(&url).ok_or("URL not found in cache")?.preview_type == output_kind)
+    Ok(
+      map.contains_key(&url)
+        && map.get(&url).ok_or("URL not found in cache")?.preview_type == output_kind,
+    )
   }
 
-  fn push_hashmap_to_db(&self) -> Result<(), Box<dyn std::error::Error + '_>> {
+  fn push_hashmap_to_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
     let data_vecc: Vec<(String, Data)> = {
       let map = self.data.lock()?;
       map.iter().map(|(k, v)| (k.clone(), v.clone())).collect()
     };
-    let mut stmt = self
-      .rusqlite_conn
-      .prepare("INSERT OR REPLACE INTO images (url, placeholder, preview_type) VALUES (?, ?, ?)")?;
 
-    for (url, data) in data_vecc.iter() {
-      if data.cache {
-        stmt.execute((
-          url,
-          &data.placeholder,
+    let prepared_data = data_vecc
+      .iter()
+      .map(|(url, data)| {
+        (
+          url.clone(),
+          data.placeholder.clone(),
           self.get_placeholder_string_value_from_enum(data.preview_type.clone()),
-        ))?;
+          data.cache,
+        )
+      })
+      .collect::<Vec<_>>();
+
+    let tx = self.rusqlite_conn.transaction()?; // BEGIN TRANSACTION
+
+    {
+      let mut stmt = tx.prepare(
+        "INSERT OR REPLACE INTO images (url, placeholder, preview_type) VALUES (?, ?, ?)",
+      )?;
+
+      for (url, placeholder, preview_type, cache) in prepared_data {
+        if cache {
+          stmt.execute((url, placeholder, preview_type))?;
+        }
       }
     }
+
+    tx.commit()?;
 
     Ok(())
   }
@@ -373,44 +405,6 @@ impl<'a> TransformVisitor<'a> {
     preview_options
   }
 
-  // fn update_string_expression(&mut self, string_value: &mut OxcBox<'a, StringLiteral<'a>>) {
-  //   let image_url = string_value.value.to_string();
-
-  //   println!("Updating string expression: {}", image_url);
-  //   let placeholder_image_url: Result<String, _> = self.rusqlite_conn.query_one(
-  //     "SELECT placeholder FROM images WHERE url = ?",
-  //     [image_url.clone()],
-  //     |row| Ok(row.get(0)?),
-  //   );
-
-  //   match self.pass {
-  //     Pass::First => {
-  //       if placeholder_image_url.is_err() {
-  //         self.spawn_image_resize(image_url);
-  //       }
-  //     }
-  //     Pass::Second => {
-  //       if placeholder_image_url.is_ok() {
-  //         let placeholder_image_url = placeholder_image_url.unwrap();
-  //         let atom = self
-  //           .ast_builder
-  //           .atom(self.allocator.alloc_str(&placeholder_image_url));
-
-  //         // Update the string literal value
-  //         string_value.value = atom;
-  //       }
-  //     }
-  //   }
-
-  //   // let updated_class_names_str = self.get_updated_classname(&string_value.value);
-  //   // let atom = self
-  //   //   .ast_builder
-  //   //   .atom(self.allocator.alloc_str(&updated_class_names_str));
-
-  //   // // Update the string literal value
-  //   // string_value.value = atom;
-  // }
-
   fn spawn_image_resize(&self, url: String, options: PreviewOptions) {
     let client = self.http_client.clone();
 
@@ -471,7 +465,17 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
                 if options.replace_function_call {
                   replace = true;
                 } else {
-                  let first_arg = call.arguments.first_mut().unwrap().as_expression();
+                  let first_arg = call.arguments.first_mut().unwrap().as_expression_mut();
+
+                  if let Some(Expression::StringLiteral(string_value)) = first_arg {
+                    let atom = self.ast_builder.atom(
+                      self
+                        .allocator
+                        .alloc_str(placeholder_image_url.as_ref().unwrap().as_str()),
+                    );
+
+                    string_value.value = atom;
+                  }
                 }
               }
             }
