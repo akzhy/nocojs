@@ -25,8 +25,9 @@ const App = () => {
 
 export default App;"#.to_string(),
     file_path: "TestCase.tsx".to_string(),
-    placeholder_image_kind: Some(placeholder_image::PlaceholderImageOutputKind::AverageColor),
+    placeholder_image_kind: Some(placeholder_image::PlaceholderImageOutputKind::Normal),
     replace_function_call: Some(true),
+    cache: Some(true),
   };
 
   
