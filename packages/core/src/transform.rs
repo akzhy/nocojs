@@ -1,6 +1,5 @@
 use futures::{stream::FuturesUnordered, StreamExt};
 use napi_derive::napi;
-use once_cell::sync::Lazy;
 use oxc::{
   allocator::{Allocator, Box as OxcBox},
   ast::{
@@ -8,7 +7,7 @@ use oxc::{
       Argument, CallExpression, Expression, ImportDeclaration, ImportDeclarationSpecifier,
       ObjectPropertyKind, Program, PropertyKey, SourceType, StringLiteral,
     },
-    AstBuilder, NONE,
+    AstBuilder,
   },
   ast_visit::{walk_mut, VisitMut},
   codegen::{Codegen, CodegenOptions},
@@ -17,11 +16,14 @@ use oxc::{
 };
 use reqwest::Client;
 use rusqlite::Connection;
-use std::path::PathBuf;
-use tokio::runtime::Runtime;
+use std::{
+  collections::HashMap,
+  path::PathBuf,
+  sync::{Arc, Mutex},
+};
 use tokio::task::JoinHandle;
 
-use crate::placeholder_image::{self, download_and_process_image, PlaceholderImageOutputKind};
+use crate::placeholder_image::{download_and_process_image, PlaceholderImageOutputKind};
 
 #[derive(PartialEq, Debug, Clone)]
 enum Pass {
@@ -38,12 +40,38 @@ pub struct TransformOptions {
   pub file_path: String,
   pub placeholder_image_kind: Option<PlaceholderImageOutputKind>,
   pub replace_function_call: Option<bool>,
+  pub cache: Option<bool>,
 }
 
 #[napi(object)]
 pub struct TransformOutput {
   pub code: String,
   pub sourcemap: Option<String>,
+}
+
+#[derive(Clone)]
+struct Data {
+  #[allow(dead_code)]
+  url: String,
+  placeholder: String,
+  cache: bool,
+  preview_type: PlaceholderImageOutputKind,
+}
+
+impl Data {
+  pub fn new(
+    url: String,
+    placeholder: String,
+    preview_type: PlaceholderImageOutputKind,
+    cache: bool,
+  ) -> Self {
+    Data {
+      url,
+      placeholder,
+      cache,
+      preview_type,
+    }
+  }
 }
 
 #[napi(object)]
@@ -53,35 +81,25 @@ pub struct PreviewOptions {
   pub height: Option<u32>,
   pub output_kind: PlaceholderImageOutputKind,
   pub replace_function_call: bool,
+  pub cache: bool,
 }
 
 impl PreviewOptions {
-  pub fn default() -> Self {
+  pub fn from_global_options(options: &TransformOptions) -> Self {
     PreviewOptions {
       width: None,
       height: None,
-      output_kind: PlaceholderImageOutputKind::Normal,
-      replace_function_call: true,
+      output_kind: options.placeholder_image_kind.clone().unwrap_or(PlaceholderImageOutputKind::Normal),
+      replace_function_call: options.replace_function_call.unwrap_or(true),
+      cache: options.cache.unwrap_or(true),
     }
-  }
+  } 
 }
-
-pub struct SymbolStore {
-  pub symbol_id: SymbolId,
-  pub fn_id: u32,
-}
-
-// Create a global Tokio runtime
-static TOKIO: Lazy<Runtime> = Lazy::new(|| {
-  tokio::runtime::Builder::new_multi_thread()
-    .enable_all()
-    .build()
-    .expect("Failed to build Tokio runtime")
-});
 
 static RUSQLITE_FILE_NAME: &str = "lazycache.db";
 
 pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
+  println!("Transform called");
   if !options.file_path.ends_with(".tsx") {
     return None;
   }
@@ -92,7 +110,8 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
     .execute(
       "CREATE TABLE IF NOT EXISTS images (
           url     TEXT PRIMARY KEY,
-          placeholder   TEXT NOT NULL
+          placeholder   TEXT NOT NULL,
+          preview_type TEXT DEFAULT 'normal'
       )",
       [],
     )
@@ -111,25 +130,24 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
   let scoping = semantic_builder.semantic.into_scoping();
 
   let ast_builder = AstBuilder::new(&allocator);
-  let mut symbold_ids_vec: Vec<SymbolStore> = vec![];
   let util_import_symbols: Vec<SymbolId> = vec![];
   let http_client = Client::new();
-  let tokio_handles: Vec<JoinHandle<()>> = vec![];
 
-  let mut tasks = FuturesUnordered::new();
+  let tasks = FuturesUnordered::new();
+
+  let shared_data = Arc::new(Mutex::new(HashMap::new()));
   // Traverse the AST
   let mut visitor = TransformVisitor {
     allocator: &allocator,
     ast_builder,
     scoping: &scoping,
-    identifier_symbol_ids: &mut symbold_ids_vec,
     pass: Pass::First,
     util_import_symbols,
     http_client,
     rusqlite_conn: conn,
-    tokio_handles,
     tasks,
     options: options.clone(),
+    data: shared_data,
   };
 
   visitor.begin(&mut program).await;
@@ -142,7 +160,8 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
   let result = codegen.build(&program);
 
   let result_code: String = result.code;
-  println!("Transformed result:\n{}", result_code);
+
+
   let sourcemap: Option<String> = {
     if result.map.is_some() {
       Some(result.map.unwrap().to_json_string())
@@ -161,18 +180,19 @@ struct TransformVisitor<'a> {
   allocator: &'a Allocator,
   ast_builder: AstBuilder<'a>,
   scoping: &'a Scoping,
-  identifier_symbol_ids: &'a mut Vec<SymbolStore>,
   util_import_symbols: Vec<SymbolId>,
   pass: Pass,
   http_client: Client,
   rusqlite_conn: Connection,
-  tokio_handles: Vec<JoinHandle<()>>,
   tasks: FuturesUnordered<JoinHandle<()>>,
   options: TransformOptions,
+  data: Arc<Mutex<HashMap<String, Data>>>,
 }
 
 impl<'a> TransformVisitor<'a> {
   async fn begin(&mut self, program: &mut Program<'a>) {
+    let _ = self.init_shared_data_from_db();
+
     self.visit_program(program);
 
     self.pass = Pass::Second;
@@ -181,13 +201,41 @@ impl<'a> TransformVisitor<'a> {
       println!("Task completed: {:?}", result);
     }
 
+    let _ = self.push_hashmap_to_db();
+
     self.visit_program(program);
   }
 
-  fn prepare_images_from_fn_call(
+  fn init_shared_data_from_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
+    let mut stmt = self
+      .rusqlite_conn
+      .prepare("SELECT url, placeholder, preview_type FROM images")?;
+
+    let rows = stmt.query_map([], |row| {
+      Ok((
+        row.get::<_, String>(0)?,
+        row.get::<_, String>(1)?,
+        row.get::<_, String>(2)?,
+      ))
+    })?;
+
+    let mut map = self.data.lock()?;
+    for row in rows {
+      let (url, placeholder, preview_type_str) = row?;
+      let preview_type = self.get_placeholder_enum_value_from_string(&preview_type_str);
+      map.insert(
+        url.clone(),
+        Data::new(url.clone(), placeholder, preview_type, true),
+      );
+    }
+
+    Ok(())
+  }
+
+  fn prepare_image_from_fn_call(
     &mut self,
     call: &mut OxcBox<'a, CallExpression<'a>>,
-  ) -> Result<(), Box<dyn std::error::Error>> {
+  ) -> Result<(), Box<dyn std::error::Error + '_>> {
     let first_arg = &call.arguments.first();
     let user_options_arg = &call.arguments.get(1);
 
@@ -195,13 +243,49 @@ impl<'a> TransformVisitor<'a> {
 
     if let Some(image_url) = first_arg {
       if let Expression::StringLiteral(string_value) = image_url.as_expression().unwrap() {
-        self.spawn_image_resize(string_value.value.to_string(), preview_options);
+        let url = string_value.value.to_string();
+
+        let exists_in_cache = { self.check_image_cache(url.clone(), preview_options.output_kind.clone())? };
+
+        if exists_in_cache {
+          println!("Image already cached: {}", url);
+          return Ok(());
+        }
+
+        self.spawn_image_resize(url, preview_options);
       }
     } else {
       return Err("No image URL provided in the function call".into());
     }
 
     return Ok(());
+  }
+
+  fn check_image_cache(&self, url: String, output_kind: PlaceholderImageOutputKind) -> Result<bool, Box<dyn std::error::Error + '_>> {
+    let map = &self.data.lock()?;
+    Ok(map.contains_key(&url) && map.get(&url).ok_or("URL not found in cache")?.preview_type == output_kind)
+  }
+
+  fn push_hashmap_to_db(&self) -> Result<(), Box<dyn std::error::Error + '_>> {
+    let data_vecc: Vec<(String, Data)> = {
+      let map = self.data.lock()?;
+      map.iter().map(|(k, v)| (k.clone(), v.clone())).collect()
+    };
+    let mut stmt = self
+      .rusqlite_conn
+      .prepare("INSERT OR REPLACE INTO images (url, placeholder, preview_type) VALUES (?, ?, ?)")?;
+
+    for (url, data) in data_vecc.iter() {
+      if data.cache {
+        stmt.execute((
+          url,
+          &data.placeholder,
+          self.get_placeholder_string_value_from_enum(data.preview_type.clone()),
+        ))?;
+      }
+    }
+
+    Ok(())
   }
 
   fn get_image_result_from_fn_call(
@@ -229,8 +313,29 @@ impl<'a> TransformVisitor<'a> {
     Err("No image URL provided in the function call".into())
   }
 
+  fn get_placeholder_enum_value_from_string(&self, value: &String) -> PlaceholderImageOutputKind {
+    match value.as_str() {
+      "normal" => PlaceholderImageOutputKind::Normal,
+      "black-and-white" => PlaceholderImageOutputKind::BlackAndWhite,
+      "dominant-color" => PlaceholderImageOutputKind::DominantColor,
+      "transparent" => PlaceholderImageOutputKind::Transparent,
+      "average-color" => PlaceholderImageOutputKind::AverageColor,
+      _ => PlaceholderImageOutputKind::Normal,
+    }
+  }
+
+  fn get_placeholder_string_value_from_enum(&self, value: PlaceholderImageOutputKind) -> String {
+    match value {
+      PlaceholderImageOutputKind::Normal => "normal".to_string(),
+      PlaceholderImageOutputKind::BlackAndWhite => "black-and-white".to_string(),
+      PlaceholderImageOutputKind::DominantColor => "dominant-color".to_string(),
+      PlaceholderImageOutputKind::Transparent => "transparent".to_string(),
+      PlaceholderImageOutputKind::AverageColor => "average-color".to_string(),
+    }
+  }
+
   fn get_preview_options_from_argument(&mut self, arg: &Option<&Argument<'a>>) -> PreviewOptions {
-    let mut preview_options = PreviewOptions::default();
+    let mut preview_options = PreviewOptions::from_global_options(&self.options);
 
     if let Some(user_options_arg) = arg {
       if let Expression::ObjectExpression(object_expr) = user_options_arg.as_expression().unwrap() {
@@ -247,18 +352,16 @@ impl<'a> TransformVisitor<'a> {
                 }
               } else if key.name == "outputKind" {
                 if let Expression::StringLiteral(string_literal) = &key_value.value {
-                  preview_options.output_kind = match string_literal.value.as_str() {
-                    "normal" => PlaceholderImageOutputKind::Normal,
-                    "black-and-white" => PlaceholderImageOutputKind::BlackAndWhite,
-                    "dominant-color" => PlaceholderImageOutputKind::DominantColor,
-                    "transparent" => PlaceholderImageOutputKind::Transparent,
-                    "average-color" => PlaceholderImageOutputKind::AverageColor,
-                    _ => PlaceholderImageOutputKind::Normal,
-                  };
+                  preview_options.output_kind =
+                    self.get_placeholder_enum_value_from_string(&string_literal.value.to_string());
                 }
               } else if key.name == "replaceFunctionCall" {
                 if let Expression::BooleanLiteral(boolean_literal) = &key_value.value {
                   preview_options.replace_function_call = boolean_literal.value;
+                }
+              } else if key.name == "cache" {
+                if let Expression::BooleanLiteral(boolean_literal) = &key_value.value {
+                  preview_options.cache = boolean_literal.value;
                 }
               }
             }
@@ -308,21 +411,19 @@ impl<'a> TransformVisitor<'a> {
   //   // string_value.value = atom;
   // }
 
-  fn spawn_image_resize(&mut self, url: String, options: PreviewOptions) {
+  fn spawn_image_resize(&self, url: String, options: PreviewOptions) {
     let client = self.http_client.clone();
 
+    let map_clone = Arc::clone(&self.data);
     self.tasks.push(tokio::spawn(async move {
       match download_and_process_image(&client, &url, &options).await {
         Ok(image) => {
           println!("✅ Processed image: {}", image);
-          let rusqlite_conn = Connection::open(RUSQLITE_FILE_NAME).unwrap();
-          rusqlite_conn
-            .execute(
-              "INSERT INTO images (url, placeholder) VALUES (?, ?)",
-              (url, image),
-            )
-            .unwrap();
-          // Optionally: save to disk or update a shared cache
+          let mut map = map_clone.lock().unwrap();
+          map.insert(
+            url.clone(),
+            Data::new(url.clone(), image, options.output_kind, options.cache),
+          );
         }
         Err(e) => eprintln!("❌ Failed to process {}: {}", url, e),
       }
@@ -361,13 +462,17 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
         if let Some(callee_symbol_id) = callee_symbol_id {
           if self.util_import_symbols.contains(&callee_symbol_id) {
             if self.pass == Pass::First {
-              let _ = self.prepare_images_from_fn_call(call);
+              let _ = self.prepare_image_from_fn_call(call);
             } else {
               let check = self.get_image_result_from_fn_call(call);
               if check.is_ok() {
                 let (url, options) = check.unwrap();
                 placeholder_image_url = Some(url);
-                replace = true;
+                if options.replace_function_call {
+                  replace = true;
+                } else {
+                  let first_arg = call.arguments.first_mut().unwrap().as_expression();
+                }
               }
             }
           }
@@ -384,6 +489,7 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
           span: call.span,
           lone_surrogates: false,
         };
+
         *expr = Expression::StringLiteral(OxcBox::new_in(lit, self.allocator));
       }
     }
