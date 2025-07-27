@@ -139,7 +139,7 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
 
   let shared_data = Arc::new(Mutex::new(HashMap::new()));
 
-  let mut has_changes = false;
+  let has_changes = false;
   // Traverse the AST
   let mut visitor = TransformVisitor {
     allocator: &allocator,

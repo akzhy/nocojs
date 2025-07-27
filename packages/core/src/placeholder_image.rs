@@ -1,6 +1,6 @@
 use base64::{engine::general_purpose, Engine as _};
 use fast_image_resize::{self as fir, images::Image};
-use image::{GrayImage, ImageBuffer, ImageReader, RgbImage, Rgba};
+use image::{GrayImage, ImageBuffer, ImageReader, RgbImage, Rgba, ImageEncoder};
 use napi_derive::napi;
 use reqwest::Client;
 use std::{collections::HashMap, io::Cursor, time::Instant};
@@ -94,7 +94,7 @@ pub async fn download_and_process_image(
       let new_width = (new_height as f32 / aspect_ratio) as u32;
       (new_width, new_height)
     } else {
-       let new_width = 16; // Default width
+      let new_width = 16; // Default width
       let new_height = (new_width as f32 * aspect_ratio) as u32;
       (new_width, new_height)
     }
@@ -123,9 +123,9 @@ pub async fn download_and_process_image(
     },
   )?;
 
-  // Step 5: Encode resized image as JPEG
-  let mut jpeg_bytes = Vec::new();
-  image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg_bytes, 25).encode(
+  // Step 5: Encode resized image as PNG
+  let mut png_bytes = Vec::new();
+  image::codecs::png::PngEncoder::new(&mut png_bytes).write_image(
     &dst_image.buffer(),
     dst_image.width(),
     dst_image.height(),
@@ -137,8 +137,8 @@ pub async fn download_and_process_image(
     match options.output_kind {
       PlaceholderImageOutputKind::Normal | PlaceholderImageOutputKind::BlackAndWhite => {
         format!(
-          "data:image/jpeg;base64,{}",
-          general_purpose::STANDARD.encode(&jpeg_bytes)
+          "data:image/png;base64,{}",
+          general_purpose::STANDARD.encode(&png_bytes)
         )
       }
       PlaceholderImageOutputKind::AverageColor | PlaceholderImageOutputKind::DominantColor => {
