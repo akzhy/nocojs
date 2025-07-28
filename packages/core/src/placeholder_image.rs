@@ -1,4 +1,5 @@
 use base64::{engine::general_purpose, Engine as _};
+use bytes::Bytes;
 use fast_image_resize::{self as fir, images::Image};
 use image::{GrayImage, ImageBuffer, ImageReader, RgbImage, Rgba, ImageEncoder};
 use napi_derive::napi;
@@ -47,7 +48,14 @@ pub async fn download_and_process_image(
   println!("Downloading image from: {}", url);
   let bytes = client.get(url).send().await?.bytes().await?;
   println!("Image downloaded in: {:?} seconds", download_time.elapsed());
+  process_image(&bytes, url, options).await
+}
 
+pub async fn process_image(
+  bytes: &Bytes,
+  url: &str,
+  options: &PreviewOptions,
+) -> Result<String, Box<dyn std::error::Error>> {
   println!("Processing image: {}", url);
   let image_processing_time = Instant::now();
   let img = ImageReader::new(Cursor::new(bytes))
