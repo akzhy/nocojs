@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use futures::{stream::FuturesUnordered, StreamExt};
 use napi_derive::napi;
 use oxc::{
@@ -18,12 +19,13 @@ use reqwest::Client;
 use rusqlite::Connection;
 use std::{
   collections::HashMap,
-  path::PathBuf,
+  path::{PathBuf},
   sync::{Arc, Mutex},
 };
 use tokio::task::JoinHandle;
+use url::Url;
 
-use crate::placeholder_image::{download_and_process_image, PlaceholderImageOutputKind};
+use crate::placeholder_image::{download_and_process_image, process_image, PlaceholderImageOutputKind};
 
 #[derive(PartialEq, Debug, Clone)]
 enum Pass {
@@ -41,6 +43,7 @@ pub struct TransformOptions {
   pub placeholder_image_kind: Option<PlaceholderImageOutputKind>,
   pub replace_function_call: Option<bool>,
   pub cache: Option<bool>,
+  pub public_dir: Option<String>,
 }
 
 #[napi(object)]
@@ -406,22 +409,64 @@ impl<'a> TransformVisitor<'a> {
   }
 
   fn spawn_image_resize(&self, url: String, options: PreviewOptions) {
-    let client = self.http_client.clone();
+    let url_parse = Url::parse(&url);
 
-    let map_clone = Arc::clone(&self.data);
-    self.tasks.push(tokio::spawn(async move {
-      match download_and_process_image(&client, &url, &options).await {
-        Ok(image) => {
-          println!("✅ Processed image: {}", image);
-          let mut map = map_clone.lock().unwrap();
-          map.insert(
-            url.clone(),
-            Data::new(url.clone(), image, options.output_kind, options.cache),
-          );
+    if url_parse.is_err() {
+      let public_dir = self.options.public_dir.clone();
+      if let Some(public_dir) = public_dir {
+        let relative_url = url.strip_prefix("/").unwrap_or(&url);
+        let image_path = PathBuf::from(public_dir.clone()).join(relative_url);
+
+        if image_path.exists() {
+          let file_read = std::fs::read(&image_path.as_path());
+          if file_read.is_err() {
+            eprintln!(
+              "❌ Failed to read image from public directory: {:?} {:?}",
+              image_path,
+              public_dir
+            );
+            return;
+          }
+          let bytes = Bytes::from(file_read.unwrap());
+          let map_clone = Arc::clone(&self.data);
+          let url_clone = url.clone();
+          self.tasks.push(tokio::spawn(async move {
+            match process_image(&bytes, &url_clone, &options).await {
+              Ok(image) => {
+                println!("✅ Processed image: {}", image);
+                let mut map = map_clone.lock().unwrap();
+                map.insert(
+                  url_clone.clone(),
+                  Data::new(url_clone.clone(), image, options.output_kind, options.cache),
+                );
+              }
+              Err(e) => eprintln!("❌ Failed to process {}: {}", url_clone, e),
+            }
+          }));
+        } else {
+          eprintln!("❌ Image not found in public directory: {:?}", image_path);
         }
-        Err(e) => eprintln!("❌ Failed to process {}: {}", url, e),
+      } else {
+        eprintln!("❌ Invalid URL: {}", url);
       }
-    }));
+    } else {
+      let client = self.http_client.clone();
+
+      let map_clone = Arc::clone(&self.data);
+      self.tasks.push(tokio::spawn(async move {
+        match download_and_process_image(&client, &url, &options).await {
+          Ok(image) => {
+            println!("✅ Processed image: {}", image);
+            let mut map = map_clone.lock().unwrap();
+            map.insert(
+              url.clone(),
+              Data::new(url.clone(), image, options.output_kind, options.cache),
+            );
+          }
+          Err(e) => eprintln!("❌ Failed to process {}: {}", url, e),
+        }
+      }));
+    }
   }
 }
 
