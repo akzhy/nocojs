@@ -1,18 +1,23 @@
 #![deny(clippy::all)]
 
-pub mod transform;
 pub mod placeholder_image;
+pub mod transform;
 
 use napi_derive::napi;
 
-use crate::transform::TransformOutput;
+use crate::transform::{TransformOptions, TransformOutput};
 
+#[tokio::main]
 #[napi]
-pub fn plus_100(input: u32) -> u32 {
-  input + 100
+pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
+  transform::transform(transform::TransformOptions {
+    code: options.code,
+    file_path: options.file_path,
+    placeholder_image_kind: options.placeholder_image_kind,
+    replace_function_call: options.replace_function_call,
+    cache: options.cache,
+    public_dir: options.public_dir,
+    cache_file_dir: options.cache_file_dir,
+  })
+  .await
 }
-
-// #[napi]
-// pub fn transform(code: String, file_path: String) -> Option<TransformOutput> {
-//   transform::transform(transform::TransformOptions { code, file_path })
-// }
