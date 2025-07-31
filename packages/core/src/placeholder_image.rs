@@ -1,7 +1,7 @@
 use base64::{engine::general_purpose, Engine as _};
 use bytes::Bytes;
 use fast_image_resize::{self as fir, images::Image};
-use image::{GrayImage, ImageBuffer, ImageReader, RgbImage, Rgba, ImageEncoder};
+use image::{GrayImage, ImageBuffer, ImageEncoder, ImageReader, RgbImage, Rgba};
 use napi_derive::napi;
 use reqwest::Client;
 use std::{collections::HashMap, io::Cursor, time::Instant};
