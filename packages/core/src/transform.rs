@@ -19,13 +19,15 @@ use reqwest::Client;
 use rusqlite::Connection;
 use std::{
   collections::HashMap,
-  path::{PathBuf},
+  path::PathBuf,
   sync::{Arc, Mutex},
 };
 use tokio::task::JoinHandle;
 use url::Url;
 
-use crate::placeholder_image::{download_and_process_image, process_image, PlaceholderImageOutputKind};
+use crate::placeholder_image::{
+  download_and_process_image, process_image, PlaceholderImageOutputKind,
+};
 
 #[derive(PartialEq, Debug, Clone)]
 enum Pass {
@@ -33,7 +35,7 @@ enum Pass {
   Second,
 }
 
-const IMPORT_PATH: &str = "laaazy";
+const IMPORT_PATH: &str = "nocojs";
 
 #[napi(object)]
 #[derive(Clone)]
@@ -44,6 +46,7 @@ pub struct TransformOptions {
   pub replace_function_call: Option<bool>,
   pub cache: Option<bool>,
   pub public_dir: Option<String>,
+  pub cache_file_dir: Option<String>,
 }
 
 #[napi(object)]
@@ -102,14 +105,23 @@ impl PreviewOptions {
   }
 }
 
-static RUSQLITE_FILE_NAME: &str = "lazycache.db";
+static RUSQLITE_FILE_NAME: &str = "cache.db";
 
 pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
   if !options.file_path.ends_with(".tsx") {
     return None;
   }
 
-  let conn = Connection::open(RUSQLITE_FILE_NAME).unwrap();
+  let cache_dir = init_cache_dir(
+    &options
+      .cache_file_dir
+      .clone()
+      .unwrap_or(".nocojs".to_string()),
+  )
+  .unwrap_or("".to_string());
+
+  let db_filepath = PathBuf::from(&cache_dir).join(RUSQLITE_FILE_NAME);
+  let conn = Connection::open(&db_filepath).unwrap();
   // Create a table
   conn
     .execute(
@@ -183,6 +195,14 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
   })
 }
 
+fn init_cache_dir(dirname: &str) -> Result<String, Box<dyn std::error::Error>> {
+  let path = PathBuf::from(dirname);
+  if !path.exists() {
+    std::fs::create_dir_all(&path)?;
+  }
+  Ok(dirname.to_string())
+}
+
 struct TransformVisitor<'a> {
   allocator: &'a Allocator,
   ast_builder: AstBuilder<'a>,
@@ -204,7 +224,6 @@ impl<'a> TransformVisitor<'a> {
     self.visit_program(program);
 
     self.pass = Pass::Second;
-
     if self.has_changes {
       while let Some(result) = self.tasks.next().await {
         println!("Task completed: {:?}", result);
@@ -254,14 +273,12 @@ impl<'a> TransformVisitor<'a> {
     if let Some(image_url) = first_arg {
       if let Expression::StringLiteral(string_value) = image_url.as_expression().unwrap() {
         let url = string_value.value.to_string();
-
         self.has_changes = true;
 
         let exists_in_cache =
           { self.check_image_cache(url.clone(), preview_options.output_kind.clone())? };
 
         if exists_in_cache {
-          println!("Image already cached: {}", url);
           return Ok(());
         }
 
@@ -280,10 +297,20 @@ impl<'a> TransformVisitor<'a> {
     output_kind: PlaceholderImageOutputKind,
   ) -> Result<bool, Box<dyn std::error::Error + '_>> {
     let map = &self.data.lock()?;
-    Ok(
-      map.contains_key(&url)
-        && map.get(&url).ok_or("URL not found in cache")?.preview_type == output_kind,
-    )
+    let item = map.get(&url);
+    Ok(map.contains_key(&url) && item.unwrap().preview_type == output_kind)
+  }
+
+  fn get_placeholder_url_from_cache(
+    &self,
+    url: String,
+  ) -> Result<String, Box<dyn std::error::Error + '_>> {
+    let map = self.data.lock()?;
+    if let Some(data) = map.get(&url) {
+      Ok(data.placeholder.clone())
+    } else {
+      Err("URL not found in cache".into())
+    }
   }
 
   fn push_hashmap_to_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
@@ -326,23 +353,14 @@ impl<'a> TransformVisitor<'a> {
   fn get_image_result_from_fn_call(
     &mut self,
     call: &mut OxcBox<'a, CallExpression<'a>>,
-  ) -> Result<(String, PreviewOptions), Box<dyn std::error::Error>> {
+  ) -> Result<(String, PreviewOptions), Box<dyn std::error::Error + '_>> {
     if let Some(first_arg) = call.arguments.first() {
       if let Expression::StringLiteral(string_value) = first_arg.as_expression().unwrap() {
         let image_url = string_value.value.to_string();
+        let placeholder_image_url = self.get_placeholder_url_from_cache(image_url.clone())?;
 
-        let placeholder_image_url: Result<String, _> = self.rusqlite_conn.query_one(
-          "SELECT placeholder FROM images WHERE url = ?",
-          [image_url.clone()],
-          |row| Ok(row.get(0)?),
-        );
-
-        if placeholder_image_url.is_ok() {
-          let options = self.get_preview_options_from_argument(&call.arguments.get(1));
-          return Ok((placeholder_image_url.unwrap(), options));
-        } else {
-          return Err(format!("Image not found in database: {}", image_url).into());
-        }
+        let options = self.get_preview_options_from_argument(&call.arguments.get(1));
+        return Ok((placeholder_image_url.to_string(), options));
       }
     }
     Err("No image URL provided in the function call".into())
@@ -369,7 +387,7 @@ impl<'a> TransformVisitor<'a> {
     }
   }
 
-  fn get_preview_options_from_argument(&mut self, arg: &Option<&Argument<'a>>) -> PreviewOptions {
+  fn get_preview_options_from_argument(&self, arg: &Option<&Argument<'a>>) -> PreviewOptions {
     let mut preview_options = PreviewOptions::from_global_options(&self.options);
 
     if let Some(user_options_arg) = arg {
@@ -422,8 +440,7 @@ impl<'a> TransformVisitor<'a> {
           if file_read.is_err() {
             eprintln!(
               "❌ Failed to read image from public directory: {:?} {:?}",
-              image_path,
-              public_dir
+              image_path, public_dir
             );
             return;
           }
@@ -433,7 +450,6 @@ impl<'a> TransformVisitor<'a> {
           self.tasks.push(tokio::spawn(async move {
             match process_image(&bytes, &url_clone, &options).await {
               Ok(image) => {
-                println!("✅ Processed image: {}", image);
                 let mut map = map_clone.lock().unwrap();
                 map.insert(
                   url_clone.clone(),
@@ -456,7 +472,6 @@ impl<'a> TransformVisitor<'a> {
       self.tasks.push(tokio::spawn(async move {
         match download_and_process_image(&client, &url, &options).await {
           Ok(image) => {
-            println!("✅ Processed image: {}", image);
             let mut map = map_clone.lock().unwrap();
             map.insert(
               url.clone(),
@@ -522,6 +537,8 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
                     string_value.value = atom;
                   }
                 }
+              } else {
+                eprintln!("Image not found in cache or database");
               }
             }
           }
