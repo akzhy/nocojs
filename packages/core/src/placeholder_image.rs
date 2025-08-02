@@ -4,6 +4,7 @@ use fast_image_resize::{self as fir, images::Image};
 use image::{GrayImage, ImageBuffer, ImageEncoder, ImageReader, RgbImage, Rgba};
 use napi_derive::napi;
 use reqwest::Client;
+use std::fmt;
 use std::{collections::HashMap, io::Cursor, time::Instant};
 
 use crate::transform::PreviewOptions;
@@ -16,6 +17,25 @@ pub enum PlaceholderImageOutputKind {
   DominantColor,
   AverageColor,
   Transparent,
+}
+
+impl fmt::Display for PlaceholderImageOutputKind {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    let s = match self {
+      PlaceholderImageOutputKind::Normal => "normal",
+      PlaceholderImageOutputKind::BlackAndWhite => "black_and_white",
+      PlaceholderImageOutputKind::DominantColor => "dominant_color",
+      PlaceholderImageOutputKind::AverageColor => "average_color",
+      PlaceholderImageOutputKind::Transparent => "transparent",
+    };
+    write!(f, "{}", s)
+  }
+}
+
+pub struct ProcessImageOutput {
+  pub base64_str: String,
+  pub width: u32,
+  pub height: u32,
 }
 
 enum DynamicImageWrapper {
@@ -43,7 +63,7 @@ pub async fn download_and_process_image(
   client: &Client,
   url: &str,
   options: &PreviewOptions,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<ProcessImageOutput, Box<dyn std::error::Error>> {
   let download_time = Instant::now();
   println!("Downloading image from: {}", url);
   let bytes = client.get(url).send().await?.bytes().await?;
@@ -55,7 +75,7 @@ pub async fn process_image(
   bytes: &Bytes,
   url: &str,
   options: &PreviewOptions,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<ProcessImageOutput, Box<dyn std::error::Error>> {
   println!("Processing image: {}", url);
   let image_processing_time = Instant::now();
   let img = ImageReader::new(Cursor::new(bytes))
@@ -169,7 +189,11 @@ pub async fn process_image(
     image_processing_time.elapsed()
   );
 
-  Ok(base64_str)
+  Ok(ProcessImageOutput {
+    base64_str,
+    width: new_width,
+    height: new_height,
+  })
 }
 
 #[derive(PartialEq)]
