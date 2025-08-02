@@ -4,8 +4,7 @@ use fast_image_resize::{self as fir, images::Image};
 use image::{GrayImage, ImageBuffer, ImageEncoder, ImageReader, RgbImage, Rgba};
 use napi_derive::napi;
 use reqwest::Client;
-use std::fmt;
-use std::{collections::HashMap, io::Cursor, time::Instant};
+use std::{collections::HashMap, io::Cursor};
 
 use crate::transform::PreviewOptions;
 
@@ -19,16 +18,26 @@ pub enum PlaceholderImageOutputKind {
   Transparent,
 }
 
-impl fmt::Display for PlaceholderImageOutputKind {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    let s = match self {
-      PlaceholderImageOutputKind::Normal => "normal",
-      PlaceholderImageOutputKind::BlackAndWhite => "black_and_white",
-      PlaceholderImageOutputKind::DominantColor => "dominant_color",
-      PlaceholderImageOutputKind::AverageColor => "average_color",
-      PlaceholderImageOutputKind::Transparent => "transparent",
-    };
-    write!(f, "{}", s)
+impl PlaceholderImageOutputKind {
+  pub fn to_string(&self) -> String {
+    match self {
+      PlaceholderImageOutputKind::Normal => "normal".to_string(),
+      PlaceholderImageOutputKind::BlackAndWhite => "black-and-white".to_string(),
+      PlaceholderImageOutputKind::DominantColor => "dominant-color".to_string(),
+      PlaceholderImageOutputKind::AverageColor => "average-color".to_string(),
+      PlaceholderImageOutputKind::Transparent => "transparent".to_string(),
+    }
+  }
+
+  pub fn from_string(s: &str) -> PlaceholderImageOutputKind {
+    match s {
+      "normal" => PlaceholderImageOutputKind::Normal,
+      "black-and-white" => PlaceholderImageOutputKind::BlackAndWhite,
+      "dominant-color" => PlaceholderImageOutputKind::DominantColor,
+      "average-color" => PlaceholderImageOutputKind::AverageColor,
+      "transparent" => PlaceholderImageOutputKind::Transparent,
+      _ => PlaceholderImageOutputKind::Normal,
+    }
   }
 }
 
@@ -64,20 +73,15 @@ pub async fn download_and_process_image(
   url: &str,
   options: &PreviewOptions,
 ) -> Result<ProcessImageOutput, Box<dyn std::error::Error>> {
-  let download_time = Instant::now();
-  println!("Downloading image from: {}", url);
   let bytes = client.get(url).send().await?.bytes().await?;
-  println!("Image downloaded in: {:?} seconds", download_time.elapsed());
   process_image(&bytes, url, options).await
 }
 
 pub async fn process_image(
   bytes: &Bytes,
-  url: &str,
+  _url: &str,
   options: &PreviewOptions,
 ) -> Result<ProcessImageOutput, Box<dyn std::error::Error>> {
-  println!("Processing image: {}", url);
-  let image_processing_time = Instant::now();
   let img = ImageReader::new(Cursor::new(bytes))
     .with_guessed_format()?
     .decode()?;
@@ -161,7 +165,6 @@ pub async fn process_image(
   )?;
 
   let base64_str = {
-    println!("Encoding image to base64 {:?}", options.output_kind);
     match options.output_kind {
       PlaceholderImageOutputKind::Normal | PlaceholderImageOutputKind::BlackAndWhite => {
         format!(
@@ -183,11 +186,6 @@ pub async fn process_image(
       }
     }
   };
-
-  println!(
-    "Image processed in: {:?} seconds",
-    image_processing_time.elapsed()
-  );
 
   Ok(ProcessImageOutput {
     base64_str,
