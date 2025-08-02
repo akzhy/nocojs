@@ -55,13 +55,14 @@ pub struct TransformOutput {
   pub sourcemap: Option<String>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Data {
   #[allow(dead_code)]
   url: String,
   placeholder: String,
   cache: bool,
   preview_type: PlaceholderImageOutputKind,
+  cache_key: String,
 }
 
 impl Data {
@@ -70,18 +71,20 @@ impl Data {
     placeholder: String,
     preview_type: PlaceholderImageOutputKind,
     cache: bool,
+    cache_key: String,
   ) -> Self {
     Data {
       url,
       placeholder,
       cache,
       preview_type,
+      cache_key,
     }
   }
 }
 
 #[napi(object)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PreviewOptions {
   pub width: Option<u32>,
   pub height: Option<u32>,
@@ -128,7 +131,8 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
       "CREATE TABLE IF NOT EXISTS images (
           url     TEXT PRIMARY KEY,
           placeholder   TEXT NOT NULL,
-          preview_type TEXT DEFAULT 'normal'
+          preview_type TEXT DEFAULT 'normal',
+          cache_key TEXT NOT NULL
       )",
       [],
     )
@@ -225,9 +229,7 @@ impl<'a> TransformVisitor<'a> {
 
     self.pass = Pass::Second;
     if self.has_changes {
-      while let Some(result) = self.tasks.next().await {
-        println!("Task completed: {:?}", result);
-      }
+      while let Some(_) = self.tasks.next().await {}
 
       let _ = self.push_hashmap_to_db();
 
@@ -238,23 +240,25 @@ impl<'a> TransformVisitor<'a> {
   fn init_shared_data_from_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
     let mut stmt = self
       .rusqlite_conn
-      .prepare("SELECT url, placeholder, preview_type FROM images")?;
+      .prepare("SELECT url, placeholder, preview_type, cache_key FROM images")?;
 
     let rows = stmt.query_map([], |row| {
       Ok((
         row.get::<_, String>(0)?,
         row.get::<_, String>(1)?,
         row.get::<_, String>(2)?,
+        row.get::<_, String>(3)?,
       ))
     })?;
 
     let mut map = self.data.lock()?;
     for row in rows {
-      let (url, placeholder, preview_type_str) = row?;
+      println!("Found row in database: {:?}", row);
+      let (url, placeholder, preview_type_str, cache_key) = row?;
       let preview_type = self.get_placeholder_enum_value_from_string(&preview_type_str);
       map.insert(
         url.clone(),
-        Data::new(url.clone(), placeholder, preview_type, true),
+        Data::new(url.clone(), placeholder, preview_type, true, cache_key),
       );
     }
 
@@ -275,8 +279,8 @@ impl<'a> TransformVisitor<'a> {
         let url = string_value.value.to_string();
         self.has_changes = true;
 
-        let exists_in_cache =
-          { self.check_image_cache(url.clone(), preview_options.output_kind.clone())? };
+        println!("Preview options: {:?}", preview_options);
+        let exists_in_cache = { self.check_image_cache(url.clone(), &preview_options)? };
 
         if exists_in_cache {
           return Ok(());
@@ -294,11 +298,25 @@ impl<'a> TransformVisitor<'a> {
   fn check_image_cache(
     &self,
     url: String,
-    output_kind: PlaceholderImageOutputKind,
+    output_kind: &PreviewOptions,
   ) -> Result<bool, Box<dyn std::error::Error + '_>> {
     let map = &self.data.lock()?;
+    println!("Checking cache for URL: {}", url);
     let item = map.get(&url);
-    Ok(map.contains_key(&url) && item.unwrap().preview_type == output_kind)
+    if item.is_some() {
+      println!("Found item in cache for URL: {}", url);
+      let item = item.unwrap();
+      println!(
+        "Checking cache for URL: {} with existing cache key {} and compare cache key {}",
+        url,
+        item.cache_key,
+        create_cache_key(&output_kind)
+      );
+      if item.cache_key == create_cache_key(&output_kind) {
+        return Ok(true);
+      }
+    }
+    Ok(false)
   }
 
   fn get_placeholder_url_from_cache(
@@ -314,10 +332,13 @@ impl<'a> TransformVisitor<'a> {
   }
 
   fn push_hashmap_to_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
+    println!("Pushing data to database...");
     let data_vecc: Vec<(String, Data)> = {
       let map = self.data.lock()?;
       map.iter().map(|(k, v)| (k.clone(), v.clone())).collect()
     };
+
+    println!("Data to be inserted: {:?}", data_vecc);
 
     let prepared_data = data_vecc
       .iter()
@@ -327,6 +348,7 @@ impl<'a> TransformVisitor<'a> {
           data.placeholder.clone(),
           self.get_placeholder_string_value_from_enum(data.preview_type.clone()),
           data.cache,
+          data.cache_key.clone(),
         )
       })
       .collect::<Vec<_>>();
@@ -335,12 +357,12 @@ impl<'a> TransformVisitor<'a> {
 
     {
       let mut stmt = tx.prepare(
-        "INSERT OR REPLACE INTO images (url, placeholder, preview_type) VALUES (?, ?, ?)",
+        "INSERT OR REPLACE INTO images (url, placeholder, preview_type, cache_key) VALUES (?, ?, ?, ?)",
       )?;
 
-      for (url, placeholder, preview_type, cache) in prepared_data {
+      for (url, placeholder, preview_type, cache, cache_key) in prepared_data {
         if cache {
-          stmt.execute((url, placeholder, preview_type))?;
+          stmt.execute((url, placeholder, preview_type, cache_key))?;
         }
       }
     }
@@ -403,7 +425,7 @@ impl<'a> TransformVisitor<'a> {
                 if let Expression::NumericLiteral(numeric_literal) = &key_value.value {
                   preview_options.height = Some(numeric_literal.value as u32);
                 }
-              } else if key.name == "outputKind" {
+              } else if key.name == "placeholderImageKind" {
                 if let Expression::StringLiteral(string_literal) = &key_value.value {
                   preview_options.output_kind =
                     self.get_placeholder_enum_value_from_string(&string_literal.value.to_string());
@@ -449,11 +471,18 @@ impl<'a> TransformVisitor<'a> {
           let url_clone = url.clone();
           self.tasks.push(tokio::spawn(async move {
             match process_image(&bytes, &url_clone, &options).await {
-              Ok(image) => {
+              Ok(out) => {
                 let mut map = map_clone.lock().unwrap();
+                let cache_key = create_cache_key(&options);
                 map.insert(
                   url_clone.clone(),
-                  Data::new(url_clone.clone(), image, options.output_kind, options.cache),
+                  Data::new(
+                    url_clone.clone(),
+                    out.base64_str,
+                    options.output_kind,
+                    options.cache,
+                    cache_key,
+                  ),
                 );
               }
               Err(e) => eprintln!("❌ Failed to process {}: {}", url_clone, e),
@@ -473,9 +502,16 @@ impl<'a> TransformVisitor<'a> {
         match download_and_process_image(&client, &url, &options).await {
           Ok(image) => {
             let mut map = map_clone.lock().unwrap();
+            let cache_key = create_cache_key(&options);
             map.insert(
               url.clone(),
-              Data::new(url.clone(), image, options.output_kind, options.cache),
+              Data::new(
+                url.clone(),
+                image.base64_str,
+                options.output_kind,
+                options.cache,
+                cache_key,
+              ),
             );
           }
           Err(e) => eprintln!("❌ Failed to process {}: {}", url, e),
@@ -562,4 +598,13 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
 
     walk_mut::walk_expression(self, expr);
   }
+}
+
+fn create_cache_key(options: &PreviewOptions) -> String {
+  format!(
+    "{}_{}_{}",
+    options.output_kind.to_string(),
+    options.width.unwrap_or(0).to_string(),
+    options.height.unwrap_or(0).to_string()
+  )
 }
