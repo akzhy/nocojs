@@ -7,7 +7,7 @@ use oxc::{
   ast::{
     ast::{
       Argument, CallExpression, Expression, ImportDeclaration, ImportDeclarationSpecifier,
-      ObjectPropertyKind, Program, PropertyKey, SourceType, StringLiteral,
+      ModuleExportName, ObjectPropertyKind, Program, PropertyKey, SourceType, StringLiteral,
     },
     AstBuilder,
   },
@@ -31,9 +31,7 @@ use crate::{
   store::Store,
 };
 
-
 static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| Client::new());
-
 
 #[derive(PartialEq, Debug, Clone)]
 enum Pass {
@@ -90,7 +88,6 @@ impl PreviewOptions {
 static RUSQLITE_FILE_NAME: &str = "cache.db";
 
 pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
-
   if !options.code.contains(IMPORT_PATH) {
     return None;
   }
@@ -133,7 +130,7 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
   let semantic_builder = SemanticBuilder::new().build(&program);
 
   let scoping = semantic_builder.semantic.into_scoping();
-  
+
   let ast_builder = AstBuilder::new(&allocator);
   let util_import_symbols: Vec<SymbolId> = vec![];
 
@@ -156,7 +153,6 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
     store: Arc::clone(&store),
     has_changes,
   };
-
 
   visitor.begin(&mut program).await;
 
@@ -181,7 +177,7 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
     code: result_code,
     sourcemap: sourcemap,
   });
-  
+
   transform_result
 }
 
@@ -410,7 +406,7 @@ impl<'a> TransformVisitor<'a> {
       self.tasks.push(tokio::spawn(async move {
         match download_and_process_image(&client, &url, &options).await {
           Ok(image) => {
-            let _ =store.insert_or_update(url_clone, image.base64_str, &options);
+            let _ = store.insert_or_update(url_clone, image.base64_str, &options);
           }
           Err(e) => eprintln!("❌ Failed to process {}: {}", url, e),
         }
@@ -428,7 +424,15 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
         .iter()
         .for_each(|specifier| {
           if let ImportDeclarationSpecifier::ImportSpecifier(import_specifier) = specifier {
-            if import_specifier.local.name == "preview" {
+            if let ModuleExportName::IdentifierName(identifier_name) = &import_specifier.imported {
+              if identifier_name.name == "preview" {
+                if self.pass == Pass::First {
+                  self
+                    .util_import_symbols
+                    .push(import_specifier.local.symbol_id());
+                }
+              }
+            } else if import_specifier.local.name == "preview" {
               self
                 .util_import_symbols
                 .push(import_specifier.local.symbol_id());
