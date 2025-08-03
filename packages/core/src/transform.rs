@@ -22,11 +22,13 @@ use std::{
   collections::HashMap,
   path::PathBuf,
   sync::{Arc, Mutex},
+  time::Instant,
 };
 use tokio::task::JoinHandle;
 use url::Url;
 
 use crate::{
+  log::{self, create_log, set_log_level, LogLevel},
   placeholder_image::{download_and_process_image, process_image, PlaceholderImageOutputKind},
   store::Store,
 };
@@ -49,6 +51,7 @@ pub struct TransformOptions {
   pub cache: Option<bool>,
   pub public_dir: Option<String>,
   pub cache_file_dir: Option<String>,
+  pub log_level: Option<LogLevel>,
 }
 
 #[napi(object)]
@@ -89,9 +92,13 @@ pub async fn transform(
   code: String,
   file_path: String,
   options: TransformOptions,
-) -> Option<TransformOutput> {
+) -> Result<Option<TransformOutput>, Box<dyn std::error::Error>> {
   if !code.contains(IMPORT_PATH) {
-    return None;
+    return Ok(None);
+  }
+
+  if options.log_level.is_some() {
+    set_log_level(options.log_level.unwrap());
   }
 
   let cache_dir = init_cache_dir(
@@ -105,20 +112,25 @@ pub async fn transform(
   let db_filepath = PathBuf::from(&cache_dir).join(RUSQLITE_FILE_NAME);
   let conn = Connection::open(&db_filepath).unwrap();
   // Create a table
-  conn
-    .execute(
-      "CREATE TABLE IF NOT EXISTS images (
+  let create_table = conn.execute(
+    "CREATE TABLE IF NOT EXISTS images (
           url     TEXT PRIMARY KEY,
           placeholder   TEXT NOT NULL,
           preview_type TEXT DEFAULT 'normal',
           cache_key TEXT NOT NULL
       )",
-      [],
-    )
-    .unwrap();
+    [],
+  );
+
+  if create_table.is_err() {
+    create_log(
+      log::style_error("Failed to create sqlite database. Persistend caching won't work"),
+      LogLevel::Info,
+    );
+  }
 
   let allocator = Allocator::default();
-  let source_type = SourceType::from_path(&file_path).unwrap();
+  let source_type = SourceType::from_path(&file_path)?;
 
   let mut sourcemap_file_path = file_path.clone();
   sourcemap_file_path.push_str(".map");
@@ -150,6 +162,7 @@ pub async fn transform(
     options: options.clone(),
     store: Arc::clone(&store),
     has_changes,
+    file_path: file_path.clone(),
   };
 
   visitor.begin(&mut program).await;
@@ -176,13 +189,21 @@ pub async fn transform(
     sourcemap: sourcemap,
   });
 
-  transform_result
+  Ok(transform_result)
 }
 
 fn init_cache_dir(dirname: &str) -> Result<String, Box<dyn std::error::Error>> {
   let path = PathBuf::from(dirname);
   if !path.exists() {
-    std::fs::create_dir_all(&path)?;
+    let create = std::fs::create_dir_all(&path);
+
+    if create.is_err() {
+      create_log(
+        log::style_error(&format!("Failed to create cache directory: {}", dirname)),
+        LogLevel::Info,
+      );
+      return Err(Box::new(create.unwrap_err()));
+    }
   }
 
   Ok(dirname.to_string())
@@ -199,6 +220,7 @@ struct TransformVisitor<'a> {
   options: TransformOptions,
   has_changes: bool,
   store: Arc<Store>,
+  file_path: String,
 }
 
 impl<'a> TransformVisitor<'a> {
@@ -214,6 +236,8 @@ impl<'a> TransformVisitor<'a> {
   async fn begin(&mut self, program: &mut Program<'a>) {
     let _ = self.set_store_data_from_db();
 
+    let instant = Instant::now();
+
     self.visit_program(program);
 
     self.pass = Pass::Second;
@@ -224,6 +248,15 @@ impl<'a> TransformVisitor<'a> {
       let _ = self.push_store_data_to_db();
 
       self.visit_program(program);
+
+      create_log(
+        log::style_info(format!(
+          "Finished processing file {} in {:?}",
+          self.file_path,
+          instant.elapsed()
+        )),
+        LogLevel::Verbose,
+      );
     }
   }
 
@@ -283,12 +316,20 @@ impl<'a> TransformVisitor<'a> {
         let exists_in_cache = { self.store.has_cached_image(url.clone(), &preview_options)? };
 
         if exists_in_cache {
+          create_log(
+            log::style_info(format!("Cache hit for {}", url)),
+            LogLevel::Info,
+          );
           return Ok(());
         }
 
         self.spawn_image_resize(url, preview_options);
       }
     } else {
+      create_log(
+        log::style_error("No image URL provided in the function call"),
+        LogLevel::Info,
+      );
       return Err("No image URL provided in the function call".into());
     }
 
