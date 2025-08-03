@@ -1,5 +1,6 @@
 #![deny(clippy::all)]
 
+pub mod log;
 pub mod placeholder_image;
 pub mod store;
 pub mod transform;
@@ -19,7 +20,7 @@ pub async fn transform(
 ) -> Option<TransformOutput> {
   let instant = Instant::now();
   let out = transform::transform(
-    code,
+    code.clone(),
     file_path,
     transform::TransformOptions {
       placeholder_type: options.placeholder_type,
@@ -27,9 +28,14 @@ pub async fn transform(
       cache: options.cache,
       public_dir: options.public_dir,
       cache_file_dir: options.cache_file_dir,
+      log_level: options.log_level,
     },
   )
   .await;
   println!("Transformation took {:?}", instant.elapsed());
-  out
+
+  out.unwrap_or(Some(TransformOutput {
+    code: code,
+    sourcemap: None,
+  }))
 }
