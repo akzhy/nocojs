@@ -18,35 +18,33 @@ export interface PreviewOptions {
 }
 
 export interface TransformOptions extends PreviewOptions {
-  code: string;
-  fileName: string;
   publicDir?: string;
   cacheFileDir?: string;
 }
 
 export const transform = async (
-  options: TransformOptions,
+  code: string,
+  filePath: string,
+  options?: TransformOptions,
 ): Promise<{
   code: string;
   map: string | null;
 }> => {
   try {
-    const result = await rustTransform({
-      code: options.code,
-      filePath: options.fileName,
-      placeholderType: options.placeholderType
+    const result = await rustTransform(code, filePath, {
+      placeholderType: options?.placeholderType
         ? placeholderTypeToEnum[options.placeholderType]
         : PlaceholderImageOutputKind.Normal,
-      replaceFunctionCall: options.replaceFunctionCall ?? true,
-      cache: options.cache ?? true,
-      publicDir: options.publicDir ?? path.join(process.cwd(), 'public'),
-      cacheFileDir: options.cacheFileDir ?? path.join(process.cwd(), '.nocojs'),
+      replaceFunctionCall: options?.replaceFunctionCall ?? true,
+      cache: options?.cache ?? true,
+      publicDir: options?.publicDir ?? path.join(process.cwd(), 'public'),
+      cacheFileDir: options?.cacheFileDir ?? path.join(process.cwd(), '.nocojs'),
     });
 
     if (!result) {
-      console.log(`No result returned for ${options.fileName}. Returning original code.`);
+      console.log(`No result returned for ${filePath}. Returning original code.`);
       return {
-        code: options.code,
+        code,
         map: null,
       };
     }
@@ -58,7 +56,7 @@ export const transform = async (
   } catch (error) {
     console.error('Error during transformation:', error);
     return {
-      code: options.code,
+      code,
       map: null,
     };
   }
