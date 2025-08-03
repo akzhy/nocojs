@@ -42,10 +42,8 @@ enum Pass {
 const IMPORT_PATH: &str = "nocojs";
 
 #[napi(object)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct TransformOptions {
-  pub code: String,
-  pub file_path: String,
   pub placeholder_type: Option<PlaceholderImageOutputKind>,
   pub replace_function_call: Option<bool>,
   pub cache: Option<bool>,
@@ -87,8 +85,12 @@ impl PreviewOptions {
 
 static RUSQLITE_FILE_NAME: &str = "cache.db";
 
-pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
-  if !options.code.contains(IMPORT_PATH) {
+pub async fn transform(
+  code: String,
+  file_path: String,
+  options: TransformOptions,
+) -> Option<TransformOutput> {
+  if !code.contains(IMPORT_PATH) {
     return None;
   }
 
@@ -116,13 +118,12 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
     .unwrap();
 
   let allocator = Allocator::default();
-  let source_type = SourceType::from_path(&options.file_path).unwrap();
+  let source_type = SourceType::from_path(&file_path).unwrap();
 
-  let mut sourcemap_file_path = options.file_path.clone();
+  let mut sourcemap_file_path = file_path.clone();
   sourcemap_file_path.push_str(".map");
 
-  let ParserReturn { mut program, .. } =
-    Parser::new(&allocator, &options.code, source_type).parse();
+  let ParserReturn { mut program, .. } = Parser::new(&allocator, &code, source_type).parse();
 
   let semantic_builder = SemanticBuilder::new().build(&program);
 
@@ -348,7 +349,6 @@ impl<'a> TransformVisitor<'a> {
   /// Extracts the preview options from the function call arguments.
   fn get_preview_options_from_argument(&self, arg: &Option<&Argument<'a>>) -> PreviewOptions {
     let mut preview_options = PreviewOptions::from_global_options(&self.options);
-
     if arg.is_none() {
       return preview_options;
     }
@@ -356,29 +356,40 @@ impl<'a> TransformVisitor<'a> {
     if let Expression::ObjectExpression(object_expr) = user_options_arg.as_expression().unwrap() {
       object_expr.properties.iter().for_each(|prop| {
         if let ObjectPropertyKind::ObjectProperty(key_value) = prop {
-          if let PropertyKey::StaticIdentifier(key) = &key_value.key {
-            if key.name == "width" {
+          let key_str = match &key_value.key {
+            PropertyKey::StringLiteral(key) => key.value.as_str(),
+            PropertyKey::StaticIdentifier(key) => key.name.as_str(),
+            _ => return,
+          };
+
+          match key_str {
+            "width" => {
               if let Expression::NumericLiteral(numeric_literal) = &key_value.value {
                 preview_options.width = Some(numeric_literal.value as u32);
               }
-            } else if key.name == "height" {
+            }
+            "height" => {
               if let Expression::NumericLiteral(numeric_literal) = &key_value.value {
                 preview_options.height = Some(numeric_literal.value as u32);
               }
-            } else if key.name == "placeholderType" {
+            }
+            "placeholderType" => {
               if let Expression::StringLiteral(string_literal) = &key_value.value {
                 preview_options.output_kind =
                   PlaceholderImageOutputKind::from_string(&string_literal.value.to_string());
               }
-            } else if key.name == "replaceFunctionCall" {
+            }
+            "replaceFunctionCall" => {
               if let Expression::BooleanLiteral(boolean_literal) = &key_value.value {
                 preview_options.replace_function_call = boolean_literal.value;
               }
-            } else if key.name == "cache" {
+            }
+            "cache" => {
               if let Expression::BooleanLiteral(boolean_literal) = &key_value.value {
                 preview_options.cache = boolean_literal.value;
               }
             }
+            _ => {}
           }
         }
       });
@@ -495,7 +506,7 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
     let Some(callee_symbol_id) = callee_ref.symbol_id() else {
       return walk_mut::walk_expression(self, expr);
     };
-    
+
     // Check if the function was imported from "nocojs"
     if !self.util_import_symbols.contains(&callee_symbol_id) {
       return walk_mut::walk_expression(self, expr);
@@ -509,7 +520,6 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
     // ----
     // Second pass logic
     // ----
-
 
     // If the image was valid, it should have been processed in the first pass and stored in the store.
     let Ok((url, options)) = self.get_image_result_from_fn_call(call) else {
@@ -532,7 +542,7 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
       let Some(first_arg) = call.arguments.first_mut().unwrap().as_expression_mut() else {
         return walk_mut::walk_expression(self, expr);
       };
-      
+
       if let Expression::StringLiteral(string_value) = first_arg {
         let atom = self.ast_builder.atom(self.allocator.alloc_str(&url));
         string_value.value = atom;
