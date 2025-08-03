@@ -47,9 +47,11 @@ impl Store {
 
   pub fn has_changes(&self) -> Result<bool, Box<dyn std::error::Error + '_>> {
     let map = self.data.lock()?;
-    Ok(map.iter().any(|(_, item)| {
-      item.db_action == DbAction::Insert || item.db_action == DbAction::Update
-    }))
+    Ok(
+      map
+        .iter()
+        .any(|(_, item)| item.db_action == DbAction::Insert || item.db_action == DbAction::Update),
+    )
   }
 
   pub fn create_item_from_row(
