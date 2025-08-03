@@ -46,7 +46,7 @@ const IMPORT_PATH: &str = "nocojs";
 pub struct TransformOptions {
   pub code: String,
   pub file_path: String,
-  pub placeholder_image_kind: Option<PlaceholderImageOutputKind>,
+  pub placeholder_type: Option<PlaceholderImageOutputKind>,
   pub replace_function_call: Option<bool>,
   pub cache: Option<bool>,
   pub public_dir: Option<String>,
@@ -75,7 +75,7 @@ impl PreviewOptions {
       width: None,
       height: None,
       output_kind: options
-        .placeholder_image_kind
+        .placeholder_type
         .clone()
         .unwrap_or(PlaceholderImageOutputKind::Normal),
       replace_function_call: options.replace_function_call.unwrap_or(true),
@@ -89,10 +89,6 @@ static RUSQLITE_FILE_NAME: &str = "cache.db";
 
 pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
   if !options.code.contains(IMPORT_PATH) {
-    return None;
-  }
-
-  if !options.file_path.ends_with(".tsx") {
     return None;
   }
 
@@ -122,7 +118,8 @@ pub async fn transform(options: TransformOptions) -> Option<TransformOutput> {
   let allocator = Allocator::default();
   let source_type = SourceType::from_path(&options.file_path).unwrap();
 
-  let sourcemap_file_path = options.file_path.clone().replace(".tsx", ".tsx.map");
+  let mut sourcemap_file_path = options.file_path.clone();
+  sourcemap_file_path.push_str(".map");
 
   let ParserReturn { mut program, .. } =
     Parser::new(&allocator, &options.code, source_type).parse();
@@ -204,22 +201,35 @@ struct TransformVisitor<'a> {
 }
 
 impl<'a> TransformVisitor<'a> {
+  ///
+  /// Begins the transformation. It first initializes the store from the database,
+  /// Then attemps a two-pass transformation.
+  /// The first pass identifies function calls that need to be replaced with placeholder images.
+  /// It then spawns tasks to process images asynchronously.
+  ///
+  /// If there are changes, it first pushes the new data to the db and begins the second pass,
+  /// which replaces the function calls with the processed image URLs.
+  ///
   async fn begin(&mut self, program: &mut Program<'a>) {
-    let _ = self.init_shared_data_from_db();
+    let _ = self.set_store_data_from_db();
 
     self.visit_program(program);
 
     self.pass = Pass::Second;
+
     if self.has_changes {
       while let Some(_) = self.tasks.next().await {}
 
-      let _ = self.push_hashmap_to_db();
+      let _ = self.push_store_data_to_db();
 
       self.visit_program(program);
     }
   }
 
-  fn init_shared_data_from_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
+  /// Reads the existing data from the database and populates the store.
+  /// This is called at the beginning of the transformation to ensure that any existing cached images
+  /// are available for the transformation process.
+  fn set_store_data_from_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
     let mut stmt = self
       .rusqlite_conn
       .prepare("SELECT url, placeholder, preview_type, cache_key FROM images")?;
@@ -249,6 +259,12 @@ impl<'a> TransformVisitor<'a> {
     Ok(())
   }
 
+  /// Function used to process "preview" function calls.
+  /// This will be called during the first pass of the transformation.
+  /// It extracts the image URL and an optional options from the function call arguments.
+  /// If the image URL / path is valid, it checks the cache for existing processed images.
+  /// If the image is not in the cache, it spawns a task to process the image asynchronously.
+  /// If the image is already in the cache, it does nothing.
   fn prepare_image_from_fn_call(
     &mut self,
     call: &mut OxcBox<'a, CallExpression<'a>>,
@@ -278,15 +294,17 @@ impl<'a> TransformVisitor<'a> {
     return Ok(());
   }
 
-  fn push_hashmap_to_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
+  /// Pushes the current state of the store to the database.
+  /// It prepares the data for insertion and/or update based on the current state of the store.
+  /// Function called after both passes of the transformation.
+  fn push_store_data_to_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
     if !self.store.has_changes()? {
       return Ok(());
     }
 
     let (to_insert, to_update) = self.store.get_prepared_data()?;
 
-    let tx = self.rusqlite_conn.transaction()?; // BEGIN TRANSACTION
-
+    let tx = self.rusqlite_conn.transaction()?;
     {
       let mut insert_query = tx.prepare(
         "INSERT INTO images (url, placeholder, preview_type, cache_key) VALUES (?, ?, ?, ?)",
@@ -309,6 +327,8 @@ impl<'a> TransformVisitor<'a> {
     Ok(())
   }
 
+  /// Function called during the second pass of the transformation.
+  /// It retrieves the processed image URL from the store based on the function call.
   fn get_image_result_from_fn_call(
     &mut self,
     call: &mut OxcBox<'a, CallExpression<'a>>,
@@ -325,48 +345,59 @@ impl<'a> TransformVisitor<'a> {
     Err("No image URL provided in the function call".into())
   }
 
+  /// Extracts the preview options from the function call arguments.
   fn get_preview_options_from_argument(&self, arg: &Option<&Argument<'a>>) -> PreviewOptions {
     let mut preview_options = PreviewOptions::from_global_options(&self.options);
 
-    if let Some(user_options_arg) = arg {
-      if let Expression::ObjectExpression(object_expr) = user_options_arg.as_expression().unwrap() {
-        object_expr.properties.iter().for_each(|prop| {
-          if let ObjectPropertyKind::ObjectProperty(key_value) = prop {
-            if let PropertyKey::StaticIdentifier(key) = &key_value.key {
-              if key.name == "width" {
-                if let Expression::NumericLiteral(numeric_literal) = &key_value.value {
-                  preview_options.width = Some(numeric_literal.value as u32);
-                }
-              } else if key.name == "height" {
-                if let Expression::NumericLiteral(numeric_literal) = &key_value.value {
-                  preview_options.height = Some(numeric_literal.value as u32);
-                }
-              } else if key.name == "placeholderImageKind" {
-                if let Expression::StringLiteral(string_literal) = &key_value.value {
-                  preview_options.output_kind =
-                    PlaceholderImageOutputKind::from_string(&string_literal.value.to_string());
-                }
-              } else if key.name == "replaceFunctionCall" {
-                if let Expression::BooleanLiteral(boolean_literal) = &key_value.value {
-                  preview_options.replace_function_call = boolean_literal.value;
-                }
-              } else if key.name == "cache" {
-                if let Expression::BooleanLiteral(boolean_literal) = &key_value.value {
-                  preview_options.cache = boolean_literal.value;
-                }
+    if arg.is_none() {
+      return preview_options;
+    }
+    let user_options_arg = arg.unwrap();
+    if let Expression::ObjectExpression(object_expr) = user_options_arg.as_expression().unwrap() {
+      object_expr.properties.iter().for_each(|prop| {
+        if let ObjectPropertyKind::ObjectProperty(key_value) = prop {
+          if let PropertyKey::StaticIdentifier(key) = &key_value.key {
+            if key.name == "width" {
+              if let Expression::NumericLiteral(numeric_literal) = &key_value.value {
+                preview_options.width = Some(numeric_literal.value as u32);
+              }
+            } else if key.name == "height" {
+              if let Expression::NumericLiteral(numeric_literal) = &key_value.value {
+                preview_options.height = Some(numeric_literal.value as u32);
+              }
+            } else if key.name == "placeholderType" {
+              if let Expression::StringLiteral(string_literal) = &key_value.value {
+                preview_options.output_kind =
+                  PlaceholderImageOutputKind::from_string(&string_literal.value.to_string());
+              }
+            } else if key.name == "replaceFunctionCall" {
+              if let Expression::BooleanLiteral(boolean_literal) = &key_value.value {
+                preview_options.replace_function_call = boolean_literal.value;
+              }
+            } else if key.name == "cache" {
+              if let Expression::BooleanLiteral(boolean_literal) = &key_value.value {
+                preview_options.cache = boolean_literal.value;
               }
             }
           }
-        });
-      }
+        }
+      });
     }
+
     preview_options
   }
 
+  /// Spawns a task to process the image asynchronously.
+  /// This function is called during the first pass of the transformation.
+  /// If the URL is an actual URL, it downloads the image and processes it.
+  /// If the URL is a relative path, it reads the image from the public directory.
+  /// The processed image output is then inserted or updated in the store.
   fn spawn_image_resize(&self, url: String, options: PreviewOptions) {
     let url_parse = Url::parse(&url);
 
     if url_parse.is_err() {
+      // Assumes the URL is a relative path to an image in the public directory
+
       let public_dir = self.options.public_dir.clone();
       if let Some(public_dir) = public_dir {
         let relative_url = url.strip_prefix("/").unwrap_or(&url);
@@ -416,6 +447,8 @@ impl<'a> TransformVisitor<'a> {
 }
 
 impl<'a> VisitMut<'a> for TransformVisitor<'a> {
+  /// Find all import declarations that import the "preview" function from "nocojs".
+  /// It identifies the import specifiers and stores their symbol IDs tp compare against preview function calls.
   fn visit_import_declaration(&mut self, it: &mut ImportDeclaration<'a>) {
     if it.source.value == IMPORT_PATH {
       it.specifiers
@@ -424,6 +457,8 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
         .iter()
         .for_each(|specifier| {
           if let ImportDeclarationSpecifier::ImportSpecifier(import_specifier) = specifier {
+            // Handle renamed imports
+            // Eg: import { preview as previewFn } from 'nocojs';
             if let ModuleExportName::IdentifierName(identifier_name) = &import_specifier.imported {
               if identifier_name.name == "preview" {
                 if self.pass == Pass::First {
@@ -443,58 +478,64 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
     walk_mut::walk_import_declaration(self, it);
   }
 
+  /// Handle function calls.
+  /// Though visit_call_expression can be used, I don't think its possible to remove the function call
+  /// and replace it with a string literal from within that function.
+  /// So we use visit_expression to handle the function calls.
   fn visit_expression(&mut self, expr: &mut Expression<'a>) {
-    if let Expression::CallExpression(call) = expr {
-      let mut replace = false;
-      let mut placeholder_image_url: Option<String> = None;
+    let Expression::CallExpression(call) = expr else {
+      return walk_mut::walk_expression(self, expr);
+    };
 
-      if let Expression::Identifier(identifier_calle) = &call.callee {
-        let callee_ref = self.scoping.get_reference(identifier_calle.reference_id());
-        let callee_symbol_id = callee_ref.symbol_id();
-        if let Some(callee_symbol_id) = callee_symbol_id {
-          if self.util_import_symbols.contains(&callee_symbol_id) {
-            if self.pass == Pass::First {
-              let _ = self.prepare_image_from_fn_call(call);
-            } else {
-              let check = self.get_image_result_from_fn_call(call);
-              if check.is_ok() {
-                let (url, options) = check.unwrap();
-                placeholder_image_url = Some(url);
-                if options.replace_function_call {
-                  replace = true;
-                } else {
-                  let first_arg = call.arguments.first_mut().unwrap().as_expression_mut();
+    let Expression::Identifier(identifier_calle) = &call.callee else {
+      return walk_mut::walk_expression(self, expr);
+    };
 
-                  if let Some(Expression::StringLiteral(string_value)) = first_arg {
-                    let atom = self.ast_builder.atom(
-                      self
-                        .allocator
-                        .alloc_str(placeholder_image_url.as_ref().unwrap().as_str()),
-                    );
+    let callee_ref = self.scoping.get_reference(identifier_calle.reference_id());
+    let Some(callee_symbol_id) = callee_ref.symbol_id() else {
+      return walk_mut::walk_expression(self, expr);
+    };
+    
+    // Check if the function was imported from "nocojs"
+    if !self.util_import_symbols.contains(&callee_symbol_id) {
+      return walk_mut::walk_expression(self, expr);
+    }
 
-                    string_value.value = atom;
-                  }
-                }
-              } else {
-                eprintln!("Image not found in cache or database");
-              }
-            }
-          }
-        }
-      }
+    if self.pass == Pass::First {
+      let _ = self.prepare_image_from_fn_call(call);
+      return walk_mut::walk_expression(self, expr);
+    }
 
-      if replace && placeholder_image_url.is_some() {
-        let atom = self
-          .ast_builder
-          .atom(self.allocator.alloc_str(&placeholder_image_url.unwrap()));
-        let lit = StringLiteral {
-          value: atom,
-          raw: None,
-          span: call.span,
-          lone_surrogates: false,
-        };
+    // ----
+    // Second pass logic
+    // ----
 
-        *expr = Expression::StringLiteral(OxcBox::new_in(lit, self.allocator));
+
+    // If the image was valid, it should have been processed in the first pass and stored in the store.
+    let Ok((url, options)) = self.get_image_result_from_fn_call(call) else {
+      eprintln!("Image not found in cache or database");
+      return walk_mut::walk_expression(self, expr);
+    };
+
+    if options.replace_function_call {
+      // Replace entire function call with string literal
+      let atom = self.ast_builder.atom(self.allocator.alloc_str(&url));
+      let lit = StringLiteral {
+        value: atom,
+        raw: None,
+        span: call.span,
+        lone_surrogates: false,
+      };
+      *expr = Expression::StringLiteral(OxcBox::new_in(lit, self.allocator));
+    } else {
+      // Replace only the first argument
+      let Some(first_arg) = call.arguments.first_mut().unwrap().as_expression_mut() else {
+        return walk_mut::walk_expression(self, expr);
+      };
+      
+      if let Expression::StringLiteral(string_value) = first_arg {
+        let atom = self.ast_builder.atom(self.allocator.alloc_str(&url));
+        string_value.value = atom;
       }
     }
 
