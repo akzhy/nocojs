@@ -7,8 +7,9 @@ use std::fmt::Display;
 #[derive(Debug, Clone, Copy)]
 pub enum LogLevel {
   None = 0,
-  Info = 1,
-  Verbose = 2,
+  Error = 1,
+  Info = 2,
+  Verbose = 3,
 }
 
 static LOG_LEVEL: AtomicU8 = AtomicU8::new(LogLevel::Info as u8);
