@@ -34,6 +34,7 @@ impl Store {
     }
   }
 
+  /// Used to initialize the store with existing data.
   pub fn bulk_insert(
     &self,
     items: Vec<StoreDataItem>,
