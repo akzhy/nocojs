@@ -4,9 +4,12 @@ use fast_image_resize::{self as fir, images::Image};
 use image::{GrayImage, ImageBuffer, ImageEncoder, ImageReader, RgbImage, Rgba};
 use napi_derive::napi;
 use reqwest::Client;
-use std::{collections::HashMap, io::Cursor};
+use std::{collections::HashMap, io::Cursor, time::Instant};
 
-use crate::transform::PreviewOptions;
+use crate::{
+  log::{create_log, style_info, LogLevel},
+  transform::PreviewOptions,
+};
 
 #[napi]
 #[derive(Debug, Clone, PartialEq)]
@@ -68,20 +71,38 @@ impl DynamicImageWrapper {
   }
 }
 
+/// Downloads an image from the given URL and processes it according to the specified options.
 pub async fn download_and_process_image(
   client: &Client,
   url: &str,
   options: &PreviewOptions,
 ) -> Result<ProcessImageOutput, Box<dyn std::error::Error>> {
+  let download_time = Instant::now();
+  create_log(
+    style_info(format!("Downloading image from {}", url)),
+    LogLevel::Info,
+  );
+
   let bytes = client.get(url).send().await?.bytes().await?;
+  let elapsed = download_time.elapsed();
+
+  create_log(
+    style_info(format!("Downloaded image {} in {:?}", url, elapsed)),
+    LogLevel::Info,
+  );
+
   process_image(&bytes, url, options).await
 }
 
+/// Processes the image bytes and returns a base64 encoded string of the processed image.
+/// The processing includes resizing, converting to the specified output kind,
+/// and encoding as PNG.
 pub async fn process_image(
   bytes: &Bytes,
-  _url: &str,
+  url: &str,
   options: &PreviewOptions,
 ) -> Result<ProcessImageOutput, Box<dyn std::error::Error>> {
+  let process_time = Instant::now();
   let img = ImageReader::new(Cursor::new(bytes))
     .with_guessed_format()?
     .decode()?;
@@ -187,6 +208,12 @@ pub async fn process_image(
     }
   };
 
+  let elapsed = process_time.elapsed();
+  create_log(
+    style_info(format!("Processed image {} in {:?}", url, elapsed)),
+    LogLevel::Info,
+  );
+
   Ok(ProcessImageOutput {
     base64_str,
     width: new_width,
@@ -249,7 +276,6 @@ fn create_base64_rectangle(
   height: u32,
   color: (u8, u8, u8, u8),
 ) -> Result<String, Box<dyn std::error::Error>> {
-  // Parse color like "#FF0000" or "FF0000"
   let (r, g, b, a) = color;
 
   // Create the image buffer filled with the color
@@ -260,7 +286,6 @@ fn create_base64_rectangle(
   let mut buffer = Cursor::new(Vec::new());
   img.write_to(&mut buffer, image::ImageFormat::Png)?;
 
-  // Encode to base64
   let base64_string = general_purpose::STANDARD.encode(buffer.get_ref());
   Ok(format!("data:image/png;base64,{}", base64_string))
 }
