@@ -22,18 +22,23 @@ use std::{
   collections::HashMap,
   path::PathBuf,
   sync::{Arc, Mutex},
-  time::Instant,
+  time::{Duration, Instant},
 };
 use tokio::task::JoinHandle;
 use url::Url;
 
 use crate::{
-  log::{self, create_log, set_log_level, LogLevel},
+  log::{self, create_log, set_log_level, style_error, LogLevel},
   placeholder_image::{download_and_process_image, process_image, PlaceholderImageOutputKind},
   store::Store,
 };
 
-static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| Client::new());
+static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| {
+  Client::builder()
+    .timeout(Duration::from_secs(10))
+    .build()
+    .unwrap()
+});
 
 #[derive(PartialEq, Debug, Clone)]
 enum Pass {
@@ -125,7 +130,7 @@ pub async fn transform(
   if create_table.is_err() {
     create_log(
       log::style_error("Failed to create sqlite database. Persistend caching won't work"),
-      LogLevel::Info,
+      LogLevel::Error,
     );
   }
 
@@ -200,7 +205,7 @@ fn init_cache_dir(dirname: &str) -> Result<String, Box<dyn std::error::Error>> {
     if create.is_err() {
       create_log(
         log::style_error(&format!("Failed to create cache directory: {}", dirname)),
-        LogLevel::Info,
+        LogLevel::Error,
       );
       return Err(Box::new(create.unwrap_err()));
     }
@@ -288,6 +293,16 @@ impl<'a> TransformVisitor<'a> {
       ))?);
     }
 
+    if to_insert.len() > 0 {
+      create_log(
+        log::style_info(format!(
+          "Loaded {} cached images from the database",
+          to_insert.len()
+        )),
+        LogLevel::Verbose,
+      );
+    }
+
     self.store.bulk_insert(to_insert)?;
 
     Ok(())
@@ -318,7 +333,7 @@ impl<'a> TransformVisitor<'a> {
         if exists_in_cache {
           create_log(
             log::style_info(format!("Cache hit for {}", url)),
-            LogLevel::Info,
+            LogLevel::Verbose,
           );
           return Ok(());
         }
@@ -327,8 +342,11 @@ impl<'a> TransformVisitor<'a> {
       }
     } else {
       create_log(
-        log::style_error("No image URL provided in the function call"),
-        LogLevel::Info,
+        log::style_error(format!(
+          "No image URL provided in the function call. File: {}:{}",
+          self.file_path, call.span.start
+        )),
+        LogLevel::Error,
       );
       return Err("No image URL provided in the function call".into());
     }
@@ -352,6 +370,16 @@ impl<'a> TransformVisitor<'a> {
         "INSERT INTO images (url, placeholder, preview_type, cache_key) VALUES (?, ?, ?, ?)",
       )?;
 
+      if !to_insert.is_empty() {
+        create_log(
+          log::style_info(format!(
+            "Inserting {} new images into the database",
+            to_insert.len()
+          )),
+          LogLevel::Verbose,
+        );
+      }
+
       for (url, placeholder, preview_type, cache_key) in to_insert {
         insert_query.execute((url, placeholder, preview_type, cache_key))?;
       }
@@ -359,6 +387,16 @@ impl<'a> TransformVisitor<'a> {
       let mut update_query = tx.prepare(
         "UPDATE images SET placeholder = ?, preview_type = ?, cache_key = ? WHERE url = ?",
       )?;
+
+      if !to_update.is_empty() {
+        create_log(
+          log::style_info(format!(
+            "Updating {} existing images in the database",
+            to_update.len()
+          )),
+          LogLevel::Verbose,
+        );
+      }
 
       for (url, placeholder, preview_type, cache_key) in to_update {
         update_query.execute((placeholder, preview_type, cache_key, url))?;
@@ -384,6 +422,13 @@ impl<'a> TransformVisitor<'a> {
         return Ok((placeholder_image_url.to_string(), options));
       }
     }
+    create_log(
+      log::style_error(format!(
+        "No image URL provided in the function call. File {}:{}",
+        self.file_path, call.span.start
+      )),
+      LogLevel::Error,
+    );
     Err("No image URL provided in the function call".into())
   }
 
@@ -458,40 +503,67 @@ impl<'a> TransformVisitor<'a> {
         if image_path.exists() {
           let file_read = std::fs::read(&image_path.as_path());
           if file_read.is_err() {
-            eprintln!(
-              "❌ Failed to read image from public directory: {:?} {:?}",
-              image_path, public_dir
+            create_log(
+              style_error(format!(
+                "Failed to read image from public directory: {:?} {:?}. File {}",
+                image_path, public_dir, self.file_path
+              )),
+              LogLevel::Error,
             );
             return;
           }
           let bytes = Bytes::from(file_read.unwrap());
           let url_clone = url.clone();
           let store = Arc::clone(&self.store);
+          let file_path_clone = self.file_path.clone();
+
           self.tasks.push(tokio::spawn(async move {
             match process_image(&bytes, &url_clone, &options).await {
               Ok(out) => {
                 let _ = store.insert_or_update(url_clone, out.base64_str, &options);
               }
-              Err(e) => eprintln!("❌ Failed to process {}: {}", url_clone, e),
+              Err(e) => create_log(
+                format!(
+                  "Failed to process image {} in {}. Error: {}",
+                  url_clone, file_path_clone, e
+                ),
+                LogLevel::Error,
+              ),
             }
           }));
         } else {
-          eprintln!("❌ Image not found in public directory: {:?}", image_path);
+          create_log(
+            format!(
+              "Image not found in public directory: {:?}. Image used in file: {}",
+              image_path, self.file_path
+            ),
+            LogLevel::Error,
+          );
         }
       } else {
-        eprintln!("❌ Invalid URL: {}", url);
+        create_log(
+          format!("Invalid public dir. Processing image at {}", self.file_path),
+          LogLevel::Error,
+        );
       }
     } else {
       let client = &*HTTP_CLIENT;
       let url_clone = url.clone();
       let store = Arc::clone(&self.store);
+      let file_path_clone = self.file_path.clone();
 
       self.tasks.push(tokio::spawn(async move {
         match download_and_process_image(&client, &url, &options).await {
           Ok(image) => {
             let _ = store.insert_or_update(url_clone, image.base64_str, &options);
           }
-          Err(e) => eprintln!("❌ Failed to process {}: {}", url, e),
+          Err(e) => create_log(
+            format!(
+              "Failed to process image {} in {}. Error: {}",
+              url_clone, file_path_clone, e
+            ),
+            LogLevel::Error,
+          ),
         }
       }));
     }
@@ -564,7 +636,10 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
 
     // If the image was valid, it should have been processed in the first pass and stored in the store.
     let Ok((url, options)) = self.get_image_result_from_fn_call(call) else {
-      eprintln!("Image not found in cache or database");
+      create_log(
+        format!("Failed to get image result from function call for {}", self.file_path),
+        LogLevel::Error,
+      );
       return walk_mut::walk_expression(self, expr);
     };
 
