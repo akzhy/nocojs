@@ -119,10 +119,12 @@ pub async fn transform(
   // Create a table
   let create_table = conn.execute(
     "CREATE TABLE IF NOT EXISTS images (
-          url     TEXT PRIMARY KEY,
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          url     TEXT NOT NULL,
           placeholder   TEXT NOT NULL,
           preview_type TEXT DEFAULT 'normal',
-          cache_key TEXT NOT NULL
+          cache_key TEXT NOT NULL,
+          UNIQUE(url, cache_key)
       )",
     [],
   );
@@ -271,21 +273,23 @@ impl<'a> TransformVisitor<'a> {
   fn set_store_data_from_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
     let mut stmt = self
       .rusqlite_conn
-      .prepare("SELECT url, placeholder, preview_type, cache_key FROM images")?;
+      .prepare("SELECT id, url, placeholder, preview_type, cache_key FROM images")?;
 
     let rows = stmt.query_map([], |row| {
       Ok((
-        row.get::<_, String>(0)?,
+        row.get::<_, i32>(0)?,
         row.get::<_, String>(1)?,
         row.get::<_, String>(2)?,
         row.get::<_, String>(3)?,
+        row.get::<_, String>(4)?,
       ))
     })?;
 
     let mut to_insert = vec![];
     for row in rows {
-      let (url, placeholder, preview_type_str, cache_key) = row?;
+      let (id, url, placeholder, preview_type_str, cache_key) = row?;
       to_insert.push(self.store.create_item_from_row((
+        id,
         url,
         placeholder,
         preview_type_str,
@@ -385,7 +389,7 @@ impl<'a> TransformVisitor<'a> {
       }
 
       let mut update_query = tx.prepare(
-        "UPDATE images SET placeholder = ?, preview_type = ?, cache_key = ? WHERE url = ?",
+        "UPDATE images SET placeholder = ?, preview_type = ?, cache_key = ? WHERE id = ?",
       )?;
 
       if !to_update.is_empty() {
@@ -398,8 +402,8 @@ impl<'a> TransformVisitor<'a> {
         );
       }
 
-      for (url, placeholder, preview_type, cache_key) in to_update {
-        update_query.execute((placeholder, preview_type, cache_key, url))?;
+      for (id, _, placeholder, preview_type, cache_key) in to_update {
+        update_query.execute((placeholder, preview_type, cache_key, id))?;
       }
     }
 
@@ -416,9 +420,9 @@ impl<'a> TransformVisitor<'a> {
     if let Some(first_arg) = call.arguments.first() {
       if let Expression::StringLiteral(string_value) = first_arg.as_expression().unwrap() {
         let image_url = string_value.value.to_string();
-        let placeholder_image_url = self.store.get_placeholder_from_url(image_url.clone())?;
-
         let options = self.get_preview_options_from_argument(&call.arguments.get(1));
+        let placeholder_image_url = self.store.get_placeholder_from_url_and_options(image_url.clone(), &options)?;
+
         return Ok((placeholder_image_url.to_string(), options));
       }
     }
