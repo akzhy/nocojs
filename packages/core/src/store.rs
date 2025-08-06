@@ -120,13 +120,13 @@ impl Store {
     let mut to_insert: Vec<(String, String, String, String)> = vec![];
     let mut to_update: Vec<(i32, String, String, String, String)> = vec![];
 
-    data_vecc.iter().for_each(|(url, data)| {
+    data_vecc.iter().for_each(|(_, data)| {
       if !data.cache {
         return;
       }
       if data.db_action == DbAction::Insert {
         to_insert.push((
-          url.clone(),
+          data.url.clone(),
           data.placeholder.clone(),
           PlaceholderImageOutputKind::to_string(&data.preview_type.clone()),
           data.cache_key.clone(),
@@ -134,7 +134,7 @@ impl Store {
       } else if data.db_action == DbAction::Update {
         to_update.push((
           data.id,
-          url.clone(),
+          data.url.clone(),
           data.placeholder.clone(),
           PlaceholderImageOutputKind::to_string(&data.preview_type.clone()),
           data.cache_key.clone(),
