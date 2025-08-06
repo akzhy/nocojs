@@ -14,7 +14,7 @@ enum DbAction {
 
 #[derive(Clone, Debug)]
 pub struct StoreDataItem {
-  #[allow(dead_code)]
+  id: i32,
   url: String,
   placeholder: String,
   cache: bool,
@@ -41,7 +41,10 @@ impl Store {
   ) -> Result<(), Box<dyn std::error::Error + '_>> {
     let mut map = self.data.lock()?;
     for item in items {
-      map.insert(item.url.clone(), item);
+      map.insert(
+        format!("{}-{}", item.url.clone(), item.cache_key.clone()),
+        item,
+      );
     }
     Ok(())
   }
@@ -57,11 +60,12 @@ impl Store {
 
   pub fn create_item_from_row(
     &self,
-    row: (String, String, String, String),
+    row: (i32, String, String, String, String),
   ) -> Result<StoreDataItem, Box<dyn std::error::Error + '_>> {
-    let (url, placeholder, preview_type_str, cache_key) = row;
+    let (id, url, placeholder, preview_type_str, cache_key) = row;
     let preview_type = PlaceholderImageOutputKind::from_string(&preview_type_str);
     Ok(StoreDataItem {
+      id,
       url,
       placeholder,
       cache: true,
@@ -78,9 +82,12 @@ impl Store {
     options: &PreviewOptions,
   ) -> Result<(), Box<dyn std::error::Error + '_>> {
     let mut map = self.data.lock()?;
-    let existing_item = map.get(&url);
+    let cache_key = Store::create_cache_key(&options);
+    let map_key = format!("{}-{}", url.clone(), cache_key.clone());
+    let existing_item = map.get(map_key.as_str());
 
     let item = StoreDataItem {
+      id: existing_item.map_or(0, |item| item.id),
       url: url.clone(),
       placeholder,
       cache: options.cache,
@@ -92,7 +99,7 @@ impl Store {
         DbAction::Update
       },
     };
-    map.insert(url, item);
+    map.insert(map_key, item);
     Ok(())
   }
 
@@ -101,7 +108,7 @@ impl Store {
   ) -> Result<
     (
       Vec<(String, String, String, String)>,
-      Vec<(String, String, String, String)>,
+      Vec<(i32, String, String, String, String)>,
     ),
     Box<dyn std::error::Error + '_>,
   > {
@@ -111,7 +118,7 @@ impl Store {
     };
 
     let mut to_insert: Vec<(String, String, String, String)> = vec![];
-    let mut to_update: Vec<(String, String, String, String)> = vec![];
+    let mut to_update: Vec<(i32, String, String, String, String)> = vec![];
 
     data_vecc.iter().for_each(|(url, data)| {
       if !data.cache {
@@ -126,6 +133,7 @@ impl Store {
         ));
       } else if data.db_action == DbAction::Update {
         to_update.push((
+          data.id,
           url.clone(),
           data.placeholder.clone(),
           PlaceholderImageOutputKind::to_string(&data.preview_type.clone()),
@@ -143,22 +151,20 @@ impl Store {
     options: &PreviewOptions,
   ) -> Result<bool, Box<dyn std::error::Error + '_>> {
     let map = self.data.lock().unwrap();
-    let item = map.get(&url);
-    if item.is_some() {
-      let item = item.unwrap();
-      if item.cache_key == Store::create_cache_key(&options) {
-        return Ok(true);
-      }
-    }
-    Ok(false)
+    let cache_key = Store::create_cache_key(&options);
+    let item = map.get(format!("{}-{}", url, cache_key).as_str());
+
+    Ok(item.is_some())
   }
 
-  pub fn get_placeholder_from_url(
+  pub fn get_placeholder_from_url_and_options(
     &self,
     url: String,
+    options: &PreviewOptions,
   ) -> Result<String, Box<dyn std::error::Error + '_>> {
     let map = self.data.lock()?;
-    if let Some(item) = map.get(&url) {
+    let cache_key = Store::create_cache_key(&options);
+    if let Some(item) = map.get(format!("{}-{}", url, cache_key).as_str()) {
       return Ok(item.placeholder.clone());
     }
     Err(Box::new(std::io::Error::new(
