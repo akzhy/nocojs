@@ -24,12 +24,13 @@ describe('Basic Transform Tests', () => {
   });
 });
 
+
 describe('Global placeholderType option tests', () => {
   beforeEach(async () => {
     await rm(defaultTransformOptions.cacheFileDir!, { recursive: true });
   })
 
-  test('placeholderType - normal', async () => {
+  test.skip('placeholderType - normal', async () => {
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
@@ -38,7 +39,7 @@ describe('Global placeholderType option tests', () => {
     expect(result.code).toMatchSnapshot();
   });
 
-  test('placeholderType - average-color', async () => {
+  test.skip('placeholderType - average-color', async () => {
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
@@ -47,7 +48,7 @@ describe('Global placeholderType option tests', () => {
     expect(result.code).toMatchSnapshot();
   });
 
-  test('placeholderType - dominant-color', async () => {
+  test.skip('placeholderType - dominant-color', async () => {
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
@@ -56,7 +57,7 @@ describe('Global placeholderType option tests', () => {
     expect(result.code).toMatchSnapshot();
   });
 
-  test('placeholderType - black-and-white', async () => {
+  test.skip('placeholderType - black-and-white', async () => {
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
@@ -65,7 +66,7 @@ describe('Global placeholderType option tests', () => {
     expect(result.code).toMatchSnapshot();
   });
 
-  test('placeholderType - transparent', async () => {
+  test.skip('placeholderType - transparent', async () => {
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
