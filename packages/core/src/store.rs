@@ -93,12 +93,13 @@ impl Store {
       cache: options.cache,
       preview_type: options.output_kind.clone(),
       cache_key: Store::create_cache_key(&options),
-      db_action: if existing_item.is_none() {
-        DbAction::Insert
-      } else {
-        DbAction::Update
+      db_action: match existing_item {
+        None => DbAction::Insert,
+        Some(item) if matches!(item.db_action, DbAction::Skip | DbAction::Update) => DbAction::Update,
+        _ => DbAction::Insert,
       },
     };
+
     map.insert(map_key, item);
     Ok(())
   }
