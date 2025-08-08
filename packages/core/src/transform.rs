@@ -579,7 +579,7 @@ impl<'a> TransformVisitor<'a> {
 }
 
 impl<'a> VisitMut<'a> for TransformVisitor<'a> {
-  /// Find all import declarations that import the "preview" function from "nocojs".
+  /// Find all import declarations that import the "preview" function from "@nocojs/client".
   /// It identifies the import specifiers and stores their symbol IDs tp compare against preview function calls.
   fn visit_import_declaration(&mut self, it: &mut ImportDeclaration<'a>) {
     if it.source.value == IMPORT_PATH {
@@ -590,7 +590,7 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
         .for_each(|specifier| {
           if let ImportDeclarationSpecifier::ImportSpecifier(import_specifier) = specifier {
             // Handle renamed imports
-            // Eg: import { preview as previewFn } from 'nocojs';
+            // Eg: import { preview as previewFn } from '@nocojs/client';
             if let ModuleExportName::IdentifierName(identifier_name) = &import_specifier.imported {
               if identifier_name.name == "preview" {
                 if self.pass == Pass::First {
@@ -628,7 +628,7 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
       return walk_mut::walk_expression(self, expr);
     };
 
-    // Check if the function was imported from "nocojs"
+    // Check if the function was imported from "@nocojs/client"
     if !self.util_import_symbols.contains(&callee_symbol_id) {
       return walk_mut::walk_expression(self, expr);
     }
