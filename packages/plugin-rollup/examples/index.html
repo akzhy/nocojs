@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rollup Noco Plugin Example</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .image-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .image-gallery img {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .image-gallery img:hover {
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Rollup Noco Plugin Example</h1>
+    <p>
+      This example demonstrates how the @nocojs/rollup-plugin processes and
+      optimizes images in your bundle.
+    </p>
+
+    <div id="app">
+      <!-- Gallery will be inserted here -->
+    </div>
+
+    <script src="dist/bundle.esm.js" type="module"></script>
+  </body>
+</html>

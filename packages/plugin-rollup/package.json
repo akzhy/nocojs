@@ -1,0 +1,45 @@
+{
+  "name": "@nocojs/rollup-plugin",
+  "version": "0.0.1",
+  "description": "Rollup plugin for nocojs image optimization",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "keywords": [
+    "rollup",
+    "plugin",
+    "image",
+    "optimization",
+    "nocojs",
+    "lazy-loading"
+  ],
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
+  },
+  "dependencies": {
+    "@nocojs/core": "*",
+    "picomatch": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.0",
+    "@types/picomatch": "^4.0.2",
+    "rollup": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "rollup": "^2.0.0 || ^3.0.0 || ^4.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

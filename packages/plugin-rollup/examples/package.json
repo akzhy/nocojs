@@ -1,0 +1,17 @@
+{
+  "name": "rollup-plugin-example",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c --watch",
+    "serve": "npx serve ."
+  },
+  "devDependencies": {
+    "@nocojs/client": "*",
+    "@nocojs/rollup-plugin": "*",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "rollup": "^4.0.0",
+    "serve": "^14.0.0"
+  }
+}
