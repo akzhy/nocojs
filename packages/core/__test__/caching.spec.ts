@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, test } from 'vitest';
-import { defaultTransformOptions, getInput, numbersAreWithinPercent } from './utils';
-import { transform } from '../api';
 import { rm } from 'fs/promises';
+import { beforeEach, describe, expect, test } from 'vitest';
+import { transform } from '../api';
+import { defaultTransformOptions, getInput } from './utils';
 
 describe('Caching should work as expected', async () => {
   beforeEach(() => rm(defaultTransformOptions.cacheFileDir!, { recursive: true }));
