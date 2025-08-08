@@ -1,8 +1,8 @@
 
 [package]
-authors = ["LongYinan <lynweklm@gmail.com>"]
+authors = ["akzhy <hi@akzhy.com>"]
 edition = "2021"
-name = "lazy_core"
+name = "nocojs_core"
 version = "0.1.0"
 
 [lib]
@@ -11,7 +11,8 @@ crate-type = ["cdylib"]
 [dependencies]
 base64 = "0.22.1"
 bytes = "1.10.1"
-fast_image_resize = "5.2.0"
+console = "0.16.0"
+fast_image_resize = { version = "5.2.0", features = ["rayon"] }
 futures = "0.3.31"
 image = { version = "0.25.6", default-features = true, features = ["avif-native"]}
 napi = "3.0.0"
