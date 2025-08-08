@@ -5,7 +5,7 @@ import { PlaceholderType, transform } from '../api';
 import { defaultTransformOptions, getInput } from './utils';
 
 const fileTypes = ['avif', 'webp', 'jpg', 'png', 'gif'];
-const placeholderTypes: PlaceholderType[] = ['normal', 'average-color', 'dominant-color', 'black-and-white'];
+const placeholderTypes: PlaceholderType[] = ['normal', 'average-color', 'dominant-color', 'grayscale'];
 
 describe.for(fileTypes)('Process image type %s', (fileType) => {
   test.each(placeholderTypes)('placeholderType - %s', async (placeholderType) => {

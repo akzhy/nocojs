@@ -15,7 +15,7 @@ use crate::{
 #[derive(Debug, Clone, PartialEq)]
 pub enum PlaceholderImageOutputKind {
   Normal,
-  BlackAndWhite,
+  Grayscale,
   DominantColor,
   AverageColor,
   Transparent,
@@ -25,7 +25,7 @@ impl PlaceholderImageOutputKind {
   pub fn to_string(&self) -> String {
     match self {
       PlaceholderImageOutputKind::Normal => "normal".to_string(),
-      PlaceholderImageOutputKind::BlackAndWhite => "black-and-white".to_string(),
+      PlaceholderImageOutputKind::Grayscale => "grayscale".to_string(),
       PlaceholderImageOutputKind::DominantColor => "dominant-color".to_string(),
       PlaceholderImageOutputKind::AverageColor => "average-color".to_string(),
       PlaceholderImageOutputKind::Transparent => "transparent".to_string(),
@@ -35,7 +35,7 @@ impl PlaceholderImageOutputKind {
   pub fn from_string(s: &str) -> PlaceholderImageOutputKind {
     match s {
       "normal" => PlaceholderImageOutputKind::Normal,
-      "black-and-white" => PlaceholderImageOutputKind::BlackAndWhite,
+      "grayscale" => PlaceholderImageOutputKind::Grayscale,
       "dominant-color" => PlaceholderImageOutputKind::DominantColor,
       "average-color" => PlaceholderImageOutputKind::AverageColor,
       "transparent" => PlaceholderImageOutputKind::Transparent,
@@ -110,7 +110,7 @@ pub async fn process_image(
   let img_rgb = {
     match options.output_kind {
       PlaceholderImageOutputKind::Normal => DynamicImageWrapper::Rgb(img.to_rgb8()),
-      PlaceholderImageOutputKind::BlackAndWhite => DynamicImageWrapper::Luma(img.to_luma8()),
+      PlaceholderImageOutputKind::Grayscale => DynamicImageWrapper::Luma(img.to_luma8()),
       PlaceholderImageOutputKind::DominantColor => DynamicImageWrapper::Rgb(img.to_rgb8()),
       PlaceholderImageOutputKind::AverageColor => DynamicImageWrapper::Rgb(img.to_rgb8()),
       PlaceholderImageOutputKind::Transparent => DynamicImageWrapper::Rgb(img.to_rgb8()),
@@ -122,7 +122,7 @@ pub async fn process_image(
     | PlaceholderImageOutputKind::DominantColor
     | PlaceholderImageOutputKind::AverageColor
     | PlaceholderImageOutputKind::Transparent => fir::PixelType::U8x3,
-    PlaceholderImageOutputKind::BlackAndWhite => fir::PixelType::U8,
+    PlaceholderImageOutputKind::Grayscale => fir::PixelType::U8,
   };
 
   let color_type = match options.output_kind {
@@ -130,7 +130,7 @@ pub async fn process_image(
     | PlaceholderImageOutputKind::DominantColor
     | PlaceholderImageOutputKind::AverageColor
     | PlaceholderImageOutputKind::Transparent => image::ExtendedColorType::Rgb8,
-    PlaceholderImageOutputKind::BlackAndWhite => image::ExtendedColorType::L8,
+    PlaceholderImageOutputKind::Grayscale => image::ExtendedColorType::L8,
   };
 
   let (width, height) = img_rgb.dimensions();
@@ -187,7 +187,7 @@ pub async fn process_image(
 
   let base64_str = {
     match options.output_kind {
-      PlaceholderImageOutputKind::Normal | PlaceholderImageOutputKind::BlackAndWhite => {
+      PlaceholderImageOutputKind::Normal | PlaceholderImageOutputKind::Grayscale => {
         format!(
           "data:image/png;base64,{}",
           general_purpose::STANDARD.encode(&png_bytes)
