@@ -29,6 +29,8 @@ pub async fn transform(
       public_dir: options.public_dir,
       cache_file_dir: options.cache_file_dir,
       log_level: options.log_level,
+      width: options.width,
+      height: options.height,
     },
   )
   .await;
@@ -37,5 +39,6 @@ pub async fn transform(
   out.unwrap_or(Some(TransformOutput {
     code: code,
     sourcemap: None,
+    logs: Some(log::collect_logs()),
   }))
 }
