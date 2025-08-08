@@ -25,7 +25,7 @@ describe('Basic Transform Tests', () => {
 });
 
 
-describe('Global placeholderType option tests', () => {
+describe('Global placeholderType option tests with remote image', () => {
   beforeEach(async () => {
     await rm(defaultTransformOptions.cacheFileDir!, { recursive: true });
   })
@@ -57,11 +57,11 @@ describe('Global placeholderType option tests', () => {
     expect(result.code).toMatchSnapshot();
   });
 
-  test.skip('placeholderType - black-and-white', async () => {
+  test.skip('placeholderType - grayscale', async () => {
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
-      placeholderType: 'black-and-white',
+      placeholderType: 'grayscale',
     });
     expect(result.code).toMatchSnapshot();
   });
