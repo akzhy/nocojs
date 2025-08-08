@@ -1,14 +1,17 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "allowJs": true,
     "strict": true,
-    "moduleResolution": "node",
-    "module": "CommonJS",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationMap": true,
   },
-  "include": ["."],
+  "include": ["./api.ts"],
   "exclude": ["node_modules", "bench", "__test__"]
 }
