@@ -57,12 +57,15 @@ pub struct TransformOptions {
   pub public_dir: Option<String>,
   pub cache_file_dir: Option<String>,
   pub log_level: Option<LogLevel>,
+  pub width: Option<u32>,
+  pub height: Option<u32>,
 }
 
 #[napi(object)]
 pub struct TransformOutput {
   pub code: String,
   pub sourcemap: Option<String>,
+  pub logs: Option<Vec<log::Log>>,
 }
 
 #[napi(object)]
@@ -78,8 +81,8 @@ pub struct PreviewOptions {
 impl PreviewOptions {
   pub fn from_global_options(options: &TransformOptions) -> Self {
     let result = PreviewOptions {
-      width: None,
-      height: None,
+      width: options.width,
+      height: options.height,
       output_kind: options
         .placeholder_type
         .clone()
@@ -194,6 +197,7 @@ pub async fn transform(
   let transform_result = Some(TransformOutput {
     code: result_code,
     sourcemap: sourcemap,
+    logs: Some(log::collect_logs()),
   });
 
   Ok(transform_result)
