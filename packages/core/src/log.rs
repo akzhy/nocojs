@@ -35,7 +35,9 @@ pub fn get_log_level() -> u8 {
 }
 
 pub fn collect_logs() -> Vec<Log> {
-  LOGS.lock().unwrap().clone()
+  let logs = LOGS.lock().unwrap().clone();
+  LOGS.lock().unwrap().clear();
+  logs
 }
 
 pub fn create_log<T: Display>(message: T, level: LogLevel) {
