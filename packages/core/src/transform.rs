@@ -46,7 +46,7 @@ enum Pass {
   Second,
 }
 
-const IMPORT_PATH: &str = "nocojs";
+const IMPORT_PATH: &str = "@nocojs/client";
 
 #[napi(object)]
 #[derive(Clone, Debug)]
