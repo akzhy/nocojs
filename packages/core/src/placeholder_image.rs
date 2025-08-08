@@ -15,6 +15,7 @@ use crate::{
 #[derive(Debug, Clone, PartialEq)]
 pub enum PlaceholderImageOutputKind {
   Normal,
+  Blurred,
   Grayscale,
   DominantColor,
   AverageColor,
@@ -25,6 +26,7 @@ impl PlaceholderImageOutputKind {
   pub fn to_string(&self) -> String {
     match self {
       PlaceholderImageOutputKind::Normal => "normal".to_string(),
+      PlaceholderImageOutputKind::Blurred => "blurred".to_string(),
       PlaceholderImageOutputKind::Grayscale => "grayscale".to_string(),
       PlaceholderImageOutputKind::DominantColor => "dominant-color".to_string(),
       PlaceholderImageOutputKind::AverageColor => "average-color".to_string(),
@@ -35,6 +37,7 @@ impl PlaceholderImageOutputKind {
   pub fn from_string(s: &str) -> PlaceholderImageOutputKind {
     match s {
       "normal" => PlaceholderImageOutputKind::Normal,
+      "blurred" => PlaceholderImageOutputKind::Blurred,
       "grayscale" => PlaceholderImageOutputKind::Grayscale,
       "dominant-color" => PlaceholderImageOutputKind::DominantColor,
       "average-color" => PlaceholderImageOutputKind::AverageColor,
@@ -110,6 +113,7 @@ pub async fn process_image(
   let img_rgb = {
     match options.output_kind {
       PlaceholderImageOutputKind::Normal => DynamicImageWrapper::Rgb(img.to_rgb8()),
+      PlaceholderImageOutputKind::Blurred => DynamicImageWrapper::Rgb(img.to_rgb8()),
       PlaceholderImageOutputKind::Grayscale => DynamicImageWrapper::Luma(img.to_luma8()),
       PlaceholderImageOutputKind::DominantColor => DynamicImageWrapper::Rgb(img.to_rgb8()),
       PlaceholderImageOutputKind::AverageColor => DynamicImageWrapper::Rgb(img.to_rgb8()),
@@ -119,6 +123,7 @@ pub async fn process_image(
 
   let pixel_type = match options.output_kind {
     PlaceholderImageOutputKind::Normal
+    | PlaceholderImageOutputKind::Blurred
     | PlaceholderImageOutputKind::DominantColor
     | PlaceholderImageOutputKind::AverageColor
     | PlaceholderImageOutputKind::Transparent => fir::PixelType::U8x3,
@@ -127,6 +132,7 @@ pub async fn process_image(
 
   let color_type = match options.output_kind {
     PlaceholderImageOutputKind::Normal
+    | PlaceholderImageOutputKind::Blurred
     | PlaceholderImageOutputKind::DominantColor
     | PlaceholderImageOutputKind::AverageColor
     | PlaceholderImageOutputKind::Transparent => image::ExtendedColorType::Rgb8,
@@ -192,6 +198,10 @@ pub async fn process_image(
           "data:image/png;base64,{}",
           general_purpose::STANDARD.encode(&png_bytes)
         )
+      }
+      PlaceholderImageOutputKind::Blurred => {
+        let data_src = general_purpose::STANDARD.encode(&png_bytes);
+        create_blurred_preview_url(&data_src, new_width, new_height)
       }
       PlaceholderImageOutputKind::AverageColor | PlaceholderImageOutputKind::DominantColor => {
         let color_type = if options.output_kind == PlaceholderImageOutputKind::AverageColor {
@@ -288,4 +298,15 @@ fn create_base64_rectangle(
 
   let base64_string = general_purpose::STANDARD.encode(buffer.get_ref());
   Ok(format!("data:image/png;base64,{}", base64_string))
+}
+
+fn create_blurred_preview_url(data_src: &str, width: u32, height: u32) -> String {
+  let svg = format!(
+    r#"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}'><filter id='b' color-interpolation-filters='sRGB'><feGaussianBlur stdDeviation='20'/><feColorMatrix values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 100 -1' result='s'/><feFlood x='0' y='0' width='100%' height='100%'/><feComposite operator='out' in='s'/><feComposite in2='SourceGraphic'/><feGaussianBlur stdDeviation='1'/></filter><image width='100%' height='100%' x='0' y='0' preserveAspectRatio='none' style='filter: url(#b);' href='data:image/png;base64,DATA'/></svg>"#,
+    w = width,
+    h = height
+  );
+
+  let formatted = format!("data:image/svg+xml,{}", urlencoding::encode(&svg));
+  formatted.replace("DATA", data_src)
 }
