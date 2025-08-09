@@ -1,8 +1,8 @@
 {
-  "name": "lazy-core",
+  "name": "@nocojs/core",
   "version": "1.0.0",
   "description": "Template project for writing node package with napi-rs",
-  "main": "index.js",
+  "main": "api.js",
   "repository": "git@github.com:napi-rs/package-template.git",
   "license": "MIT",
   "keywords": [
@@ -15,10 +15,14 @@
   ],
   "files": [
     "index.d.ts",
-    "index.js"
+    "index.js",
+    "api.js",
+    "api.d.ts",
+    "api.d.ts.map"
   ],
+  "types": "api.d.ts",
   "napi": {
-    "binaryName": "lazy-core",
+    "binaryName": "nocojs_core",
     "targets": [
       "x86_64-pc-windows-msvc",
       "x86_64-apple-darwin",
@@ -38,34 +42,42 @@
   "scripts": {
     "artifacts": "napi artifacts",
     "bench": "node --import @oxc-node/core/register benchmark/bench.ts",
-    "build": "napi build --platform --release",
-    "build:debug": "napi build --platform",
+    "build": "napi build --platform --release && yarn js:build",
+    "build:debug": "napi build --platform && yarn js:build",
+    "js:dev": "tsc -w",
+    "js:build": "tsc",
     "format": "run-p format:prettier format:rs format:toml",
     "format:prettier": "prettier . -w",
     "format:toml": "taplo format",
     "format:rs": "cargo fmt",
     "lint": "oxlint .",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "ava",
+    "test": "vitest",
     "version": "napi version",
     "prepare": "husky"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/parser": "^7.28.0",
+    "@babel/traverse": "^7.28.0",
     "@emnapi/core": "^1.4.5",
     "@emnapi/runtime": "^1.4.5",
     "@napi-rs/cli": "^3.0.3",
     "@oxc-node/core": "^0.0.30",
     "@taplo/cli": "^0.7.0",
     "@tybys/wasm-util": "^0.10.0",
-    "ava": "^6.4.1",
-    "chalk": "^5.4.1",
+    "@types/babel__traverse": "^7.28.0",
+    "@types/node": "^24.2.0",
+    "chalk": "^5.5.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.2",
+    "lint-staged": "^16.1.5",
     "npm-run-all2": "^8.0.4",
-    "oxlint": "^1.8.0",
+    "oxlint": "^1.11.0",
     "prettier": "^3.6.2",
+    "sharp": "^0.34.3",
     "tinybench": "^4.0.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   },
   "lint-staged": {
     "*.@(js|ts|tsx)": [
@@ -78,23 +90,8 @@
       "taplo format"
     ]
   },
-  "ava": {
-    "extensions": {
-      "ts": "module"
-    },
-    "timeout": "2m",
-    "workerThreads": false,
-    "environmentVariables": {
-      "OXC_TSCONFIG_PATH": "./__test__/tsconfig.json"
-    },
-    "nodeArguments": [
-      "--import",
-      "@oxc-node/core/register"
-    ]
-  },
   "prettier": {
     "printWidth": 120,
-    "semi": false,
     "trailingComma": "all",
     "singleQuote": true,
     "arrowParens": "always"
