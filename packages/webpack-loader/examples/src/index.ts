@@ -1,7 +1,5 @@
 // Basic example of how to use the plugin in a JavaScript project
 import { preview } from "@nocojs/client";
-// src/main.js
-console.log("Starting application...");
 
 // Example component that uses images
 function createImageGallery() {
