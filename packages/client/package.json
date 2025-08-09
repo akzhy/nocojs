@@ -1,17 +1,25 @@
 {
   "name": "@nocojs/client",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w"
   },
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/index.d.ts.map"
+  ],
   "author": "",
   "license": "ISC",
   "description": "",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
-    "typescript": "^5.8.3",
-    "@nocojs/core": "*"
+    "@nocojs/core": "*",
+    "typescript": "^5.9.2"
   }
 }
