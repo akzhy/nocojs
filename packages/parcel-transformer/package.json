@@ -1,0 +1,47 @@
+{
+  "name": "@nocojs/parcel-transformer",
+  "version": "0.0.1",
+  "description": "Parcel plugin for nocojs image optimization",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "keywords": [
+    "parcel",
+    "plugin",
+    "image",
+    "optimization",
+    "nocojs",
+    "lazy-loading"
+  ],
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
+  },
+  "dependencies": {
+    "@parcel/source-map": "^2.1.1",
+    "picomatch": "^4.0.3"
+  },
+  "devDependencies": {
+    "@nocojs/core": "*",
+    "@types/node": "^24.2.0",
+    "parcel": "^2.12.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "@nocojs/core": ">=0.0.1",
+    "parcel": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "parcel": ">=2.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
