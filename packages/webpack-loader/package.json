@@ -1,0 +1,44 @@
+{
+  "name": "@nocojs/webpack-loader",
+  "version": "1.0.0",
+  "description": "Webpack loader for @nocojs/core transformations",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "keywords": [
+    "webpack",
+    "loader",
+    "nocojs",
+    "image",
+    "transform"
+  ],
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">= 14.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@nocojs/core": "*",
+    "loader-utils": "^3.3.1"
+  },
+  "devDependencies": {
+    "@types/loader-utils": "^2.0.6",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0",
+    "webpack": "^5.101.0"
+  },
+  "peerDependencies": {
+    "webpack": "^5.0.0"
+  }
+}
