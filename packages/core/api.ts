@@ -3,6 +3,7 @@ import { PlaceholderImageOutputKind, transform as rustTransform, LogLevel, Log }
 
 const placeholderTypeToEnum = {
   normal: PlaceholderImageOutputKind.Normal,
+  'blurred': PlaceholderImageOutputKind.Blurred,
   'grayscale': PlaceholderImageOutputKind.Grayscale,
   'dominant-color': PlaceholderImageOutputKind.DominantColor,
   'average-color': PlaceholderImageOutputKind.AverageColor,
