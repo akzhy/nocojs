@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/plugin-rollup/examples",
+    "packages/webpack-loader/examples",
+    "packages/parcel-plugin/examples"
   ]
 }
