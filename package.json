@@ -6,6 +6,6 @@
     "packages/*",
     "packages/plugin-rollup/examples",
     "packages/webpack-loader/examples",
-    "packages/parcel-plugin/examples"
+    "packages/parcel-transformer/examples"
   ]
 }
