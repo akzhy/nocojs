@@ -1,0 +1,18 @@
+{
+  "name": "parcel-vanilla-starter",
+  "private": true,
+  "version": "0.0.0",
+  "source": "src/index.html",
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build"
+  },
+  "dependencies": {
+    "@nocojs/client": "link:../../packages/client"
+  },
+  "devDependencies": {
+    "@nocojs/core": "link:../../packages/core",
+    "@nocojs/parcel-transformer": "link:../../packages/parcel-transformer",
+    "parcel": "^2.14.0"
+  }
+}
