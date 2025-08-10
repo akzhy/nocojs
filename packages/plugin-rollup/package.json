@@ -30,7 +30,7 @@
     "@types/node": "^24.2.0",
     "@types/picomatch": "^4.0.2",
     "rollup": "^4.0.0",
-    "typescript": "^5.0.0",
+    "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },
   "peerDependencies": {

@@ -56,7 +56,8 @@ export default async function nocoLoader(
       transformOptions
     );
 
-    callback(null, transformResult.code, transformResult.map);
+    console.log("--->", transformResult.map ?? sourceMap)
+    callback(null, transformResult.code, transformResult.map ?? sourceMap);
   } catch (error) {
     console.error(error);
     return callback(error as Error, source, sourceMap);

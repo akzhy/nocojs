@@ -142,8 +142,7 @@ pub async fn transform(
   let allocator = Allocator::default();
   let source_type = SourceType::from_path(&file_path)?;
 
-  let mut sourcemap_file_path = file_path.clone();
-  sourcemap_file_path.push_str(".map");
+  let sourcemap_file_path = file_path.clone();
 
   let ParserReturn { mut program, .. } = Parser::new(&allocator, &code, source_type).parse();
 
