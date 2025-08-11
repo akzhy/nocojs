@@ -3,8 +3,8 @@ import { PlaceholderImageOutputKind, transform as rustTransform, LogLevel, Log }
 
 const placeholderTypeToEnum = {
   normal: PlaceholderImageOutputKind.Normal,
-  'blurred': PlaceholderImageOutputKind.Blurred,
-  'grayscale': PlaceholderImageOutputKind.Grayscale,
+  blurred: PlaceholderImageOutputKind.Blurred,
+  grayscale: PlaceholderImageOutputKind.Grayscale,
   'dominant-color': PlaceholderImageOutputKind.DominantColor,
   'average-color': PlaceholderImageOutputKind.AverageColor,
   transparent: PlaceholderImageOutputKind.Transparent,
@@ -15,7 +15,7 @@ const logLevelTypeToEnum = {
   info: LogLevel.Info,
   none: LogLevel.None,
   verbose: LogLevel.Verbose,
-}
+};
 
 export type PlaceholderType = keyof typeof placeholderTypeToEnum;
 
@@ -59,25 +59,24 @@ export const transform = async (
     });
 
     if (!result) {
-      console.log(`No result returned for ${filePath}. Returning original code.`);
       return {
         code,
         map: null,
-        logs: []
+        logs: [],
       };
     }
 
     return {
       code: result.code,
       map: result?.sourcemap ?? null,
-      logs: result.logs ?? []
+      logs: result.logs ?? [],
     };
   } catch (error) {
-    console.error('Error during transformation:', error);
+    console.error(`[nocojs] Error during transformation: ${error} file: ${filePath}`);
     return {
       code,
       map: null,
-      logs: []
+      logs: [],
     };
   }
 };
