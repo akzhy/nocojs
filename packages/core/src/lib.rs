@@ -5,8 +5,6 @@ pub mod placeholder_image;
 pub mod store;
 pub mod transform;
 
-use std::time::Instant;
-
 use napi_derive::napi;
 
 use crate::transform::{TransformOptions, TransformOutput};
@@ -18,7 +16,6 @@ pub async fn transform(
   file_path: String,
   options: TransformOptions,
 ) -> Option<TransformOutput> {
-  let instant = Instant::now();
   let out = transform::transform(
     code.clone(),
     file_path,
@@ -34,7 +31,6 @@ pub async fn transform(
     },
   )
   .await;
-  println!("Transformation took {:?}", instant.elapsed());
 
   out.unwrap_or(Some(TransformOutput {
     code: code,
