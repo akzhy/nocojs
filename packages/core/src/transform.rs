@@ -105,6 +105,8 @@ pub async fn transform(
     return Ok(None);
   }
 
+  let instant = Instant::now();
+
   if options.log_level.is_some() {
     set_log_level(options.log_level.unwrap());
   }
@@ -199,6 +201,15 @@ pub async fn transform(
     logs: Some(log::collect_logs()),
   });
 
+  create_log(
+    log::style_info(format!(
+      "Finished processing file {} in {:?}",
+      file_path,
+      instant.elapsed()
+    )),
+    LogLevel::Verbose,
+  );
+
   Ok(transform_result)
 }
 
@@ -246,8 +257,6 @@ impl<'a> TransformVisitor<'a> {
   async fn begin(&mut self, program: &mut Program<'a>) {
     let _ = self.set_store_data_from_db();
 
-    let instant = Instant::now();
-
     self.visit_program(program);
 
     self.pass = Pass::Second;
@@ -258,15 +267,6 @@ impl<'a> TransformVisitor<'a> {
       let _ = self.push_store_data_to_db();
 
       self.visit_program(program);
-
-      create_log(
-        log::style_info(format!(
-          "Finished processing file {} in {:?}",
-          self.file_path,
-          instant.elapsed()
-        )),
-        LogLevel::Verbose,
-      );
     }
   }
 
@@ -424,7 +424,9 @@ impl<'a> TransformVisitor<'a> {
       if let Expression::StringLiteral(string_value) = first_arg.as_expression().unwrap() {
         let image_url = string_value.value.to_string();
         let options = self.get_preview_options_from_argument(&call.arguments.get(1));
-        let placeholder_image_url = self.store.get_placeholder_from_url_and_options(image_url.clone(), &options)?;
+        let placeholder_image_url = self
+          .store
+          .get_placeholder_from_url_and_options(image_url.clone(), &options)?;
 
         return Ok((placeholder_image_url.to_string(), options));
       }
@@ -644,7 +646,10 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
     // If the image was valid, it should have been processed in the first pass and stored in the store.
     let Ok((url, options)) = self.get_image_result_from_fn_call(call) else {
       create_log(
-        format!("Failed to get image result from function call for {}", self.file_path),
+        format!(
+          "Failed to get image result from function call for {}",
+          self.file_path
+        ),
         LogLevel::Error,
       );
       return walk_mut::walk_expression(self, expr);
