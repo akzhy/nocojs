@@ -7,5 +7,12 @@
     "packages/plugin-rollup/examples",
     "packages/webpack-loader/examples",
     "packages/parcel-transformer/examples"
-  ]
+  ],
+  "scripts": {
+    "build": "lerna run build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "lerna": "^8.2.3"
+  }
 }
