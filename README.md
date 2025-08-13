@@ -242,6 +242,127 @@ interface TransformOptions extends PreviewOptions {
 }
 ```
 
+## Caching
+
+nocojs uses intelligent SQLite-based caching to avoid redundant image processing. The cache stores:
+- Downloaded image metadata and processed placeholder data
+- Image fingerprints to detect changes
+- Generated placeholder images and their configurations
+
+### Cache Location
+
+By default, the cache is stored in the `.nocojs` directory (configurable via `cacheFileDir` option). The cache directory contains:
+- `cache.db` - SQLite database with image metadata
+
+### Production Build Optimization
+
+For production builds, preserving the cache between deployments can significantly speed up build times by avoiding re-downloading and re-processing images that haven't changed. The approach varies by deployment provider:
+
+#### Netlify
+
+Use `@netlify/cache-utils` to preserve the cache:
+
+```javascript
+export const onPreBuild = async function ({ utils }) {
+  await utils.cache.restore('./nocojs')
+}
+
+export const onPostBuild = async function ({ utils }) {
+  await utils.cache.save('./nocojs')
+}
+```
+
+Or configure in `netlify.toml`:
+
+```toml
+[build]
+  command = "npm run build"
+  
+[[plugins]]
+  package = "@netlify/plugin-cache"
+  
+  [plugins.inputs]
+    paths = [ ".nocojs" ]
+```
+
+#### GitHub Actions
+
+Cache the directory using `actions/cache`:
+
+```yaml
+# .github/workflows/build.yml
+name: Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Cache nocojs
+        uses: actions/cache@v3
+        with:
+          path: .nocojs
+          key: nocojs-cache
+          restore-keys: |
+            nocojs-cache
+            
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build
+        run: npm run build
+```
+
+#### Custom CI/CD
+
+For custom setups, ensure the `.nocojs` directory is:
+1. **Restored** before the build starts
+2. **Saved** after the build completes
+3. **Keyed** by relevant file changes (package.json, source files)
+
+```bash
+#!/bin/bash
+# Example build script
+
+# Restore cache if available
+if [ -d "$CACHE_DIR/.nocojs" ]; then
+  cp -r "$CACHE_DIR/.nocojs" .
+fi
+
+# Run build
+npm run build
+
+# Save cache
+mkdir -p "$CACHE_DIR"
+cp -r .nocojs "$CACHE_DIR/"
+```
+
+### Cache Management
+
+#### Cache Invalidation
+The cache automatically invalidates when:
+- Image URLs change
+- Configuration options change
+
+#### Manual Cache Control
+```bash
+# Clear the cache manually
+rm -rf .nocojs
+
+# Or programmatically in your build script
+const fs = require('fs');
+if (process.env.CLEAR_CACHE) {
+  fs.rmSync('.nocojs', { recursive: true, force: true });
+}
+```
+
+#### Cache Size Optimization
+- Cache size typically ranges from a few MB to hundreds of MB depending on image count
+- Consider setting up cache size limits in CI environments
+- Regularly clean old cache entries in long-running environments
+
 ## Examples
 
 The repository includes comprehensive examples for different frameworks:
