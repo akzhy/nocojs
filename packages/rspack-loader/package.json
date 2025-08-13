@@ -1,0 +1,45 @@
+{
+  "name": "@nocojs/rspack-loader",
+  "version": "0.0.1",
+  "description": "Rspack loader for @nocojs/core transformations",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "keywords": [
+    "rspack",
+    "loader",
+    "nocojs",
+    "image",
+    "transform"
+  ],
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">= 14.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "loader-utils": "^3.3.1"
+  },
+  "devDependencies": {
+    "@nocojs/core": "*",
+    "@rspack/core": "^1.0.0",
+    "@types/loader-utils": "^2.0.6",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.9.2",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "@nocojs/core": ">=0.0.1",
+    "@rspack/core": "^1.0.0"
+  }
+}
