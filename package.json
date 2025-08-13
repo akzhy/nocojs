@@ -6,6 +6,7 @@
     "packages/*",
     "packages/plugin-rollup/examples",
     "packages/webpack-loader/examples",
+    "packages/rspack-loader/examples",
     "packages/parcel-transformer/examples"
   ],
   "scripts": {
