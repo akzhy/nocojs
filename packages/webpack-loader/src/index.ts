@@ -42,19 +42,27 @@ export default async function nocoLoader(
     ? path.resolve(context, options.cacheFileDir)
     : path.join(context, ".nocojs");
 
+  let fileName = this.resourcePath;
+  let sourcemapFilePath = fileName;
+
+  if (fileName.endsWith(".vue") || fileName.endsWith(".svelte")) {
+    const fileNameExtension = fileName.split(".").pop()!;
+    sourcemapFilePath =
+      fileName.slice(0, -(fileNameExtension.length + 1)) +
+      `.${fileNameExtension}`;
+    fileName = `${fileName}.ts`;
+  }
+
   const transformOptions: TransformOptions = {
     ...options,
     publicDir,
     cacheFileDir,
     logLevel: options.logLevel || "info",
+    sourcemapFilePath,
   };
 
   try {
-    const transformResult = await transform(
-      source,
-      this.resourcePath,
-      transformOptions
-    );
+    const transformResult = await transform(source, fileName, transformOptions);
 
     callback(
       null,
