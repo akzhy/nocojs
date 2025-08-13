@@ -28,6 +28,7 @@ pub async fn transform(
       log_level: options.log_level,
       width: options.width,
       height: options.height,
+      sourcemap_file_path: options.sourcemap_file_path,
     },
   )
   .await;

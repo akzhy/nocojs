@@ -33,6 +33,7 @@ export interface TransformOptions extends PreviewOptions {
   publicDir?: string;
   cacheFileDir?: string;
   logLevel?: LogLevelType;
+  sourcemapFilePath?: string;
 }
 
 export const transform = async (
@@ -56,6 +57,7 @@ export const transform = async (
       logLevel: options?.logLevel ? logLevelTypeToEnum[options.logLevel] : LogLevel.Error,
       width: options?.width,
       height: options?.height,
+      sourcemapFilePath: options?.sourcemapFilePath,
     });
 
     if (!result) {

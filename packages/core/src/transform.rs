@@ -59,6 +59,7 @@ pub struct TransformOptions {
   pub log_level: Option<LogLevel>,
   pub width: Option<u32>,
   pub height: Option<u32>,
+  pub sourcemap_file_path: Option<String>,
 }
 
 #[napi(object)]
@@ -144,7 +145,8 @@ pub async fn transform(
   let allocator = Allocator::default();
   let source_type = SourceType::from_path(&file_path)?;
 
-  let sourcemap_file_path = file_path.clone();
+  let sourcemap_file_path = options.sourcemap_file_path.clone();
+  let sourcemap_file_path = sourcemap_file_path.unwrap_or_else(|| file_path.clone());
 
   let ParserReturn { mut program, .. } = Parser::new(&allocator, &code, source_type).parse();
 
