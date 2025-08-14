@@ -122,25 +122,8 @@ pub async fn transform(
 
   let db_filepath = PathBuf::from(&cache_dir).join(RUSQLITE_FILE_NAME);
   let conn = Connection::open(&db_filepath).unwrap();
-  // Create a table
-  let create_table = conn.execute(
-    "CREATE TABLE IF NOT EXISTS images (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          url     TEXT NOT NULL,
-          placeholder   TEXT NOT NULL,
-          preview_type TEXT DEFAULT 'normal',
-          cache_key TEXT NOT NULL,
-          UNIQUE(url, cache_key)
-      )",
-    [],
-  );
 
-  if create_table.is_err() {
-    create_log(
-      log::style_error("Failed to create sqlite database. Persistend caching won't work"),
-      LogLevel::Error,
-    );
-  }
+  let _ = setup_sqlite(&conn);
 
   let allocator = Allocator::default();
   let source_type = SourceType::from_path(&file_path)?;
@@ -213,6 +196,59 @@ pub async fn transform(
   );
 
   Ok(transform_result)
+}
+
+fn setup_sqlite(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+  let create_images_table = conn.execute(
+    "CREATE TABLE IF NOT EXISTS images (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          url     TEXT NOT NULL,
+          placeholder   TEXT NOT NULL,
+          preview_type TEXT DEFAULT 'normal',
+          cache_key TEXT NOT NULL,
+          UNIQUE(url, cache_key)
+      )",
+    [],
+  );
+
+  let create_metadata_table = conn.execute(
+    "CREATE TABLE IF NOT EXISTS metadata (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL
+      )",
+    [],
+  );
+
+  if create_images_table.is_err() {
+    create_log(
+      log::style_error("Failed to create sqlite database. Persistend caching won't work"),
+      LogLevel::Error,
+    );
+  }
+
+  if create_metadata_table.is_err() {
+    create_log(
+      log::style_error("Failed to create metadata table in sqlite database"),
+      LogLevel::Error,
+    );
+  }
+
+  let current_version: String = conn
+    .query_row(
+      "SELECT value FROM metadata WHERE key = 'version'",
+      [],
+      |row| row.get(0),
+    )
+    .unwrap_or("0".to_string());
+
+  if current_version == "0" {
+    conn.execute(
+      "INSERT OR REPLACE INTO metadata (key, value) VALUES ('version', ?)",
+      ["1.0.0"],
+    )?;
+  }
+
+  Ok(())
 }
 
 fn init_cache_dir(dirname: &str) -> Result<String, Box<dyn std::error::Error>> {
