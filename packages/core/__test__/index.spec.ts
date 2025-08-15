@@ -22,13 +22,44 @@ describe('Basic Transform Tests', () => {
 
     expect(result.code).toMatchSnapshot();
   });
-});
 
+  test('transforms with custom publicDir', async () => {
+    const input = getInput({
+      url: '/good_boy_4x5.jpg',
+    });
+    const result = await transform(input, 'index.ts', {
+      ...defaultTransformOptions,
+      publicDir: path.join(__dirname, 'static'),
+    });
+
+    expect(result.code).toMatchSnapshot();
+  });
+
+  test('ignores invalid URLs and Paths', async () => {
+    const input = getInput([
+      {
+        url: '/invalid-url.jpg',
+      },
+      {
+        url: 'file:///invalid-path.jpg',
+      },
+      {
+        url: 'https://example.com/invalid-image.jpg',
+      },
+      {
+        url: '/good_boy_4x5.jpg',
+      }
+    ]);
+    const result = await transform(input, 'index.ts', defaultTransformOptions);
+
+    expect(result.code).toMatchSnapshot();
+  });
+});
 
 describe('Global placeholderType option tests with remote image', () => {
   beforeEach(async () => {
     await rm(defaultTransformOptions.cacheFileDir!, { recursive: true });
-  })
+  });
 
   test.skip('placeholderType - normal', async () => {
     const input = getInput();
