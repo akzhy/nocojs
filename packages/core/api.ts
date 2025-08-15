@@ -27,6 +27,7 @@ export interface PreviewOptions {
   cache?: boolean;
   width?: number;
   height?: number;
+  wrapWithSvg?: boolean;
 }
 
 export interface TransformOptions extends PreviewOptions {
@@ -58,6 +59,7 @@ export const transform = async (
       width: options?.width,
       height: options?.height,
       sourcemapFilePath: options?.sourcemapFilePath,
+      wrapWithSvg: options?.wrapWithSvg ?? true
     });
 
     if (!result) {

@@ -194,10 +194,16 @@ pub async fn process_image(
   let base64_str = {
     match options.output_kind {
       PlaceholderImageOutputKind::Normal | PlaceholderImageOutputKind::Grayscale => {
-        format!(
+        let png_data = format!(
           "data:image/png;base64,{}",
           general_purpose::STANDARD.encode(&png_bytes)
-        )
+        );
+
+        if options.wrap_with_svg {
+          wrap_with_svg(png_data, width, height)
+        } else {
+          png_data
+        }
       }
       PlaceholderImageOutputKind::Blurred => {
         let data_src = general_purpose::STANDARD.encode(&png_bytes);
@@ -210,10 +216,24 @@ pub async fn process_image(
           ColorType::Dominant
         };
         let color = get_color_from_image(&dst_image, color_type).unwrap();
-        create_base64_rectangle(new_width, new_height, (color.0, color.1, color.2, 255)).unwrap()
+
+        let png_data =
+          create_base64_rectangle(new_width, new_height, (color.0, color.1, color.2, 255))?;
+
+        if options.wrap_with_svg {
+          wrap_with_svg(png_data, new_width, new_height)
+        } else {
+          png_data
+        }
       }
       PlaceholderImageOutputKind::Transparent => {
-        create_base64_rectangle(new_width, new_height, (0, 0, 0, 0)).unwrap()
+        let png_data = create_base64_rectangle(new_width, new_height, (0, 0, 0, 0))?;
+
+        if options.wrap_with_svg {
+          wrap_with_svg(png_data, new_width, new_height)
+        } else {
+          png_data
+        }
       }
     }
   };
@@ -302,11 +322,22 @@ fn create_base64_rectangle(
 
 fn create_blurred_preview_url(data_src: &str, width: u32, height: u32) -> String {
   let svg = format!(
-    r#"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}'><filter id='b' color-interpolation-filters='sRGB'><feGaussianBlur stdDeviation='20'/><feColorMatrix values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 100 -1' result='s'/><feFlood x='0' y='0' width='100%' height='100%'/><feComposite operator='out' in='s'/><feComposite in2='SourceGraphic'/><feGaussianBlur stdDeviation='1'/></filter><image width='100%' height='100%' x='0' y='0' preserveAspectRatio='none' style='filter: url(#b);' href='data:image/png;base64,DATA'/></svg>"#,
+    r#"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}'><filter id='b' color-interpolation-filters='sRGB'><feGaussianBlur stdDeviation='20'/><feColorMatrix values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 100 -1' result='s'/><feFlood x='0' y='0' width='100%' height='100%'/><feComposite operator='out' in='s'/><feComposite in2='SourceGraphic'/><feGaussianBlur stdDeviation='1'/></filter><image width='100%' height='100%' x='0' y='0' preserveAspectRatio='none' style='filter: url(#b);' href='data:image/png;base64,___DATA___'/></svg>"#,
     w = width,
     h = height
   );
 
   let formatted = format!("data:image/svg+xml,{}", urlencoding::encode(&svg));
-  formatted.replace("DATA", data_src)
+  formatted.replace("___DATA___", data_src)
+}
+
+fn wrap_with_svg(data_src: String, width: u32, height: u32) -> String {
+  let svg = format!(
+    r#"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}'><image width='100%' height='100%' x='0' y='0' preserveAspectRatio='none' href='___DATA___'/></svg>"#,
+    w = width,
+    h = height
+  );
+  let formatted = format!("data:image/svg+xml,{}", urlencoding::encode(&svg));
+
+  formatted.replace("___DATA___", &data_src)
 }

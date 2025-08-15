@@ -60,6 +60,7 @@ pub struct TransformOptions {
   pub width: Option<u32>,
   pub height: Option<u32>,
   pub sourcemap_file_path: Option<String>,
+  pub wrap_with_svg: Option<bool>,
 }
 
 #[napi(object)]
@@ -77,6 +78,7 @@ pub struct PreviewOptions {
   pub output_kind: PlaceholderImageOutputKind,
   pub replace_function_call: bool,
   pub cache: bool,
+  pub wrap_with_svg: bool,
 }
 
 impl PreviewOptions {
@@ -90,6 +92,7 @@ impl PreviewOptions {
         .unwrap_or(PlaceholderImageOutputKind::Normal),
       replace_function_call: options.replace_function_call.unwrap_or(true),
       cache: options.cache.unwrap_or(true),
+      wrap_with_svg: options.wrap_with_svg.unwrap_or(true),
     };
     result
   }
@@ -520,6 +523,11 @@ impl<'a> TransformVisitor<'a> {
             "cache" => {
               if let Expression::BooleanLiteral(boolean_literal) = &key_value.value {
                 preview_options.cache = boolean_literal.value;
+              }
+            }
+            "wrapWithSvg" => {
+              if let Expression::BooleanLiteral(boolean_literal) = &key_value.value {
+                preview_options.wrap_with_svg = boolean_literal.value;
               }
             }
             _ => {}
