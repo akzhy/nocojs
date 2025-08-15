@@ -51,6 +51,8 @@ pub struct ProcessImageOutput {
   pub base64_str: String,
   pub width: u32,
   pub height: u32,
+  pub original_width: u32,
+  pub original_height: u32,
 }
 
 enum DynamicImageWrapper {
@@ -199,11 +201,7 @@ pub async fn process_image(
           general_purpose::STANDARD.encode(&png_bytes)
         );
 
-        if options.wrap_with_svg {
-          wrap_with_svg(png_data, width, height)
-        } else {
-          png_data
-        }
+        png_data
       }
       PlaceholderImageOutputKind::Blurred => {
         let data_src = general_purpose::STANDARD.encode(&png_bytes);
@@ -220,20 +218,12 @@ pub async fn process_image(
         let png_data =
           create_base64_rectangle(new_width, new_height, (color.0, color.1, color.2, 255))?;
 
-        if options.wrap_with_svg {
-          wrap_with_svg(png_data, new_width, new_height)
-        } else {
-          png_data
-        }
+        png_data
       }
       PlaceholderImageOutputKind::Transparent => {
         let png_data = create_base64_rectangle(new_width, new_height, (0, 0, 0, 0))?;
 
-        if options.wrap_with_svg {
-          wrap_with_svg(png_data, new_width, new_height)
-        } else {
-          png_data
-        }
+        png_data
       }
     }
   };
@@ -248,6 +238,8 @@ pub async fn process_image(
     base64_str,
     width: new_width,
     height: new_height,
+    original_width: width,
+    original_height: height,
   })
 }
 
@@ -331,7 +323,7 @@ fn create_blurred_preview_url(data_src: &str, width: u32, height: u32) -> String
   formatted.replace("___DATA___", data_src)
 }
 
-fn wrap_with_svg(data_src: String, width: u32, height: u32) -> String {
+pub fn wrap_with_svg(data_src: String, width: u32, height: u32) -> String {
   let svg = format!(
     r#"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}'><image width='100%' height='100%' x='0' y='0' preserveAspectRatio='none' href='___DATA___'/></svg>"#,
     w = width,

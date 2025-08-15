@@ -209,6 +209,8 @@ fn setup_sqlite(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
           placeholder   TEXT NOT NULL,
           preview_type TEXT DEFAULT 'normal',
           cache_key TEXT NOT NULL,
+          original_width INTEGER NOT NULL,
+          original_height INTEGER NOT NULL,
           UNIQUE(url, cache_key)
       )",
     [],
@@ -317,7 +319,7 @@ impl<'a> TransformVisitor<'a> {
   fn set_store_data_from_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
     let mut stmt = self
       .rusqlite_conn
-      .prepare("SELECT id, url, placeholder, preview_type, cache_key FROM images")?;
+      .prepare("SELECT id, url, placeholder, preview_type, cache_key, original_width, original_height FROM images")?;
 
     let rows = stmt.query_map([], |row| {
       Ok((
@@ -326,18 +328,23 @@ impl<'a> TransformVisitor<'a> {
         row.get::<_, String>(2)?,
         row.get::<_, String>(3)?,
         row.get::<_, String>(4)?,
+        row.get::<_, u32>(5)?,
+        row.get::<_, u32>(6)?,
       ))
     })?;
 
     let mut to_insert = vec![];
     for row in rows {
-      let (id, url, placeholder, preview_type_str, cache_key) = row?;
+      let (id, url, placeholder, preview_type_str, cache_key, original_width, original_height) =
+        row?;
       to_insert.push(self.store.create_item_from_row((
         id,
         url,
         placeholder,
         preview_type_str,
         cache_key,
+        original_width,
+        original_height,
       ))?);
     }
 
@@ -415,7 +422,7 @@ impl<'a> TransformVisitor<'a> {
     let tx = self.rusqlite_conn.transaction()?;
     {
       let mut insert_query = tx.prepare(
-        "INSERT INTO images (url, placeholder, preview_type, cache_key) VALUES (?, ?, ?, ?)",
+        "INSERT INTO images (url, placeholder, preview_type, cache_key, original_width, original_height) VALUES (?, ?, ?, ?, ?, ?)",
       )?;
 
       if !to_insert.is_empty() {
@@ -428,8 +435,16 @@ impl<'a> TransformVisitor<'a> {
         );
       }
 
-      for (url, placeholder, preview_type, cache_key) in to_insert {
-        insert_query.execute((url, placeholder, preview_type, cache_key))?;
+      for (url, placeholder, preview_type, cache_key, original_width, original_height) in to_insert
+      {
+        insert_query.execute((
+          url,
+          placeholder,
+          preview_type,
+          cache_key,
+          original_width,
+          original_height,
+        ))?;
       }
 
       let mut update_query = tx.prepare(
@@ -446,8 +461,17 @@ impl<'a> TransformVisitor<'a> {
         );
       }
 
-      for (id, _, placeholder, preview_type, cache_key) in to_update {
-        update_query.execute((placeholder, preview_type, cache_key, id))?;
+      for (id, _, placeholder, preview_type, cache_key, original_width, original_height) in
+        to_update
+      {
+        update_query.execute((
+          placeholder,
+          preview_type,
+          cache_key,
+          id,
+          original_width,
+          original_height,
+        ))?;
       }
     }
 
@@ -575,7 +599,13 @@ impl<'a> TransformVisitor<'a> {
           self.tasks.push(tokio::spawn(async move {
             match process_image(&bytes, &url_clone, &options).await {
               Ok(out) => {
-                let _ = store.insert_or_update(url_clone, out.base64_str, &options);
+                let _ = store.insert_or_update(
+                  url_clone,
+                  out.base64_str,
+                  out.original_width,
+                  out.original_height,
+                  &options,
+                );
               }
               Err(e) => create_log(
                 format!(
@@ -610,7 +640,13 @@ impl<'a> TransformVisitor<'a> {
       self.tasks.push(tokio::spawn(async move {
         match download_and_process_image(&client, &url, &options).await {
           Ok(image) => {
-            let _ = store.insert_or_update(url_clone, image.base64_str, &options);
+            let _ = store.insert_or_update(
+              url_clone,
+              image.base64_str,
+              image.original_width,
+              image.original_height,
+              &options,
+            );
           }
           Err(e) => create_log(
             format!(

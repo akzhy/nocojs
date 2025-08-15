@@ -3,7 +3,7 @@ use std::{
   sync::{Arc, Mutex},
 };
 
-use crate::{placeholder_image::PlaceholderImageOutputKind, transform::PreviewOptions};
+use crate::{placeholder_image::{wrap_with_svg, PlaceholderImageOutputKind}, transform::PreviewOptions};
 
 #[derive(Clone, Debug, PartialEq)]
 enum DbAction {
@@ -21,6 +21,8 @@ pub struct StoreDataItem {
   preview_type: PlaceholderImageOutputKind,
   cache_key: String,
   db_action: DbAction,
+  original_width: u32,
+  original_height: u32,
 }
 
 pub struct Store {
@@ -60,9 +62,9 @@ impl Store {
 
   pub fn create_item_from_row(
     &self,
-    row: (i32, String, String, String, String),
+    row: (i32, String, String, String, String, u32, u32),
   ) -> Result<StoreDataItem, Box<dyn std::error::Error + '_>> {
-    let (id, url, placeholder, preview_type_str, cache_key) = row;
+    let (id, url, placeholder, preview_type_str, cache_key, original_width, original_height) = row;
     let preview_type = PlaceholderImageOutputKind::from_string(&preview_type_str);
     Ok(StoreDataItem {
       id,
@@ -72,6 +74,8 @@ impl Store {
       preview_type,
       cache_key,
       db_action: DbAction::Skip,
+      original_width,
+      original_height,
     })
   }
 
@@ -79,6 +83,8 @@ impl Store {
     &self,
     url: String,
     placeholder: String,
+    original_width: u32,
+    original_height: u32,
     options: &PreviewOptions,
   ) -> Result<(), Box<dyn std::error::Error + '_>> {
     let mut map = self.data.lock()?;
@@ -98,6 +104,8 @@ impl Store {
         Some(item) if matches!(item.db_action, DbAction::Skip | DbAction::Update) => DbAction::Update,
         _ => DbAction::Insert,
       },
+      original_height,
+      original_width
     };
 
     map.insert(map_key, item);
@@ -108,8 +116,8 @@ impl Store {
     &self,
   ) -> Result<
     (
-      Vec<(String, String, String, String)>,
-      Vec<(i32, String, String, String, String)>,
+      Vec<(String, String, String, String, u32, u32)>,
+      Vec<(i32, String, String, String, String, u32, u32)>,
     ),
     Box<dyn std::error::Error + '_>,
   > {
@@ -118,8 +126,8 @@ impl Store {
       map.iter().map(|(k, v)| (k.clone(), v.clone())).collect()
     };
 
-    let mut to_insert: Vec<(String, String, String, String)> = vec![];
-    let mut to_update: Vec<(i32, String, String, String, String)> = vec![];
+    let mut to_insert: Vec<(String, String, String, String, u32, u32)> = vec![];
+    let mut to_update: Vec<(i32, String, String, String, String, u32, u32)> = vec![];
 
     data_vecc.iter().for_each(|(_, data)| {
       if !data.cache {
@@ -131,6 +139,8 @@ impl Store {
           data.placeholder.clone(),
           PlaceholderImageOutputKind::to_string(&data.preview_type.clone()),
           data.cache_key.clone(),
+          data.original_width,
+          data.original_height,
         ));
       } else if data.db_action == DbAction::Update {
         to_update.push((
@@ -139,6 +149,8 @@ impl Store {
           data.placeholder.clone(),
           PlaceholderImageOutputKind::to_string(&data.preview_type.clone()),
           data.cache_key.clone(),
+          data.original_width,
+          data.original_height,
         ));
       }
     });
@@ -166,6 +178,9 @@ impl Store {
     let map = self.data.lock()?;
     let cache_key = Store::create_cache_key(&options);
     if let Some(item) = map.get(format!("{}-{}", url, cache_key).as_str()) {
+      if options.wrap_with_svg && options.output_kind != PlaceholderImageOutputKind::Blurred {
+        return Ok(wrap_with_svg(item.placeholder.clone(), item.original_width, item.original_height));
+      }
       return Ok(item.placeholder.clone());
     }
     Err(Box::new(std::io::Error::new(
