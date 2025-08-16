@@ -48,7 +48,7 @@ jobs:
   napi:
     needs: check
     if: needs.check.outputs.has_core == 'true'
-    uses: ./.github/workflows/ci.yml
+    uses: ./.github/workflows/core-ci.yml
     secrets: inherit
 
   # Case 2: Only JS packages changed → publish directly here
