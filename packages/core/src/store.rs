@@ -3,7 +3,10 @@ use std::{
   sync::{Arc, Mutex},
 };
 
-use crate::{placeholder_image::{wrap_with_svg, PlaceholderImageOutputKind}, transform::PreviewOptions};
+use crate::{
+  placeholder_image::{wrap_with_svg, PlaceholderImageOutputKind},
+  transform::PreviewOptions,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 enum DbAction {
@@ -101,11 +104,13 @@ impl Store {
       cache_key: Store::create_cache_key(&options),
       db_action: match existing_item {
         None => DbAction::Insert,
-        Some(item) if matches!(item.db_action, DbAction::Skip | DbAction::Update) => DbAction::Update,
+        Some(item) if matches!(item.db_action, DbAction::Skip | DbAction::Update) => {
+          DbAction::Update
+        }
         _ => DbAction::Insert,
       },
       original_height,
-      original_width
+      original_width,
     };
 
     map.insert(map_key, item);
@@ -179,7 +184,20 @@ impl Store {
     let cache_key = Store::create_cache_key(&options);
     if let Some(item) = map.get(format!("{}-{}", url, cache_key).as_str()) {
       if options.wrap_with_svg && options.output_kind != PlaceholderImageOutputKind::Blurred {
-        return Ok(wrap_with_svg(item.placeholder.clone(), item.original_width, item.original_height));
+        let use_given_dimensions = options.width.is_some() && options.height.is_some();
+        return Ok(wrap_with_svg(
+          item.placeholder.clone(),
+          if use_given_dimensions {
+            options.width.unwrap()
+          } else {
+            item.original_width
+          },
+          if use_given_dimensions {
+            options.height.unwrap()
+          } else {
+            item.original_height
+          },
+        ));
       }
       return Ok(item.placeholder.clone());
     }
