@@ -41,6 +41,13 @@ let img = preview("${url}"${previewOptions});`;
 };
 
 export const base64ToSharpImage = (base64: string) => {
+  if (base64.startsWith('data:image/svg+xml,')) {
+    const base64EncodedData = base64.substring('data:image/svg+xml,'.length);
+    const base64Data = decodeURIComponent(base64EncodedData);
+    const buffer = Buffer.from(base64Data);
+    return sharp(buffer);
+  }
+
   const base64Data = base64.replace(/^data:image\/\w+;base64,/, '');
   const buffer = Buffer.from(base64Data, 'base64');
 
@@ -62,19 +69,13 @@ export const getDominantColor = async (image: sharp.Sharp) => {
 };
 
 export async function isImageSingleColor(sharpInstance: sharp.Sharp): Promise<boolean> {
-  const { data, info } = await sharpInstance
-    .clone()
-    .resize(1, 1, { fit: 'fill' })
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+  const { data, info } = await sharpInstance.clone().raw().toBuffer({ resolveWithObject: true });
+  const pixelValue = Array.from(data.subarray(0, info.channels));
+  console.log(pixelValue, info.channels);
 
-  const pixelValue = Array.from(data);
-
-  const { data: originalData } = await sharpInstance.clone().raw().toBuffer({ resolveWithObject: true });
-
-  for (let i = 0; i < originalData.length; i += info.channels) {
+  for (let i = 0; i < data.length; i += info.channels) {
     for (let c = 0; c < info.channels; c++) {
-      if (originalData[i + c] !== pixelValue[c]) {
+      if (data[i + c] !== pixelValue[c]) {
         return false;
       }
     }

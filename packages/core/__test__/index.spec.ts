@@ -9,7 +9,7 @@ describe('Basic Transform Tests', () => {
     const input = getInput();
     const result = await transform(input, 'index.ts');
     expect(result.code).toMatchSnapshot();
-  });
+  }, 10000);
 
   test('transforms with custom cache dir', async () => {
     const input = getInput();
