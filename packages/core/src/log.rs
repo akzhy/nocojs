@@ -1,8 +1,8 @@
 use console::style;
 use napi_derive::napi;
 use once_cell::sync::Lazy;
-use std::sync::atomic::{AtomicU8, Ordering};
 use std::fmt::Display;
+use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::Mutex;
 
 #[derive(Clone)]
@@ -13,7 +13,6 @@ pub struct Log {
 }
 
 pub static LOGS: Lazy<Mutex<Vec<Log>>> = Lazy::new(|| Mutex::new(Vec::new()));
-
 
 #[napi]
 #[derive(Debug, Clone, Copy)]
@@ -49,16 +48,28 @@ pub fn create_log<T: Display>(message: T, level: LogLevel) {
       level,
     };
     LOGS.lock().unwrap().push(log);
-    println!("{}{}", style(" nocojs ").bg(console::Color::Cyan).white(), message);
+    println!(
+      "{}{}",
+      style(" nocojs ").bg(console::Color::Cyan).white(),
+      message
+    );
   }
 }
 
 pub fn style_error<T: Display>(message: T) -> String {
-  let out = format!("{} {}", style(" error ").bg(console::Color::Red).white(), style(message.to_string()).red());
+  let out = format!(
+    "{} {}",
+    style(" error ").bg(console::Color::Red).white(),
+    style(message.to_string()).red()
+  );
   out
 }
 
 pub fn style_info<T: Display>(message: T) -> String {
-  let out = format!("{} {}", style(" info ").bg(console::Color::Blue).white(), message);
+  let out = format!(
+    "{} {}",
+    style(" info ").bg(console::Color::Blue).white(),
+    message
+  );
   out
 }

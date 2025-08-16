@@ -30,7 +30,7 @@ pub async fn transform(
       width: options.width,
       height: options.height,
       sourcemap_file_path: options.sourcemap_file_path,
-      wrap_with_svg: options.wrap_with_svg
+      wrap_with_svg: options.wrap_with_svg,
     },
   )
   .await;
