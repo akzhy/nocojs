@@ -90,7 +90,7 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get install -y libdav1d-dev pkg-config libssl-dev
+            sudo apt-get install -y libdav1d-dev pkg-config libssl-dev ninja-build meson nasm
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             brew install dav1d
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -118,6 +118,8 @@ jobs:
       - name: Build
         run: ${{ matrix.settings.build }}
         shell: bash
+        env:
+          SYSTEM_DEPS_DAV1D_BUILD_INTERNAL: always
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
