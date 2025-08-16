@@ -1,23 +1,11 @@
-name: CI
+name: Core CI
 env:
   DEBUG: napi:*
   APP_NAME: nocojs_core
   MACOSX_DEPLOYMENT_TARGET: '10.13'
   CARGO_INCREMENTAL: '1'
 'on':
-  push:
-    branches:
-      - main
-    tags-ignore:
-      - '**'
-    paths-ignore:
-      - '**/*.md'
-      - LICENSE
-      - '**/*.gitignore'
-      - .editorconfig
-      - docs/**
-  pull_request: null
-  workflow_dispatch: null
+  workflow_call:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -25,6 +13,9 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./packages/core
     steps:
       - uses: actions/checkout@v4
       - name: Setup node
@@ -45,6 +36,9 @@ jobs:
       - name: Clippy
         run: cargo clippy
   build:
+    defaults:
+      run:
+        working-directory: ./packages/core
     strategy:
       fail-fast: false
       matrix:
@@ -121,6 +115,9 @@ jobs:
             ${{ env.APP_NAME }}.*.wasm
           if-no-files-found: error
   test-macOS-windows-binding:
+    defaults:
+      run:
+        working-directory: ./packages/core
     name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
     needs:
       - build
@@ -162,6 +159,9 @@ jobs:
       - name: Test bindings
         run: yarn test
   test-linux-binding:
+    defaults:
+      run:
+        working-directory: ./packages/core
     name: Test ${{ matrix.target }} - node@${{ matrix.node }}
     needs:
       - build
@@ -249,29 +249,21 @@ jobs:
         run: yarn install
       - name: create npm dirs
         run: yarn napi create-npm-dirs
+        working-directory: packages/core
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Move artifacts
         run: yarn artifacts
+        working-directory: packages/core
       - name: List packages
         run: ls -R ./npm
         shell: bash
-      - name: Publish
-        run: |
-          npm config set provenance true
-          if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --access public
-          elif git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --tag next --access public
-          else
-            echo "Not a release, skipping publish"
-          fi
+      - name: Publish packages
+        uses: changesets/action@v1
+        with:
+          publish: yarn changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
