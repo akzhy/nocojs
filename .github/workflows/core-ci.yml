@@ -86,6 +86,18 @@ jobs:
             .cargo-cache
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
+      - name: Install libdav1d
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update
+            sudo apt-get install -y libdav1d-dev
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew install dav1d
+          elif [[ "$RUNNER_OS" == "Windows" ]]; then
+            vcpkg install dav1d:x64-windows
+            vcpkg integrate install
+          fi
+        shell: bash
       - uses: goto-bus-stop/setup-zig@v2
         if: ${{ contains(matrix.settings.target, 'musl') }}
         with:
