@@ -22,20 +22,26 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
-      # Generate release plan JSON
+      - name: Get current version
+        id: current_core_version
+        run: echo "current_core_version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+        working-directory: packages/core
+
+      - name: Get base version
+        id: base_core_version
+        run: |
+          git fetch origin main
+          version=$(git show origin/main:package.json | jq -r .version)
+          echo "base_core_version=$version" >> $GITHUB_OUTPUT
+
       - id: detect
         run: |
-          npx changeset status --output .changeset/plan.json
-          echo "Release plan:"
-          cat .changeset/plan.json
-
-          # Check if "core" package is in the release plan
-          if jq -e '.releases[] | select(.name=="@nocojs/core" and .newVersion != .oldVersion)' .changeset/plan.json > /dev/null; then
+          if [ "${{ steps.base_core_version.outputs.base_core_version }}" = "${{ steps.current_core_version.outputs.current_core_version }}" ]; then
             echo "Core changed"
-            echo "has_core=true" >> $GITHUB_OUTPUT
+            echo "has_core=false" >> $GITHUB_OUTPUT
           else
             echo "Core not changed"
-            echo "has_core=false" >> $GITHUB_OUTPUT
+            echo "has_core=true" >> $GITHUB_OUTPUT
           fi
 
   # Case 1: Core changed → delegate to napi CI
