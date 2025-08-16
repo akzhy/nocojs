@@ -37,10 +37,10 @@ jobs:
       - id: detect
         run: |
           if [ "${{ steps.base_core_version.outputs.base_core_version }}" = "${{ steps.current_core_version.outputs.current_core_version }}" ]; then
-            echo "Core changed"
+            echo "Core not changed"
             echo "has_core=false" >> $GITHUB_OUTPUT
           else
-            echo "Core not changed"
+            echo "Core changed"
             echo "has_core=true" >> $GITHUB_OUTPUT
           fi
 
