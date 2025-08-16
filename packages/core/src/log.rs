@@ -59,6 +59,6 @@ pub fn style_error<T: Display>(message: T) -> String {
 }
 
 pub fn style_info<T: Display>(message: T) -> String {
-  let out = format!("{} {}", style(" info ").bg(console::Color::Blue).white(), message.to_string());
+  let out = format!("{} {}", style(" info ").bg(console::Color::Blue).white(), message);
   out
 }

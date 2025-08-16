@@ -1,4 +1,5 @@
 #![deny(clippy::all)]
+#![allow(clippy::uninlined_format_args)]
 
 pub mod log;
 pub mod placeholder_image;
@@ -35,7 +36,7 @@ pub async fn transform(
   .await;
 
   out.unwrap_or(Some(TransformOutput {
-    code: code,
+    code,
     sourcemap: None,
     logs: Some(log::collect_logs()),
   }))

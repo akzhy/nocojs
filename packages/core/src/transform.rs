@@ -83,7 +83,7 @@ pub struct PreviewOptions {
 
 impl PreviewOptions {
   pub fn from_global_options(options: &TransformOptions) -> Self {
-    let result = PreviewOptions {
+    PreviewOptions {
       width: options.width,
       height: options.height,
       output_kind: options
@@ -93,8 +93,7 @@ impl PreviewOptions {
       replace_function_call: options.replace_function_call.unwrap_or(true),
       cache: options.cache.unwrap_or(true),
       wrap_with_svg: options.wrap_with_svg.unwrap_or(true),
-    };
-    result
+    }
   }
 }
 
@@ -185,7 +184,7 @@ pub async fn transform(
 
   let transform_result = Some(TransformOutput {
     code: result_code,
-    sourcemap: sourcemap,
+    sourcemap,
     logs: Some(log::collect_logs()),
   });
 
@@ -261,12 +260,12 @@ fn init_cache_dir(dirname: &str) -> Result<String, Box<dyn std::error::Error>> {
   if !path.exists() {
     let create = std::fs::create_dir_all(&path);
 
-    if create.is_err() {
+    if let Err(e) = create {
       create_log(
-        log::style_error(&format!("Failed to create cache directory: {}", dirname)),
+        log::style_error(format!("Failed to create cache directory: {}", dirname)),
         LogLevel::Error,
       );
-      return Err(Box::new(create.unwrap_err()));
+      return Err(Box::new(e));
     }
   }
 
@@ -297,6 +296,7 @@ impl<'a> TransformVisitor<'a> {
   /// If there are changes, it first pushes the new data to the db and begins the second pass,
   /// which replaces the function calls with the processed image URLs.
   ///
+  #[allow(clippy::redundant_pattern_matching)]
   async fn begin(&mut self, program: &mut Program<'a>) {
     let _ = self.set_store_data_from_db();
 
@@ -348,7 +348,7 @@ impl<'a> TransformVisitor<'a> {
       ))?);
     }
 
-    if to_insert.len() > 0 {
+    if !to_insert.is_empty() {
       create_log(
         log::style_info(format!(
           "Loaded {} cached images from the database",
@@ -406,7 +406,7 @@ impl<'a> TransformVisitor<'a> {
       return Err("No image URL provided in the function call".into());
     }
 
-    return Ok(());
+    Ok(())
   }
 
   /// Pushes the current state of the store to the database.
@@ -536,7 +536,7 @@ impl<'a> TransformVisitor<'a> {
             "placeholderType" => {
               if let Expression::StringLiteral(string_literal) = &key_value.value {
                 preview_options.output_kind =
-                  PlaceholderImageOutputKind::from_string(&string_literal.value.to_string());
+                  PlaceholderImageOutputKind::from_string(&string_literal.value);
               }
             }
             "replaceFunctionCall" => {
@@ -580,7 +580,7 @@ impl<'a> TransformVisitor<'a> {
         let image_path = PathBuf::from(public_dir.clone()).join(relative_url);
 
         if image_path.exists() {
-          let file_read = std::fs::read(&image_path.as_path());
+          let file_read = std::fs::read(image_path.as_path());
           if file_read.is_err() {
             create_log(
               style_error(format!(
@@ -638,7 +638,7 @@ impl<'a> TransformVisitor<'a> {
       let file_path_clone = self.file_path.clone();
 
       self.tasks.push(tokio::spawn(async move {
-        match download_and_process_image(&client, &url, &options).await {
+        match download_and_process_image(client, &url, &options).await {
           Ok(image) => {
             let _ = store.insert_or_update(
               url_clone,
@@ -675,12 +675,10 @@ impl<'a> VisitMut<'a> for TransformVisitor<'a> {
             // Handle renamed imports
             // Eg: import { preview as previewFn } from '@nocojs/client';
             if let ModuleExportName::IdentifierName(identifier_name) = &import_specifier.imported {
-              if identifier_name.name == "preview" {
-                if self.pass == Pass::First {
-                  self
-                    .util_import_symbols
-                    .push(import_specifier.local.symbol_id());
-                }
+              if identifier_name.name == "preview" && self.pass == Pass::First {
+                self
+                  .util_import_symbols
+                  .push(import_specifier.local.symbol_id());
               }
             } else if import_specifier.local.name == "preview" {
               self

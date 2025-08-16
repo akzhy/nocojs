@@ -32,6 +32,14 @@ pub struct Store {
   pub data: Arc<Mutex<HashMap<String, StoreDataItem>>>,
 }
 
+impl Default for Store {
+  fn default() -> Self {
+    Store {
+      data: Arc::new(Mutex::new(HashMap::new())),
+    }
+  }
+}
+
 impl Store {
   pub fn new() -> Self {
     Store {
@@ -91,7 +99,7 @@ impl Store {
     options: &PreviewOptions,
   ) -> Result<(), Box<dyn std::error::Error + '_>> {
     let mut map = self.data.lock()?;
-    let cache_key = Store::create_cache_key(&options);
+    let cache_key = Store::create_cache_key(options);
     let map_key = format!("{}-{}", url.clone(), cache_key.clone());
     let existing_item = map.get(map_key.as_str());
 
@@ -101,7 +109,7 @@ impl Store {
       placeholder,
       cache: options.cache,
       preview_type: options.output_kind.clone(),
-      cache_key: Store::create_cache_key(&options),
+      cache_key: Store::create_cache_key(options),
       db_action: match existing_item {
         None => DbAction::Insert,
         Some(item) if matches!(item.db_action, DbAction::Skip | DbAction::Update) => {
@@ -117,6 +125,7 @@ impl Store {
     Ok(())
   }
 
+  #[allow(clippy::type_complexity)]
   pub fn get_prepared_data(
     &self,
   ) -> Result<
@@ -142,7 +151,7 @@ impl Store {
         to_insert.push((
           data.url.clone(),
           data.placeholder.clone(),
-          PlaceholderImageOutputKind::to_string(&data.preview_type.clone()),
+          PlaceholderImageOutputKind::get_string_name(&data.preview_type.clone()),
           data.cache_key.clone(),
           data.original_width,
           data.original_height,
@@ -152,7 +161,7 @@ impl Store {
           data.id,
           data.url.clone(),
           data.placeholder.clone(),
-          PlaceholderImageOutputKind::to_string(&data.preview_type.clone()),
+          PlaceholderImageOutputKind::get_string_name(&data.preview_type.clone()),
           data.cache_key.clone(),
           data.original_width,
           data.original_height,
@@ -169,7 +178,7 @@ impl Store {
     options: &PreviewOptions,
   ) -> Result<bool, Box<dyn std::error::Error + '_>> {
     let map = self.data.lock().unwrap();
-    let cache_key = Store::create_cache_key(&options);
+    let cache_key = Store::create_cache_key(options);
     let item = map.get(format!("{}-{}", url, cache_key).as_str());
 
     Ok(item.is_some())
@@ -181,7 +190,7 @@ impl Store {
     options: &PreviewOptions,
   ) -> Result<String, Box<dyn std::error::Error + '_>> {
     let map = self.data.lock()?;
-    let cache_key = Store::create_cache_key(&options);
+    let cache_key = Store::create_cache_key(options);
     if let Some(item) = map.get(format!("{}-{}", url, cache_key).as_str()) {
       if options.wrap_with_svg && options.output_kind != PlaceholderImageOutputKind::Blurred {
         let use_given_dimensions = options.width.is_some() && options.height.is_some();
@@ -210,9 +219,9 @@ impl Store {
   fn create_cache_key(options: &PreviewOptions) -> String {
     format!(
       "{}_{}_{}",
-      options.output_kind.to_string(),
-      options.width.unwrap_or(0).to_string(),
-      options.height.unwrap_or(0).to_string()
+      options.output_kind.get_string_name(),
+      options.width.unwrap_or(0),
+      options.height.unwrap_or(0)
     )
   }
 }

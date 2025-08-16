@@ -23,7 +23,7 @@ pub enum PlaceholderImageOutputKind {
 }
 
 impl PlaceholderImageOutputKind {
-  pub fn to_string(&self) -> String {
+  pub fn get_string_name(&self) -> String {
     match self {
       PlaceholderImageOutputKind::Normal => "normal".to_string(),
       PlaceholderImageOutputKind::Blurred => "blurred".to_string(),
@@ -84,7 +84,7 @@ pub async fn download_and_process_image(
 ) -> Result<ProcessImageOutput, Box<dyn std::error::Error>> {
   let download_time = Instant::now();
   create_log(
-    style_info(format!("Downloading image from {}", url)),
+    style_info(format!("Downloading image from {url}")),
     LogLevel::Info,
   );
 
@@ -92,7 +92,7 @@ pub async fn download_and_process_image(
   let elapsed = download_time.elapsed();
 
   create_log(
-    style_info(format!("Downloaded image {} in {:?}", url, elapsed)),
+    style_info(format!("Downloaded image from {url} in {elapsed:?}")),
     LogLevel::Info,
   );
 
@@ -187,7 +187,7 @@ pub async fn process_image(
   // Step 5: Encode resized image as PNG
   let mut png_bytes = Vec::new();
   image::codecs::png::PngEncoder::new(&mut png_bytes).write_image(
-    &dst_image.buffer(),
+    dst_image.buffer(),
     dst_image.width(),
     dst_image.height(),
     color_type,
@@ -213,24 +213,19 @@ pub async fn process_image(
         } else {
           ColorType::Dominant
         };
-        let color = get_color_from_image(&dst_image, color_type).unwrap();
+        let color = get_color_from_image(&dst_image, color_type)?;
 
-        let png_data =
-          create_base64_rectangle(new_width, new_height, (color.0, color.1, color.2, 255))?;
-
-        png_data
+        create_base64_rectangle(new_width, new_height, (color.0, color.1, color.2, 255))?
       }
       PlaceholderImageOutputKind::Transparent => {
-        let png_data = create_base64_rectangle(new_width, new_height, (0, 0, 0, 0))?;
-
-        png_data
+        create_base64_rectangle(new_width, new_height, (0, 0, 0, 0))?
       }
     }
   };
 
   let elapsed = process_time.elapsed();
   create_log(
-    style_info(format!("Processed image {} in {:?}", url, elapsed)),
+    style_info(format!("Processed image {url} in {elapsed:?}")),
     LogLevel::Info,
   );
 
