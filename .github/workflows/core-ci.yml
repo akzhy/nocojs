@@ -86,11 +86,11 @@ jobs:
             .cargo-cache
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
-      - name: Install libdav1d
+      - name: Install required external dependencies
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get install -y libdav1d-dev
+            sudo apt-get install -y libdav1d-dev pkg-config libssl-dev
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             brew install dav1d
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
