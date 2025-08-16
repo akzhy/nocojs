@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      has_core: ${{ steps.detect.outputs.has_core }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - run: yarn install --frozen-lockfile
+
+      # Generate release plan JSON
+      - id: detect
+        run: |
+          npx changeset status --output .changeset/plan.json
+          echo "Release plan:"
+          cat .changeset/plan.json
+
+          # Check if "core" package is in the release plan
+          if jq -e '.releases[] | select(.name=="@nocojs/core" and .newVersion != .oldVersion)' .changeset/plan.json > /dev/null; then
+            echo "Core changed"
+            echo "has_core=true" >> $GITHUB_OUTPUT
+          else
+            echo "Core not changed"
+            echo "has_core=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Case 1: Core changed → delegate to napi CI
+  napi:
+    needs: check
+    if: needs.check.outputs.has_core == 'true'
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  # Case 2: Only JS packages changed → publish directly here
+  js-release:
+    needs: check
+    if: needs.check.outputs.has_core == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: yarn install --frozen-lockfile
+      - name: Publish JS packages
+        uses: changesets/action@v1
+        with:
+          publish: yarn changeset publish
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
