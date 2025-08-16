@@ -205,7 +205,7 @@ pub async fn process_image(
       }
       PlaceholderImageOutputKind::Blurred => {
         let data_src = general_purpose::STANDARD.encode(&png_bytes);
-        create_blurred_preview_url(&data_src, new_width, new_height)
+        create_blurred_preview_url(&data_src, width, height)
       }
       PlaceholderImageOutputKind::AverageColor | PlaceholderImageOutputKind::DominantColor => {
         let color_type = if options.output_kind == PlaceholderImageOutputKind::AverageColor {
@@ -314,9 +314,10 @@ fn create_base64_rectangle(
 
 fn create_blurred_preview_url(data_src: &str, width: u32, height: u32) -> String {
   let svg = format!(
-    r#"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}'><filter id='b' color-interpolation-filters='sRGB'><feGaussianBlur stdDeviation='20'/><feColorMatrix values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 100 -1' result='s'/><feFlood x='0' y='0' width='100%' height='100%'/><feComposite operator='out' in='s'/><feComposite in2='SourceGraphic'/><feGaussianBlur stdDeviation='1'/></filter><image width='100%' height='100%' x='0' y='0' preserveAspectRatio='none' style='filter: url(#b);' href='data:image/png;base64,___DATA___'/></svg>"#,
+    r#"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}'><filter id='b' color-interpolation-filters='sRGB'><feGaussianBlur stdDeviation='{d}'/><feColorMatrix values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 100 -1' result='s'/><feFlood x='0' y='0' width='100%' height='100%'/><feComposite operator='out' in='s'/><feComposite in2='SourceGraphic'/><feGaussianBlur stdDeviation='{d}'/></filter><image width='100%' height='100%' x='0' y='0' preserveAspectRatio='none' style='filter: url(#b);' href='data:image/png;base64,___DATA___'/></svg>"#,
     w = width,
-    h = height
+    h = height,
+    d = (width as f32 * 0.05).round()
   );
 
   let formatted = format!("data:image/svg+xml,{}", urlencoding::encode(&svg));
