@@ -1,6 +1,6 @@
 {
   "name": "@nocojs/rollup-plugin",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Rollup plugin for nocojs image optimization",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

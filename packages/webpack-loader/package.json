@@ -1,6 +1,6 @@
 {
   "name": "@nocojs/webpack-loader",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Webpack loader for @nocojs/core transformations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
