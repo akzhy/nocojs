@@ -10,6 +10,13 @@ function App() {
   return (
     <div className="App">
       <h1>nocojs</h1>
+      <a
+        href="https://github.com/akzhy/nocojs"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        GitHub
+      </a>
       <p>Hover over the image to reveal the actual image.</p>
       <PlaceholderNormalType />
       <PlaceholderBlurredType />
