@@ -90,12 +90,11 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get install -y libdav1d-dev pkg-config libssl-dev
+            sudo apt-get install -y libdav1d-dev pkg-config libssl-dev meson ninja-build python3
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            brew install dav1d
+            brew install meson ninja pkg-config dav1d python3
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
-            vcpkg install dav1d:x64-windows
-            vcpkg integrate install
+            choco install -y python ninja meson
           fi
         shell: bash
       - uses: goto-bus-stop/setup-zig@v2
