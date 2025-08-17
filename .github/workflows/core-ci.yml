@@ -90,12 +90,12 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get install -y libdav1d-dev pkg-config build-essential libc++-dev libc++abi-dev
+            sudo apt-get install -y pkg-config build-essential libc++-dev libc++abi-dev
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            brew install meson ninja pkg-config dav1d python3
+            brew install meson ninja pkg-config python3
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
-            vcpkg install dav1d:x64-windows
-            vcpkg integrate install
+            # No additional dependencies needed for pure Rust AVIF implementation
+            echo "Using pure Rust AVIF implementation - no additional dependencies needed"
           fi
         shell: bash
       - uses: goto-bus-stop/setup-zig@v2
