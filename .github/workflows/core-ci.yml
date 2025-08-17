@@ -118,7 +118,7 @@ jobs:
         run: ${{ matrix.settings.build }}
         shell: bash
       - name: List built files
-        run: ls -la packages/core/
+        run: ls -la .
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
