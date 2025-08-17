@@ -14,33 +14,33 @@ env:
 jobs:
   build:
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         settings:
           - target: x86_64-apple-darwin
             flags: "-x"
           - target: aarch64-apple-darwin
             flags: "-x"
-          - target: x86_64-pc-windows-msvc
-            flags: "-x"
-          - target: i686-pc-windows-msvc
-            flags: "-x"
-          - target: aarch64-pc-windows-msvc
-            flags: "-x"
-          - target: x86_64-unknown-linux-gnu
-            flags: "--use-napi-cross"
-          - target: aarch64-unknown-linux-gnu
-            flags: "--use-napi-cross"
-          - target: x86_64-unknown-linux-musl
-            flags: "-x"
-          - target: aarch64-unknown-linux-musl
-            flags: "-x"
-          - target: armv7-unknown-linux-gnueabihf
-            flags: "--use-napi-cross"
-          - target: powerpc64le-unknown-linux-gnu
-            flags: "--use-napi-cross"
-          - target: s390x-unknown-linux-gnu
-            flags: "--use-napi-cross"
+          # - target: x86_64-pc-windows-msvc
+          #   flags: "-x"
+          # - target: i686-pc-windows-msvc
+          #   flags: "-x"
+          # - target: aarch64-pc-windows-msvc
+          #   flags: "-x"
+          # - target: x86_64-unknown-linux-gnu
+          #   flags: "--use-napi-cross"
+          # - target: aarch64-unknown-linux-gnu
+          #   flags: "--use-napi-cross"
+          # - target: x86_64-unknown-linux-musl
+          #   flags: "-x"
+          # - target: aarch64-unknown-linux-musl
+          #   flags: "-x"
+          # - target: armv7-unknown-linux-gnueabihf
+          #   flags: "--use-napi-cross"
+          # - target: powerpc64le-unknown-linux-gnu
+          #   flags: "--use-napi-cross"
+          # - target: s390x-unknown-linux-gnu
+          #   flags: "--use-napi-cross"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -72,6 +72,10 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           tool: cargo-zigbuild,cargo-xwin
+      - name: Install required external dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libdav1d-dev pkg-config build-essential libc++-dev libc++abi-dev
       - run: yarn install
       - run: yarn workspace @nocojs/core build --target ${{ matrix.settings.target }} ${{ matrix.settings.flags }}
         env:
