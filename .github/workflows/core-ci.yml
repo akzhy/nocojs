@@ -94,7 +94,8 @@ jobs:
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             brew install meson ninja pkg-config dav1d python3
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
-            choco install -y python ninja meson
+            vcpkg install dav1d:x64-windows
+            vcpkg integrate install
           fi
         shell: bash
       - uses: goto-bus-stop/setup-zig@v2
@@ -124,8 +125,8 @@ jobs:
         with:
           name: bindings-${{ matrix.settings.target }}
           path: |
-            ${{ env.APP_NAME }}*.node
-            ${{ env.APP_NAME }}*.wasm
+            ${{ env.APP_NAME }}**.node
+            ${{ env.APP_NAME }}**.wasm
           if-no-files-found: error
   test-macOS-windows-binding:
     defaults:
