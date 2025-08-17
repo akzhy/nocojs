@@ -5,9 +5,11 @@ on:
       - main
   pull_request:
 
+  workflow_dispatch:
+
 env:
-  DEBUG: 'napi:*'
-  MACOSX_DEPLOYMENT_TARGET: '10.13'
+  DEBUG: "napi:*"
+  MACOSX_DEPLOYMENT_TARGET: "10.13"
 
 jobs:
   build:
@@ -16,29 +18,29 @@ jobs:
       matrix:
         settings:
           - target: x86_64-apple-darwin
-            flags: '-x'
+            flags: "-x"
           - target: aarch64-apple-darwin
-            flags: '-x'
+            flags: "-x"
           - target: x86_64-pc-windows-msvc
-            flags: '-x'
+            flags: "-x"
           - target: i686-pc-windows-msvc
-            flags: '-x'
+            flags: "-x"
           - target: aarch64-pc-windows-msvc
-            flags: '-x'
+            flags: "-x"
           - target: x86_64-unknown-linux-gnu
-            flags: '--use-napi-cross'
+            flags: "--use-napi-cross"
           - target: aarch64-unknown-linux-gnu
-            flags: '--use-napi-cross'
+            flags: "--use-napi-cross"
           - target: x86_64-unknown-linux-musl
-            flags: '-x'
+            flags: "-x"
           - target: aarch64-unknown-linux-musl
-            flags: '-x'
+            flags: "-x"
           - target: armv7-unknown-linux-gnueabihf
-            flags: '--use-napi-cross'
+            flags: "--use-napi-cross"
           - target: powerpc64le-unknown-linux-gnu
-            flags: '--use-napi-cross'
+            flags: "--use-napi-cross"
           - target: s390x-unknown-linux-gnu
-            flags: '--use-napi-cross'
+            flags: "--use-napi-cross"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -58,8 +60,8 @@ jobs:
           targets: ${{ matrix.settings.target }}
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'yarn'
+          node-version: "22"
+          cache: "yarn"
       - name: Install ziglang
         uses: mlugg/setup-zig@v2
         with:
@@ -99,7 +101,7 @@ jobs:
           - target: i686-pc-windows-msvc
             host: windows-latest
             architecture: x64
-        node: ['20', '22']
+        node: ["20", "22"]
     runs-on: ${{ matrix.settings.host }}
     needs:
       - build
@@ -108,7 +110,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: 'yarn'
+          cache: "yarn"
           architecture: ${{ matrix.settings.architecture }}
       - name: Setup node x86
         if: matrix.settings.target == 'i686-pc-windows-msvc'
@@ -137,25 +139,25 @@ jobs:
         settings:
           - target: x86_64-unknown-linux-gnu
             docker: node:22-slim
-            args: ''
+            args: ""
           - target: aarch64-unknown-linux-gnu
             docker: node:22-slim
-            args: '--platform linux/arm64'
+            args: "--platform linux/arm64"
           - target: x86_64-unknown-linux-musl
             docker: node:22-alpine
-            args: ''
+            args: ""
           - target: aarch64-unknown-linux-musl
             docker: node:22-alpine
-            args: '--platform linux/arm64'
+            args: "--platform linux/arm64"
           - target: armv7-unknown-linux-gnueabihf
             docker: node:22-bullseye-slim
-            args: '--platform linux/arm/v7'
+            args: "--platform linux/arm/v7"
           - target: s390x-unknown-linux-gnu
             docker: node:22-slim
-            args: '--platform linux/s390x'
+            args: "--platform linux/s390x"
           - target: powerpc64le-unknown-linux-gnu
             docker: node:22-slim
-            args: '--platform linux/ppc64le'
+            args: "--platform linux/ppc64le"
     runs-on: ${{ contains(matrix.settings.target, 'aarch64') && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     needs:
       - build
@@ -164,7 +166,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
+          cache: "yarn"
       - name: Install dependencies
         run: yarn install
       - name: Download bindings
