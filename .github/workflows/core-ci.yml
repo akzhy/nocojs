@@ -90,7 +90,7 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get install -y libdav1d-dev pkg-config libssl-dev meson ninja-build python3
+            sudo apt-get install -y libdav1d-dev pkg-config
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             brew install meson ninja pkg-config dav1d python3
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -116,17 +116,9 @@ jobs:
         run: yarn install
       - name: Build
         run: ${{ matrix.settings.build }}
-        if: ${{ !contains(matrix.settings.target, 'apple') }}
         shell: bash
         env:
           SYSTEM_DEPS_DAV1D_BUILD_INTERNAL: always
-      - name: Build
-        run: ${{ matrix.settings.build }}
-        if: ${{ contains(matrix.settings.target, 'apple') }}
-        shell: bash
-        env:
-          SYSTEM_DEPS_DAV1D_BUILD_INTERNAL: never
-          DAV1D_SYS_USE_PKG_CONFIG: 1
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
