@@ -90,7 +90,7 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get install -y libdav1d-dev pkg-config
+            sudo apt-get install -y libdav1d-dev pkg-config build-essential
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             brew install meson ninja pkg-config dav1d python3
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -117,13 +117,15 @@ jobs:
       - name: Build
         run: ${{ matrix.settings.build }}
         shell: bash
+      - name: List built files
+        run: ls -la packages/core/
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
           path: |
-            ${{ env.APP_NAME }}.*.node
-            ${{ env.APP_NAME }}.*.wasm
+            ${{ env.APP_NAME }}*.node
+            ${{ env.APP_NAME }}*.wasm
           if-no-files-found: error
   test-macOS-windows-binding:
     defaults:
