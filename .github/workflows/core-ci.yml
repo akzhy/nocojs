@@ -90,7 +90,7 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get install -y libdav1d-dev pkg-config libssl-dev ninja-build meson nasm
+            sudo apt-get install -y libdav1d-dev pkg-config libssl-dev
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             brew install dav1d
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
