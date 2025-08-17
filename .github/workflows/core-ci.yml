@@ -117,8 +117,6 @@ jobs:
       - name: Build
         run: ${{ matrix.settings.build }}
         shell: bash
-        env:
-          SYSTEM_DEPS_DAV1D_BUILD_INTERNAL: always
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
