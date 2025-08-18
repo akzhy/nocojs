@@ -71,25 +71,31 @@ jobs:
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             build: yarn build --target x86_64-unknown-linux-gnu
-            envs:
+            envs: 
               - PKG_CONFIG_ALLOW_CROSS=1
-
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
             build: yarn build --target x86_64-unknown-linux-musl -x
-            envs:
+            envs: 
               - PKG_CONFIG_ALLOW_CROSS=1
 
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             build: yarn build --target aarch64-unknown-linux-gnu
-            envs:
+            envs: 
               - PKG_CONFIG_ALLOW_CROSS=1
-
+          - host: ubuntu-latest
+            target: armv7-unknown-linux-gnueabihf
+            build: yarn build --target armv7-unknown-linux-gnueabihf
+            envs: 
+              - PKG_CONFIG_ALLOW_CROSS=1
+          - host: ubuntu-latest
+            target: aarch64-linux-android
+            build: yarn build --target aarch64-linux-android
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
             build: yarn build --target aarch64-unknown-linux-musl -x
-            envs:
+            envs: 
               - PKG_CONFIG_ALLOW_CROSS=1
 
     name: stable - ${{ matrix.settings.target }} - node@22
@@ -117,11 +123,7 @@ jobs:
             .cargo-cache
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
-      - name: Setup mac OS dependencies
-        if: ${{ matrix.settings.host == 'macos-latest' }}
-        run: |
-          brew install pkgconf dav1d
-      - uses: goto-bus-stop/setup-zig@v2
+      - uses: mlugg/setup-zig@v2
         if: ${{ contains(matrix.settings.target, 'musl') }}
         with:
           version: 0.14.1
@@ -136,9 +138,11 @@ jobs:
         run: ${{ matrix.settings.setup }}
         if: ${{ matrix.settings.setup }}
         shell: bash
-      - name: Install dependencies
-        run: yarn install
 
+      - name: Setup mac OS dependencies
+        if: ${{ matrix.settings.host == 'macos-latest' }}
+        run: |
+          brew install pkgconf dav1d
       - name: Setup linux dependencies
         if: ${{ matrix.settings.host == 'ubuntu-latest' }}
         run: |
@@ -174,6 +178,9 @@ jobs:
         if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'aarch64-pc-windows-msvc'}}
         run: |
           echo "PKG_CONFIG_PATH=C:/vcpkg/installed/aarch64-windows/lib/pkgconfig;C:/vcpkg/packages/dav1d_arm64-windows/lib/pkgconfig;VCPKG_ROOT\installed\aarch64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
+
+      - name: Install dependencies
+        run: yarn install
 
       - name: Build
         run: |
