@@ -2,9 +2,9 @@ name: Core CI
 env:
   DEBUG: napi:*
   APP_NAME: nocojs_core
-  MACOSX_DEPLOYMENT_TARGET: '10.13'
-  CARGO_INCREMENTAL: '1'
-'on':
+  MACOSX_DEPLOYMENT_TARGET: "10.13"
+  CARGO_INCREMENTAL: "1"
+"on":
   workflow_call:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,6 +33,10 @@ jobs:
         run: yarn lint
       - name: Cargo fmt
         run: cargo fmt -- --check
+      - name: Setup env for clippy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config build-essential libdav1d-dev
       - name: Clippy
         run: cargo clippy
   build:
@@ -43,24 +47,51 @@ jobs:
       fail-fast: false
       matrix:
         settings:
-          - host: macos-13
+          - host: macos-latest
             target: x86_64-apple-darwin
             build: yarn build --target x86_64-apple-darwin
-          - host: windows-latest
-            build: yarn build --target x86_64-pc-windows-msvc
-            target: x86_64-pc-windows-msvc
-          - host: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            build: yarn build --target x86_64-unknown-linux-gnu --use-napi-cross
+            envs:
+              - PKG_CONFIG_ALLOW_CROSS=1
           - host: macos-latest
             target: aarch64-apple-darwin
             build: yarn build --target aarch64-apple-darwin
+
+          - host: windows-latest
+            target: aarch64-pc-windows-msvc
+            build: yarn build --target aarch64-pc-windows-msvc
+            envs:
+              - PKG_CONFIG_ALLOW_CROSS=1
+
+          - host: windows-latest
+            build: yarn build --target x86_64-pc-windows-msvc
+            target: x86_64-pc-windows-msvc
+            envs:
+              - PKG_CONFIG_ALLOW_CROSS=1
+
+          - host: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            build: yarn build --target x86_64-unknown-linux-gnu --use-napi-cross
+            envs:
+              - PKG_CONFIG_ALLOW_CROSS=1
+
+          - host: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            build: yarn build --target x86_64-unknown-linux-musl -x
+            envs:
+              - PKG_CONFIG_ALLOW_CROSS=1
+
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             build: yarn build --target aarch64-unknown-linux-gnu --use-napi-cross
+            envs:
+              - PKG_CONFIG_ALLOW_CROSS=1
+
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
             build: yarn build --target aarch64-unknown-linux-musl -x
+            envs:
+              - PKG_CONFIG_ALLOW_CROSS=1
+
     name: stable - ${{ matrix.settings.target }} - node@22
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -86,18 +117,10 @@ jobs:
             .cargo-cache
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
-      - name: Install required external dependencies
+      - name: Setup mac OS dependencies
+        if: ${{ matrix.settings.host == 'macos-latest' }}
         run: |
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            sudo apt-get update
-            sudo apt-get install -y pkg-config build-essential libc++-dev libc++abi-dev
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            brew install meson ninja pkg-config python3
-          elif [[ "$RUNNER_OS" == "Windows" ]]; then
-            # No additional dependencies needed for pure Rust AVIF implementation
-            echo "Using pure Rust AVIF implementation - no additional dependencies needed"
-          fi
-        shell: bash
+          brew install pkgconf dav1d
       - uses: goto-bus-stop/setup-zig@v2
         if: ${{ contains(matrix.settings.target, 'musl') }}
         with:
@@ -115,11 +138,46 @@ jobs:
         shell: bash
       - name: Install dependencies
         run: yarn install
+
+      - name: Setup linux dependencies
+        if: ${{ matrix.settings.host == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config build-essential libdav1d-dev
+      - name: Setup windows dependencies (x86_64-pc-windows-msvc)
+        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'x86_64-pc-windows-msvc' }}
+        run: |
+          choco install pkgconfiglite
+          vcpkg install dav1d
+
+      - name: Setup windows dependencies (i686-pc-windows-msvc)
+        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'i686-pc-windows-msvc' }}
+        run: |
+          choco install pkgconfiglite
+          vcpkg install dav1d:x86-windows-static
+      - name: Setup windows dependencies (aarch64-pc-windows-msvc)
+        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'aarch64-pc-windows-msvc' }}
+        run: |
+          choco install pkgconfiglite
+          vcpkg install dav1d:arm64-windows
+
+      - name: Set PKG_CONFIG_PATH (x86_64-pc-windows-msvc)
+        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'x86_64-pc-windows-msvc'}}
+        run: |
+          echo "PKG_CONFIG_PATH=C:/vcpkg/installed/x64-windows/lib/pkgconfig;C:/vcpkg/packages/dav1d_x64-windows/lib/pkgconfig;VCPKG_ROOT\installed\x64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
+
+      - name: Set PKG_CONFIG_PATH (i686-pc-windows-msvc)
+        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'i686-pc-windows-msvc'}}
+        run: |
+          echo "PKG_CONFIG_PATH=C:/vcpkg/installed/x86-windows-static/lib/pkgconfig;C:/vcpkg/packages/dav1d_x86-windows-static/lib/pkgconfig;VCPKG_ROOT\installed\x86-windows-static\lib\pkgconfig" >> $env:GITHUB_ENV
+      - name: Set PKG_CONFIG_PATH (aarch64-pc-windows-msvc)
+        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'aarch64-pc-windows-msvc'}}
+        run: |
+          echo "PKG_CONFIG_PATH=C:/vcpkg/installed/aarch64-windows/lib/pkgconfig;C:/vcpkg/packages/dav1d_arm64-windows/lib/pkgconfig;VCPKG_ROOT\installed\aarch64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
+
       - name: Build
         run: ${{ matrix.settings.build }}
         shell: bash
-      - name: List built files
-        run: ls -la .
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -149,8 +207,8 @@ jobs:
             target: x86_64-apple-darwin
             architecture: x64
         node:
-          - '20'
-          - '22'
+          - "20"
+          - "22"
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v4
@@ -187,8 +245,8 @@ jobs:
           - aarch64-unknown-linux-gnu
           - aarch64-unknown-linux-musl
         node:
-          - '20'
-          - '22'
+          - "20"
+          - "22"
     runs-on: ${{ contains(matrix.target, 'aarch64') && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
@@ -240,7 +298,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: ${{ steps.docker.outputs.IMAGE }}
-          options: '-v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}'
+          options: "-v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}"
           run: yarn test
   publish:
     name: Publish
