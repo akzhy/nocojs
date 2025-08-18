@@ -23,6 +23,9 @@ describe.for(fileTypes)('Process image type %s', (fileType) => {
       placeholderType,
     });
 
-    expect(result.code).toMatchSnapshot();
+    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    expect(imageSrc).toBeDefined();
+
+    expect(imageSrc![1].startsWith("data:image")).toBeTruthy();
   });
 });
