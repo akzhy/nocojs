@@ -176,8 +176,11 @@ jobs:
           echo "PKG_CONFIG_PATH=C:/vcpkg/installed/aarch64-windows/lib/pkgconfig;C:/vcpkg/packages/dav1d_arm64-windows/lib/pkgconfig;VCPKG_ROOT\installed\aarch64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
 
       - name: Build
-        run: ${{ matrix.settings.build }}
+        run: |
+          ${{ matrix.settings.build }}
+          yarn js:build
         shell: bash
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -229,7 +232,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: yarn test
+        run:  yarn workspace @nocojs/core test
   test-linux-binding:
     defaults:
       run:
@@ -287,6 +290,7 @@ jobs:
       - name: List packages
         run: ls -R .
         shell: bash
+        working-directory: packages/core
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         if: ${{ contains(matrix.target, 'armv7') }}
@@ -299,7 +303,7 @@ jobs:
         with:
           image: ${{ steps.docker.outputs.IMAGE }}
           options: "-v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}"
-          run: yarn test
+          run: yarn workspace @nocojs/core test
   publish:
     name: Publish
     runs-on: ubuntu-latest
