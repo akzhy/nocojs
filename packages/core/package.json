@@ -1,6 +1,6 @@
 {
   "name": "@nocojs/core",
-  "version": "0.0.0",
+  "version": "0.0.1-beta.0",
   "description": "Template project for writing node package with napi-rs",
   "main": "api.js",
   "repository": "git@github.com:napi-rs/package-template.git",
