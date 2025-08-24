@@ -77,6 +77,7 @@ interface PreviewOptions {
   cache?: boolean;
   width?: number;
   height?: number;
+  wrapWithSvg?: boolean;
 }
 ```
 
@@ -93,7 +94,8 @@ interface PreviewOptions {
 - **`width`**: Width of the generated preview in pixels (default: 12)
 - **`height`**: Height of the generated preview in pixels (calculated from aspect ratio if not specified)
 - **`cache`**: Whether to cache the generated preview (default: true)
-- **`replaceFunctionCall`**: Whether to replace the function call entirely (internal use)
+- **`replaceFunctionCall`**: Whether to replace the function call entirely (default: true)
+- **`wrapWithSvg`**: Whether to wrap the generated image with SVG - helps to keep exact aspect ratio (default: true)
 
 ## Build Tool Integration
 
@@ -155,7 +157,17 @@ export default {
 npm install @nocojs/parcel-transformer
 ```
 
-The transformer will be automatically detected and used by Parcel.
+```
+{
+  "extends": "@parcel/config-default",
+  "transformers": {
+    "*.{js,jsx,ts,tsx}": [
+      "@nocojs/parcel-transformer",
+      "..."
+    ]
+  }
+}
+```
 
 ## Examples
 
@@ -190,17 +202,15 @@ function createImageGallery() {
 
 ## How It Works
 
-1. During development, `preview()` simply returns the original URL
-2. At build time, the build tool integration:
-   - Analyzes your code for `preview()` function calls
-   - Downloads or accesses the images from the specified paths
-   - Generates small, optimized placeholder images (12px width by default)
-   - Replaces the function calls with base64-encoded data URLs of the placeholders
-3. In the final bundle, your `preview()` calls become tiny optimized images
+At build time, the build tool integration:
+- Analyzes your code for `preview()` function calls
+- Downloads or accesses the images from the specified paths
+- Generates small, optimized placeholder images (12px width by default)
+- Replaces the function calls with base64-encoded data URLs of the placeholders
 
 This enables instant loading of image previews while maintaining the flexibility to lazy-load full-resolution images when needed.
 
 
 ## License
 
-ISC
+MIT
