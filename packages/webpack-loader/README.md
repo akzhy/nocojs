@@ -69,18 +69,7 @@ module.exports = {
 
 ## Options
 
-The loader accepts the same options as the [@nocojs/core transform function](../core/README.md#transform-options), with additional webpack-specific defaults:
-
-| Option                | Type                                       | Default     | Description                                                       |
-| --------------------- | ------------------------------------------ | ----------- | ----------------------------------------------------------------- |
-| `publicDir`           | `string`                                   | `"public"`  | Directory for static assets (relative to webpack context)         |
-| `cacheFileDir`        | `string`                                   | `".nocojs"` | Cache directory for transformations (relative to webpack context) |
-| `logLevel`            | `"error" \| "info" \| "none" \| "verbose"` | `"info"`    | Logging level                                                     |
-| `placeholderType`     | `PlaceholderType`                          | `"normal"`  | Type of placeholder to generate                                   |
-| `replaceFunctionCall` | `boolean`                                  | `true`      | Whether to replace function calls                                 |
-| `cache`               | `boolean`                                  | `true`      | Enable/disable caching                                            |
-| `width`               | `number`                                   | `undefined` | Default width for transformations                                 |
-| `height`              | `number`                                   | `undefined` | Default height for transformations                                |
+The loader accepts the same options as the [@nocojs/core transform function](../core/README.md#transform-options)
 
 ## Examples
 
@@ -135,15 +124,6 @@ module.exports = {
   },
 };
 ```
-
-## How it Works
-
-The loader processes your source files and transforms any image-related code using the @nocojs/core library. It automatically:
-
-1. Detects image references in your code
-2. Generates placeholders
-3. Replaces the original references with the placeholder.
-4. Caches results for faster subsequent builds
 
 ## License
 
