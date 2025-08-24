@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@nocojs/client": "link:../../packages/client",
-    "@nocojs/rollup-plugin": "link:../../packages/plugin-rollup",
+    "@nocojs/rollup-plugin": "link:../../packages/rollup-plugin",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "vanilla-lazyload": "^19.1.3"

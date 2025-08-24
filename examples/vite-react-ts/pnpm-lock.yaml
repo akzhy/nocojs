@@ -12,8 +12,8 @@ importers:
         specifier: link:../../packages/client
         version: link:../../packages/client
       '@nocojs/rollup-plugin':
-        specifier: link:../../packages/plugin-rollup
-        version: link:../../packages/plugin-rollup
+        specifier: link:../../packages/rollup-plugin
+        version: link:../../packages/rollup-plugin
       react:
         specifier: ^19.1.0
         version: 19.1.1
