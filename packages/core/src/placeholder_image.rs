@@ -120,9 +120,7 @@ pub async fn process_image(
   let img = if img_format == ImageFormat::Avif {
     process_avif_image(&bytes).map_err(|e| {
       create_log(
-        style_info(format!(
-          "Failed to process AVIF image from {url}: {e}"
-        )),
+        style_info(format!("Failed to process AVIF image from {url}: {e}")),
         LogLevel::Error,
       );
       e
@@ -135,7 +133,9 @@ pub async fn process_image(
           style_info(format!("Failed to decode image from {url}: {e}")),
           LogLevel::Error,
         );
-        return Err(Box::<dyn std::error::Error>::from("Failed to resolve image"));
+        return Err(Box::<dyn std::error::Error>::from(
+          "Failed to resolve image",
+        ));
       }
     }
   };
