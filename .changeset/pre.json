@@ -11,5 +11,7 @@
     "@nocojs/webpack-loader": "0.0.0",
     "@nocojs/webpack-loader-example": "1.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "few-ducks-buy"
+  ]
 }
