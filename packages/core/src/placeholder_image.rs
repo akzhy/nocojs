@@ -118,7 +118,7 @@ pub async fn process_image(
     .ok_or_else(|| Box::<dyn std::error::Error>::from("Could not determine image format"))?;
 
   let img = if img_format == ImageFormat::Avif {
-    process_avif_image(&bytes).map_err(|e| {
+    process_avif_image(bytes).map_err(|e| {
       create_log(
         style_info(format!("Failed to process AVIF image from {url}: {e}")),
         LogLevel::Error,
@@ -360,7 +360,7 @@ pub fn wrap_with_svg(data_src: String, width: u32, height: u32) -> String {
 
 fn process_avif_image(bytes: &Bytes) -> Result<DynamicImage, Box<dyn std::error::Error>> {
   let decoder = Decoder::from_avif(bytes)?;
-  return match decoder.to_image()? {
+  match decoder.to_image()? {
     AvifImage::Rgb8(image) => {
       let (buf, width, height) = image.into_contiguous_buf();
       let flat_buf: Vec<u8> = buf.iter().flat_map(|rgb| [rgb.r, rgb.g, rgb.b]).collect();
@@ -442,5 +442,5 @@ fn process_avif_image(bytes: &Bytes) -> Result<DynamicImage, Box<dyn std::error:
 
       Ok(dynamic)
     }
-  };
+  }
 }
