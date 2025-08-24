@@ -78,6 +78,7 @@ export default {
       // Default dimensions
       width: 12, 
       // height: 12 /* If either height or width is provided, the image will be resized with the aspect ratio preserved */
+      wrapWithSvg: true, // Whether to wrap the generated preview in an SVG to keep aspect ratio.
     })
   ]
 };
@@ -197,4 +198,3 @@ Contributions are welcome! Please read the contributing guidelines before submit
 
 - [@nocojs/core](../core) - Core transformation library
 - [@nocojs/client](../client) - Client library
-- [@nocojs/vite-plugin](../vite-plugin) - Vite plugin for nocojs
