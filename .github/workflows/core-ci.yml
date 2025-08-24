@@ -391,6 +391,9 @@ jobs:
       - name: List packages
         run: ls -R ./npm
         shell: bash
+        working-directory: packages/core
+      - name: Build non core packages
+        run: yarn build:non-core-packages
       - name: Publish packages
         uses: changesets/action@v1
         with:
