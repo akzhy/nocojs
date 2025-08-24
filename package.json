@@ -10,7 +10,9 @@
     "packages/parcel-transformer/examples"
   ],
   "scripts": {
-    "build": "lerna run build"
+    "build:all": "lerna run build",
+    "build:packages": "lerna run build --ignore '@nocojs/*example*' --ignore '*example*'",
+    "build:non-core-packages": "lerna run build --ignore '@nocojs/*example*' --ignore '*example*' --ignore '@nocojs/core' --no-bail"
   },
   "dependencies": {
     "@changesets/cli": "^2.29.5"
