@@ -141,22 +141,6 @@ module.exports = {
 };
 ```
 
-## Development
-
-```bash
-# Install dependencies
-yarn install
-
-# Build the loader
-yarn build
-
-# Run tests
-yarn test
-
-# Watch mode for development
-yarn dev
-```
-
 ## License
 
 MIT
