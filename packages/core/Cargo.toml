@@ -9,17 +9,18 @@ version = "0.1.0"
 crate-type = ["cdylib"]
 
 [dependencies]
+avif-decode = "1.0.1"
 base64 = "0.22.1"
 bytes = "1.10.1"
 console = "0.16.0"
 fast_image_resize = { version = "5.2.0", features = ["rayon"] }
 futures = "0.3.31"
-image = { version = "0.25.6", default-features = true, features = ["avif-native"]}
+image = { version = "0.25.6", default-features = true }
 napi = "3.0.0"
 napi-derive = "3.0.0"
 once_cell = "1.21.3"
 oxc = { version = "0.82.2", features = ["full"] }
-reqwest = { version = "0.12.22", default-features = false, features = ["http2", "blocking", "native-tls-vendored"] }
+reqwest = { version = "0.12.22", default-features = false, features = ["http2", "blocking", "rustls-tls"] }
 rusqlite = { version = "0.37.0", features = ["bundled"] }
 tokio = { version = "1.46.1", features = ["macros", "rt-multi-thread", "tokio-macros"] }
 url = "2.5.4"
