@@ -36,7 +36,7 @@ jobs:
       - name: Setup env for clippy
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config build-essential libdav1d-dev
+          sudo apt-get install -y pkg-config build-essential nasm
       - name: Clippy
         run: cargo clippy
   build:
@@ -50,53 +50,50 @@ jobs:
           - host: macos-latest
             target: x86_64-apple-darwin
             build: yarn build --target x86_64-apple-darwin
-            envs:
-              - PKG_CONFIG_ALLOW_CROSS=1
+
           - host: macos-latest
             target: aarch64-apple-darwin
             build: yarn build --target aarch64-apple-darwin
 
           - host: windows-latest
-            target: aarch64-pc-windows-msvc
-            build: yarn build --target aarch64-pc-windows-msvc
-            envs:
-              - PKG_CONFIG_ALLOW_CROSS=1
-
-          - host: windows-latest
             build: yarn build --target x86_64-pc-windows-msvc
             target: x86_64-pc-windows-msvc
-            envs:
-              - PKG_CONFIG_ALLOW_CROSS=1
+
+          - host: windows-latest
+            build: yarn build --target i686-pc-windows-msvc
+            target: i686-pc-windows-msvc
+
+          - host: windows-latest
+            target: aarch64-pc-windows-msvc
+            build: yarn build --target aarch64-pc-windows-msvc
 
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            build: yarn build --target x86_64-unknown-linux-gnu
-            envs: 
-              - PKG_CONFIG_ALLOW_CROSS=1
+            build: yarn build --target x86_64-unknown-linux-gnu --use-napi-cross
+
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
             build: yarn build --target x86_64-unknown-linux-musl -x
-            envs: 
-              - PKG_CONFIG_ALLOW_CROSS=1
 
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            build: yarn build --target aarch64-unknown-linux-gnu
-            envs: 
-              - PKG_CONFIG_ALLOW_CROSS=1
+            build: yarn build --target aarch64-unknown-linux-gnu --use-napi-cross
+
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
-            build: yarn build --target armv7-unknown-linux-gnueabihf
-            envs: 
-              - PKG_CONFIG_ALLOW_CROSS=1
+            build: yarn build --target armv7-unknown-linux-gnueabihf --use-napi-cross
+
           - host: ubuntu-latest
             target: aarch64-linux-android
             build: yarn build --target aarch64-linux-android
+
+          - host: ubuntu-latest
+            target: armv7-linux-androideabi
+            build: yarn build --target armv7-linux-androideabi
+
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
             build: yarn build --target aarch64-unknown-linux-musl -x
-            envs: 
-              - PKG_CONFIG_ALLOW_CROSS=1
 
     name: stable - ${{ matrix.settings.target }} - node@22
     runs-on: ${{ matrix.settings.host }}
@@ -139,56 +136,47 @@ jobs:
         if: ${{ matrix.settings.setup }}
         shell: bash
 
-      - name: Setup mac OS dependencies
-        if: ${{ matrix.settings.host == 'macos-latest' }}
+      - name: Setup macOS
         run: |
-          brew install pkgconf dav1d
-      - name: Setup linux dependencies
-        if: ${{ matrix.settings.host == 'ubuntu-latest' }}
+          brew install nasm
+        if: ${{ matrix.settings.host == 'macos-latest' }}
+
+      - name: Setup Windows
+        run: |
+          choco install yasm
+          $yasm_path = "C:\ProgramData\chocolatey\bin"
+          echo "YASM_PATH=$yasm_path" >> $env:GITHUB_ENV
+          echo "PATH=$yasm_path;$env:PATH" >> $env:GITHUB_ENV
+        if: ${{ matrix.settings.host == 'windows-latest' }}
+
+      - name: Setup linux
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config build-essential libdav1d-dev libc++-dev libc++abi-dev
-      - name: Setup windows dependencies (x86_64-pc-windows-msvc)
-        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'x86_64-pc-windows-msvc' }}
-        run: |
-          choco install pkgconfiglite
-          vcpkg install dav1d
+          sudo apt-get install -y nasm
+        if: ${{ matrix.settings.host == 'ubuntu-latest' }}
 
-      - name: Setup windows dependencies (i686-pc-windows-msvc)
-        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'i686-pc-windows-msvc' }}
+      - name: Setup armv7-unknown-linux-gnueabihf
         run: |
-          choco install pkgconfiglite
-          vcpkg install dav1d:x86-windows-static
-      - name: Setup windows dependencies (aarch64-pc-windows-msvc)
-        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'aarch64-pc-windows-msvc' }}
-        run: |
-          choco install pkgconfiglite
-          vcpkg install dav1d:arm64-windows
+          sudo apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+        if: ${{ matrix.settings.target == 'armv7-unknown-linux-gnueabihf' }}
 
-      - name: Set PKG_CONFIG_PATH (x86_64-pc-windows-msvc)
-        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'x86_64-pc-windows-msvc'}}
+      - name: Setup aarch64-unknown-linux-gnu
         run: |
-          echo "PKG_CONFIG_PATH=C:/vcpkg/installed/x64-windows/lib/pkgconfig;C:/vcpkg/packages/dav1d_x64-windows/lib/pkgconfig;VCPKG_ROOT\installed\x64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
-
-      - name: Set PKG_CONFIG_PATH (i686-pc-windows-msvc)
-        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'i686-pc-windows-msvc'}}
-        run: |
-          echo "PKG_CONFIG_PATH=C:/vcpkg/installed/x86-windows-static/lib/pkgconfig;C:/vcpkg/packages/dav1d_x86-windows-static/lib/pkgconfig;VCPKG_ROOT\installed\x86-windows-static\lib\pkgconfig" >> $env:GITHUB_ENV
-      - name: Set PKG_CONFIG_PATH (aarch64-pc-windows-msvc)
-        if: ${{ matrix.settings.host == 'windows-latest' && matrix.settings.target == 'aarch64-pc-windows-msvc'}}
-        run: |
-          echo "PKG_CONFIG_PATH=C:/vcpkg/installed/aarch64-windows/lib/pkgconfig;C:/vcpkg/packages/dav1d_arm64-windows/lib/pkgconfig;VCPKG_ROOT\installed\aarch64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          export CFLAGS_aarch64_unknown_linux_gnu="-D__ARM_ARCH=8"
+          export CXXFLAGS_aarch64_unknown_linux_gnu="-D__ARM_ARCH=8"
+          export CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc
+          export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++
+        if: ${{ matrix.settings.target == 'aarch64-unknown-linux-gnu' }}
 
       - name: Install dependencies
         run: yarn install
-
       - name: Build
-        run: |
-          ${{ matrix.settings.build }}
-          yarn js:build
+        run: ${{ matrix.settings.build }}
         shell: bash
         env:
-          PKG_CONFIG_ALLOW_CROSS: ${{ matrix.settings.envs && matrix.settings.envs[0] || '' }}
+          CFLAGS_aarch64_unknown_linux_gnu: ${{ matrix.settings.target == 'aarch64-unknown-linux-gnu' && '-D__ARM_ARCH=8' || '' }}
+          CXXFLAGS_aarch64_unknown_linux_gnu: ${{ matrix.settings.target == 'aarch64-unknown-linux-gnu' && '-D__ARM_ARCH=8' || '' }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -198,6 +186,57 @@ jobs:
             packages/core/${{ env.APP_NAME }}.*.node
             packages/core/${{ env.APP_NAME }}.*.wasm
           if-no-files-found: error
+
+  build-freebsd:
+    runs-on: ubuntu-latest
+    name: Build FreeBSD
+    defaults:
+      run:
+        working-directory: ./packages/core
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build
+        id: build
+        uses: cross-platform-actions/action@v0.29.0
+        env:
+          DEBUG: napi:*
+          RUSTUP_IO_THREADS: 1
+        with:
+          operating_system: freebsd
+          version: '14.2'
+          memory: 8G
+          cpu_count: 3
+          environment_variables: DEBUG RUSTUP_IO_THREADS
+          shell: bash
+          run: |
+            sudo pkg install -y -f curl node libnghttp2 npm cmake yasm perl5
+            sudo npm install -g yarn --ignore-scripts
+            curl https://sh.rustup.rs -sSf --output rustup.sh
+            sh rustup.sh -y --profile minimal --default-toolchain stable
+            source "$HOME/.cargo/env"
+            echo "~~~~ rustc --version ~~~~"
+            rustc --version
+            echo "~~~~ node -v ~~~~"
+            node -v
+            echo "~~~~ yarn --version ~~~~"
+            yarn --version
+            pwd
+            ls -lah
+            whoami
+            env
+            freebsd-version
+            yarn install
+            yarn build
+            rm -rf node_modules
+            rm -rf target
+            rm -rf .yarn/cache
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-freebsd
+          path: ${{ env.APP_NAME }}.*.node
+          if-no-files-found: error
+    
   test-macOS-windows-binding:
     defaults:
       run:
@@ -241,7 +280,8 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run:  yarn workspace @nocojs/core test
+        run: yarn workspace @nocojs/core test
+
   test-linux-binding:
     defaults:
       run:
@@ -321,6 +361,7 @@ jobs:
       id-token: write
     needs:
       - lint
+      - build-freebsd
       - test-macOS-windows-binding
       - test-linux-binding
     steps:
