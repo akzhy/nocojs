@@ -131,8 +131,6 @@ Cargo.lock
 
 # Custom
 
-index.js
-index.d.ts
 api.js
 api.d.ts
 api.d.ts.map
