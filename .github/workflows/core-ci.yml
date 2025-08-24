@@ -280,7 +280,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: .
+          path: packages/core
       - name: List packages
         run: ls -R .
         shell: bash
@@ -340,7 +340,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bindings-${{ matrix.target }}
-          path: .
+          path: packages/core
       - name: List packages
         run: ls -R .
         shell: bash
@@ -384,7 +384,7 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          path: packages/core/artifacts
       - name: Move artifacts
         run: yarn artifacts
         working-directory: packages/core
