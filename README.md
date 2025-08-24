@@ -1,13 +1,13 @@
 # nocojs
 
-A build-time library to create image previews effortlessly.
+A build-time library to create image previews.
 
 ## Overview
 
-nocojs scans your code during build time to find `preview()` function calls imported from `@nocojs/client`, then replaces these calls with optimized, tiny placeholder images (12px width by default). These placeholders are designed to work seamlessly with popular lazy loading libraries, providing instant visual feedback while preventing layout shifts and improving your web application's Core Web Vitals.
+nocojs scans your code during build time to find `preview()` function calls imported from `@nocojs/client`, then replaces these calls with optimized, tiny placeholder images (12px width by default). These placeholders are designed to work seamlessly with popular lazy loading libraries, preventing layout shifts and improving your web application's Core Web Vitals.
 
 **Note**: nocojs generates placeholder images but does not handle lazy loading itself. You'll need to integrate it with a lazy loading library such as:
-- [react-intersection-observer](https://github.com/thebuilder/react-intersection-observer)
+- [react-lazy-load-image-component](https://www.npmjs.com/package/react-lazy-load-image-component)
 - [lozad.js](https://github.com/ApoorvSaxena/lozad.js)
 - [lazysizes](https://github.com/aFarkas/lazysizes)
 - [vanilla-lazyload](https://github.com/verlok/vanilla-lazyload)
@@ -24,13 +24,12 @@ nocojs scans your code during build time to find `preview()` function calls impo
 
 ## How It Works
 
-1. **Development**: The `preview()` function simply returns the original URL
-2. **Build time**: Build tool integrations:
+1. **Build time**: Build tool integrations:
    - Analyze your code for `preview()` function calls using OXC AST parser
    - Download or access images from specified paths
    - Generate small, optimized placeholder images using Rust-based image processing
    - Replace function calls with base64-encoded data URLs
-3. **Runtime**: Your `preview()` calls become tiny optimized images in the final bundle
+2. **Runtime**: Your `preview()` calls become tiny optimized images in the final bundle
 
 ## Packages
 
@@ -47,8 +46,9 @@ This monorepo contains the following packages:
 - **[@nocojs/client](./packages/client)** - TypeScript client library that exports the `preview()` function
 
 ### Build Tool Integrations
-- **[@nocojs/webpack-loader](./packages/webpack-loader)** - Webpack loader for seamless integration
 - **[@nocojs/rollup-plugin](./packages/plugin-rollup)** - Rollup plugin (works with Vite)
+- **[@nocojs/webpack-loader](./packages/webpack-loader)** - Webpack loader for seamless integration
+- **[@nocojs/rspack-loader](./packages/webpack-loader)** - Webpack loader for seamless integration
 - **[@nocojs/parcel-transformer](./packages/parcel-transformer)** - Parcel transformer plugin
 
 ## Quick Start
@@ -60,8 +60,9 @@ This monorepo contains the following packages:
 npm install @nocojs/client
 
 # Install the appropriate build tool integration
-npm install --save-dev @nocojs/webpack-loader     # For Webpack/Next.js
 npm install --save-dev @nocojs/rollup-plugin      # For Rollup/Vite  
+npm install --save-dev @nocojs/webpack-loader     # For Webpack/Next.js
+npm install --save-dev @nocojs/rspack-loader     # For Webpack/Next.js
 npm install --save-dev @nocojs/parcel-transformer # For Parcel
 ```
 
@@ -82,35 +83,16 @@ const customPreview = preview('/local-image.png', {
 
 // Use in React components with lazy loading
 function ImageComponent() {
-  const [loaded, setLoaded] = useState(false);
-  
+
   return (
-    <img
-      src={loaded ? '/full-image.jpg' : preview('/full-image.jpg')}
-      onLoad={() => setLoaded(true)}
+    <LazyImage
+      placeholder={preview('/full-image.jpg')}
+      src={'/full-image.jpg'}
       alt="Example"
     />
   );
 }
 
-// With react-intersection-observer for lazy loading
-import { useInView } from 'react-intersection-observer';
-
-function LazyImageComponent() {
-  const { ref, inView } = useInView({ triggerOnce: true });
-  const [loaded, setLoaded] = useState(false);
-  
-  return (
-    <div ref={ref}>
-      <img
-        src={inView && !loaded ? '/full-image.jpg' : preview('/full-image.jpg')}
-        onLoad={() => setLoaded(true)}
-        alt="Example"
-      />
-    </div>
-  );
-}
-```
 
 ## Configuration
 
@@ -180,6 +162,7 @@ interface PreviewOptions {
   height?: number;          // Height in pixels (calculated from aspect ratio if not provided)
   cache?: boolean;          // Enable caching (default: true)
   replaceFunctionCall?: boolean; // Replace function calls entirely (default: true)
+  wrapWithSvg?: boolean;   // Whether to wrap the image in an SVG. Helps keep exact aspect ratio (default: true)
 }
 ```
 
@@ -199,7 +182,6 @@ interface PreviewOptions {
 - **Use static, analyzable paths**: Always provide fixed string literals or easily resolvable paths
   ```typescript
   preview('/images/hero.jpg')           // ✅ Good
-  preview('./assets/banner.png')        // ✅ Good  
   preview('https://cdn.example.com/image.jpg') // ✅ Good
   ```
 
@@ -244,9 +226,8 @@ interface TransformOptions extends PreviewOptions {
 
 ## Caching
 
-nocojs uses intelligent SQLite-based caching to avoid redundant image processing. The cache stores:
+nocojs uses SQLite-based caching to avoid redundant image processing. The cache stores:
 - Downloaded image metadata and processed placeholder data
-- Image fingerprints to detect changes
 - Generated placeholder images and their configurations
 
 ### Cache Location
@@ -320,7 +301,6 @@ jobs:
 For custom setups, ensure the `.nocojs` directory is:
 1. **Restored** before the build starts
 2. **Saved** after the build completes
-3. **Keyed** by relevant file changes (package.json, source files)
 
 ```bash
 #!/bin/bash
@@ -342,7 +322,7 @@ cp -r .nocojs "$CACHE_DIR/"
 ### Cache Management
 
 #### Cache Invalidation
-The cache automatically invalidates when:
+The cache automatically updates when:
 - Image URLs change
 - Configuration options change
 
@@ -357,11 +337,6 @@ if (process.env.CLEAR_CACHE) {
   fs.rmSync('.nocojs', { recursive: true, force: true });
 }
 ```
-
-#### Cache Size Optimization
-- Cache size typically ranges from a few MB to hundreds of MB depending on image count
-- Consider setting up cache size limits in CI environments
-- Regularly clean old cache entries in long-running environments
 
 ## Examples
 
@@ -383,6 +358,7 @@ packages/
 ├── core/                 # Rust core with Node.js bindings
 ├── client/              # TypeScript client library  
 ├── webpack-loader/      # Webpack integration
+├── rspac-loader/        # Rspack integration
 ├── plugin-rollup/       # Rollup/Vite integration
 └── parcel-transformer/  # Parcel integration
 
@@ -406,7 +382,7 @@ lerna run test
 
 - **Build time**: Fast AST parsing with OXC and efficient image processing with Rust
 - **Runtime**: Zero overhead - placeholders are inlined as base64 data URLs
-- **Cache**: Intelligent SQLite-based caching prevents redundant processing
+- **Cache**: SQLite-based caching prevents redundant processing
 - **Size**: Tiny placeholder images (typically < 1KB each)
 
 ## License
@@ -438,23 +414,14 @@ The core package requires Rust compilation:
 
 ```bash
 cd packages/core
-yarn build        # Builds both Rust and TypeScript
+yarn build:all        # Builds both Rust and TypeScript
 yarn build:debug  # Debug build for development
-```
-
-#### Working with Examples
-Test your changes using the example projects:
-
-```bash
-cd examples/vite-react-ts
-yarn dev          # Start development server
-yarn build        # Test build-time transformation
 ```
 
 ### Making Changes
 
 #### Code Style
-- **TypeScript**: Use Prettier and ESLint (configs included)
+- **TypeScript**: Use Prettier and ESLint
 - **Rust**: Use `cargo fmt` and follow Rust conventions
 - **Commits**: Use conventional commit messages
 
@@ -470,46 +437,11 @@ yarn build        # Test build-time transformation
 4. **Run the full test suite**
 5. **Submit a pull request** with a clear description
 
-### Types of Contributions
 
-#### Bug Reports
-- Use the issue template
-- Include reproduction steps
-- Specify affected packages and versions
-
-#### Feature Requests
-- Describe the use case
-- Consider implementation complexity
-- Discuss API design implications
-
-#### Code Contributions
-- **Core features**: Changes to the Rust engine
-- **Build integrations**: New bundler support
-- **Documentation**: README improvements, code comments
-- **Examples**: New framework demonstrations
-
-### Project Structure
-
-```
-packages/
-├── core/                 # Rust core + Node.js bindings
-├── client/              # TypeScript client library
-├── webpack-loader/      # Webpack integration
-├── plugin-rollup/       # Rollup/Vite integration
-└── parcel-transformer/  # Parcel integration
-```
-
-### Release Process
-
-Releases are managed with Lerna:
-- Version bumping: `lerna version`
-- Publishing: `lerna publish`
-- Pre-release builds are automatically created for PRs
 
 ### Getting Help
 
 - **Issues**: For bugs and feature requests
 - **Discussions**: For questions and ideas
-- **Discord/Slack**: (Add community links if available)
 
 Thank you for contributing to nocojs! 🚀
