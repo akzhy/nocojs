@@ -1,7 +1,10 @@
+use avif_decode::{Decoder, Image as AvifImage};
 use base64::{engine::general_purpose, Engine as _};
 use bytes::Bytes;
 use fast_image_resize::{self as fir, images::Image};
-use image::{GrayImage, ImageBuffer, ImageEncoder, ImageReader, RgbImage, Rgba};
+use image::{
+  DynamicImage, GrayImage, ImageBuffer, ImageEncoder, ImageFormat, ImageReader, RgbImage, Rgba,
+};
 use napi_derive::napi;
 use reqwest::Client;
 use std::{collections::HashMap, io::Cursor, time::Instant};
@@ -108,9 +111,34 @@ pub async fn process_image(
   options: &PreviewOptions,
 ) -> Result<ProcessImageOutput, Box<dyn std::error::Error>> {
   let process_time = Instant::now();
-  let img = ImageReader::new(Cursor::new(bytes))
-    .with_guessed_format()?
-    .decode()?;
+  let img = ImageReader::new(Cursor::new(bytes)).with_guessed_format()?;
+
+  let img_format = img
+    .format()
+    .ok_or_else(|| Box::<dyn std::error::Error>::from("Could not determine image format"))?;
+
+  let img = if img_format == ImageFormat::Avif {
+    process_avif_image(&bytes).map_err(|e| {
+      create_log(
+        style_info(format!(
+          "Failed to process AVIF image from {url}: {e}"
+        )),
+        LogLevel::Error,
+      );
+      e
+    })?
+  } else {
+    match img.decode() {
+      Ok(decoded) => decoded,
+      Err(e) => {
+        create_log(
+          style_info(format!("Failed to decode image from {url}: {e}")),
+          LogLevel::Error,
+        );
+        return Err(Box::<dyn std::error::Error>::from("Failed to resolve image"));
+      }
+    }
+  };
 
   let img_rgb = {
     match options.output_kind {
@@ -328,4 +356,91 @@ pub fn wrap_with_svg(data_src: String, width: u32, height: u32) -> String {
   let formatted = format!("data:image/svg+xml,{}", urlencoding::encode(&svg));
 
   formatted.replace("___DATA___", &data_src)
+}
+
+fn process_avif_image(bytes: &Bytes) -> Result<DynamicImage, Box<dyn std::error::Error>> {
+  let decoder = Decoder::from_avif(bytes)?;
+  return match decoder.to_image()? {
+    AvifImage::Rgb8(image) => {
+      let (buf, width, height) = image.into_contiguous_buf();
+      let flat_buf: Vec<u8> = buf.iter().flat_map(|rgb| [rgb.r, rgb.g, rgb.b]).collect();
+
+      let dynamic = DynamicImage::ImageRgb8(
+        image::RgbImage::from_raw(width as u32, height as u32, flat_buf).unwrap(),
+      );
+
+      Ok(dynamic)
+    }
+    AvifImage::Rgb16(image) => {
+      let (buf, width, height) = image.into_contiguous_buf();
+      let flat_buf: Vec<u16> = buf.iter().flat_map(|rgb| [rgb.r, rgb.g, rgb.b]).collect();
+
+      let dynamic = DynamicImage::ImageRgb16(
+        image::ImageBuffer::<image::Rgb<u16>, Vec<u16>>::from_raw(
+          width as u32,
+          height as u32,
+          flat_buf,
+        )
+        .unwrap(),
+      );
+
+      Ok(dynamic)
+    }
+    AvifImage::Rgba8(image) => {
+      let (buf, width, height) = image.into_contiguous_buf();
+      let flat_buf: Vec<u8> = buf
+        .iter()
+        .flat_map(|rgba| [rgba.r, rgba.g, rgba.b, rgba.a])
+        .collect();
+
+      let dynamic = DynamicImage::ImageRgba8(
+        image::RgbaImage::from_raw(width as u32, height as u32, flat_buf).unwrap(),
+      );
+
+      Ok(dynamic)
+    }
+    AvifImage::Rgba16(image) => {
+      let (buf, width, height) = image.into_contiguous_buf();
+      let flat_buf: Vec<u16> = buf
+        .iter()
+        .flat_map(|rgba| [rgba.r, rgba.g, rgba.b, rgba.a])
+        .collect();
+
+      let dynamic = DynamicImage::ImageRgba16(
+        image::ImageBuffer::<image::Rgba<u16>, Vec<u16>>::from_raw(
+          width as u32,
+          height as u32,
+          flat_buf,
+        )
+        .unwrap(),
+      );
+
+      Ok(dynamic)
+    }
+    AvifImage::Gray8(image) => {
+      let (buf, width, height) = image.into_contiguous_buf();
+      let flat_buf: Vec<u8> = buf.iter().flat_map(|color| [color.value()]).collect();
+
+      let dynamic = DynamicImage::ImageLuma8(
+        image::GrayImage::from_raw(width as u32, height as u32, flat_buf).unwrap(),
+      );
+
+      Ok(dynamic)
+    }
+    AvifImage::Gray16(image) => {
+      let (buf, width, height) = image.into_contiguous_buf();
+      let flat_buf: Vec<u16> = buf.iter().flat_map(|color| [color.value()]).collect();
+
+      let dynamic = DynamicImage::ImageLuma16(
+        image::ImageBuffer::<image::Luma<u16>, Vec<u16>>::from_raw(
+          width as u32,
+          height as u32,
+          flat_buf,
+        )
+        .unwrap(),
+      );
+
+      Ok(dynamic)
+    }
+  };
 }
