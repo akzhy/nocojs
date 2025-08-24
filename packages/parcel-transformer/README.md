@@ -36,45 +36,11 @@ You can pass options by adding a `@nocojs/parcel-transformer` field in your pack
 }
 ```
 
-Available options for the transform function:
-
-- `publicDir` (string): Directory containing static assets (default: 'public')
-- `cacheFileDir` (string): Directory for nocojs cache files (default: '.nocojs')
-- `placeholderType` ('normal' | 'blurred' | 'grayscale' | 'dominant-color' | 'average-color' | 'transparent'): Type of placeholder image (default: 'normal')
-- `logLevel` ('error' | 'info' | 'none' | 'verbose'): Logging level (default: 'info')
-- `replaceFunctionCall` (boolean): Whether to replace function calls (default: true)
-- `cache` (boolean): Enable caching (default: true)
-- `width` (number): Default width for image processing
-- `height` (number): Default height for image processing
+Available options are same options as the [@nocojs/core transform function](../core/README.md#transform-options)
 
 ## How it Works
 
 This plugin transforms your JavaScript/TypeScript code to optimize images for lazy loading using the nocojs core library. It processes files during the Parcel build process and replaces preview calls with appropriate placeholders.
-
-## Development
-
-1. Install dependencies:
-
-   ```bash
-   yarn install
-   ```
-
-2. Build the plugin:
-
-   ```bash
-   yarn build
-   ```
-
-3. Run tests:
-
-   ```bash
-   yarn test
-   ```
-
-4. Development mode:
-   ```bash
-   yarn dev
-   ```
 
 ## License
 
