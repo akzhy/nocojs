@@ -2,7 +2,7 @@
   "name": "@nocojs/client",
   "author": "akzhy <hi@akzhy.com>",
   "type": "module",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.1-beta.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -20,10 +20,10 @@
     "access": "public"
   },
   "devDependencies": {
-    "@nocojs/core": "0.0.1-beta.0",
+    "@nocojs/core": "0.0.1-beta.1",
     "typescript": "^5.9.2"
   },
   "peerDependencies": {
-    "@nocojs/core": ">=0.0.1-beta.0"
+    "@nocojs/core": ">=0.0.1-beta.1"
   }
 }
