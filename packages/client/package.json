@@ -1,5 +1,7 @@
 {
   "name": "@nocojs/client",
+  "author": "akzhy <hi@akzhy.com>",
+  "type": "module",
   "version": "0.0.1-beta.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,7 +14,6 @@
     "dist/index.d.ts",
     "dist/index.d.ts.map"
   ],
-  "author": "",
   "license": "ISC",
   "description": "",
   "publishConfig": {
@@ -21,5 +22,8 @@
   "devDependencies": {
     "@nocojs/core": "0.0.1-beta.0",
     "typescript": "^5.9.2"
+  },
+  "peerDependencies": {
+    "@nocojs/core": ">=0.0.1-beta.0"
   }
 }
