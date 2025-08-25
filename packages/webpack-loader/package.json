@@ -2,7 +2,7 @@
   "name": "@nocojs/webpack-loader",
   "author": "akzhy <hi@akzhy.com>",
   "type": "module",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.1-beta.1",
   "description": "Webpack loader for @nocojs/core transformations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -33,7 +33,7 @@
     "loader-utils": "^3.3.1"
   },
   "devDependencies": {
-    "@nocojs/core": "0.0.1-beta.0",
+    "@nocojs/core": "0.0.1-beta.1",
     "@types/loader-utils": "^2.0.6",
     "@types/node": "^20.0.0",
     "typescript": "^5.9.2",
@@ -41,7 +41,7 @@
     "webpack": "^5.101.0"
   },
   "peerDependencies": {
-    "@nocojs/core": ">=0.0.1-beta.0",
+    "@nocojs/core": ">=0.0.1-beta.1",
     "webpack": "^5.0.0"
   }
 }

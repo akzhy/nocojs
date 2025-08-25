@@ -12,6 +12,7 @@
     "@nocojs/webpack-loader-example": "1.0.0"
   },
   "changesets": [
-    "few-ducks-buy"
+    "few-ducks-buy",
+    "quiet-garlics-bake"
   ]
 }

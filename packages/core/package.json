@@ -1,7 +1,7 @@
 {
   "name": "@nocojs/core",
   "author": "akzhy <hi@akzhy.com>",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.1-beta.1",
   "description": "Core library for NocoJS",
   "main": "api.js",
   "repository": "git@github.com:akzhy/nocojs.git",
