@@ -92,13 +92,14 @@ function ImageComponent() {
     />
   );
 }
-
+```
 
 ## Configuration
 
 ### Build Tool Setup
 
 #### Webpack
+
 ```javascript
 module.exports = {
   module: {
