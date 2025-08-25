@@ -1,5 +1,7 @@
 {
   "name": "@nocojs/rspack-loader",
+  "author": "akzhy <hi@akzhy.com>",
+  "type": "module",
   "version": "0.0.1-beta.0",
   "description": "Rspack loader for @nocojs/core transformations",
   "main": "dist/index.js",
