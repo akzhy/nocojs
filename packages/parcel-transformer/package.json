@@ -1,6 +1,8 @@
 {
   "name": "@nocojs/parcel-transformer",
+  "author": "akzhy <hi@akzhy.com>",
   "version": "0.0.1-beta.0",
+  "type": "module",
   "description": "Parcel plugin for nocojs image optimization",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
