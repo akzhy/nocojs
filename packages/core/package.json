@@ -1,9 +1,10 @@
 {
   "name": "@nocojs/core",
+  "author": "akzhy <hi@akzhy.com>",
   "version": "0.0.1-beta.0",
-  "description": "Template project for writing node package with napi-rs",
+  "description": "Core library for NocoJS",
   "main": "api.js",
-  "repository": "git@github.com:napi-rs/package-template.git",
+  "repository": "git@github.com:akzhy/nocojs.git",
   "license": "MIT",
   "keywords": [
     "napi-rs",
