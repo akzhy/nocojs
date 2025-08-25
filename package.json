@@ -12,7 +12,8 @@
   "scripts": {
     "build:all": "lerna run build",
     "build:packages": "lerna run build --ignore '@nocojs/*example*' --ignore '*example*'",
-    "build:non-core-packages": "lerna run build --ignore '@nocojs/*example*' --ignore '*example*' --ignore '@nocojs/core' --no-bail"
+    "build:non-core-packages": "lerna run build --ignore '@nocojs/*example*' --ignore '*example*' --ignore '@nocojs/core' --no-bail",
+    "build:core-js": "lerna run build:js --scope '@nocojs/core'"
   },
   "dependencies": {
     "@changesets/cli": "^2.29.5"
