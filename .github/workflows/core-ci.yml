@@ -393,6 +393,8 @@ jobs:
         run: ls -R ./npm
         shell: bash
         working-directory: packages/core
+      - name: Build core JS
+        run: yarn build:core-js
       - name: Build non core packages
         run: yarn build:non-core-packages
       - name: Publish packages
