@@ -5,6 +5,7 @@ pub mod log;
 pub mod placeholder_image;
 pub mod store;
 pub mod transform;
+pub mod get_placeholder;
 
 use napi_derive::napi;
 
