@@ -198,60 +198,60 @@ jobs:
             packages/core/api.d.ts.map
           if-no-files-found: error
 
-  build-freebsd:
-    runs-on: ubuntu-latest
-    name: Build FreeBSD
-    defaults:
-      run:
-        working-directory: ./packages/core
-    steps:
-      - uses: actions/checkout@v5
-      - name: Build
-        id: build
-        uses: cross-platform-actions/action@v0.29.0
-        env:
-          DEBUG: napi:*
-          RUSTUP_IO_THREADS: 1
-        with:
-          operating_system: freebsd
-          version: '14.2'
-          memory: 8G
-          cpu_count: 3
-          environment_variables: DEBUG RUSTUP_IO_THREADS
-          shell: bash
-          run: |
-            sudo pkg install -y -f curl node libnghttp2 npm cmake yasm perl5
-            sudo npm install -g yarn --ignore-scripts
-            curl https://sh.rustup.rs -sSf --output rustup.sh
-            sh rustup.sh -y --profile minimal --default-toolchain stable
-            source "$HOME/.cargo/env"
-            echo "~~~~ rustc --version ~~~~"
-            rustc --version
-            echo "~~~~ node -v ~~~~"
-            node -v
-            echo "~~~~ yarn --version ~~~~"
-            yarn --version
-            pwd
-            ls -lah
-            whoami
-            env
-            freebsd-version
-            yarn install
-            yarn build:core-rust
-            yarn build:core-js
-            rm -rf node_modules
-            rm -rf target
-            rm -rf .yarn/cache
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bindings-freebsd
-          path: |
-            packages/core/${{ env.APP_NAME }}.*.node
-            packages/core/api.js
-            packages/core/api.d.ts
-            packages/core/api.d.ts.map
-          if-no-files-found: error
+  # build-freebsd:
+  #   runs-on: ubuntu-latest
+  #   name: Build FreeBSD
+  #   defaults:
+  #     run:
+  #       working-directory: ./packages/core
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - name: Build
+  #       id: build
+  #       uses: cross-platform-actions/action@v0.29.0
+  #       env:
+  #         DEBUG: napi:*
+  #         RUSTUP_IO_THREADS: 1
+  #       with:
+  #         operating_system: freebsd
+  #         version: '14.2'
+  #         memory: 8G
+  #         cpu_count: 3
+  #         environment_variables: DEBUG RUSTUP_IO_THREADS
+  #         shell: bash
+  #         run: |
+  #           sudo pkg install -y -f curl node libnghttp2 npm cmake yasm perl5
+  #           sudo npm install -g yarn --ignore-scripts
+  #           curl https://sh.rustup.rs -sSf --output rustup.sh
+  #           sh rustup.sh -y --profile minimal --default-toolchain stable
+  #           source "$HOME/.cargo/env"
+  #           echo "~~~~ rustc --version ~~~~"
+  #           rustc --version
+  #           echo "~~~~ node -v ~~~~"
+  #           node -v
+  #           echo "~~~~ yarn --version ~~~~"
+  #           yarn --version
+  #           pwd
+  #           ls -lah
+  #           whoami
+  #           env
+  #           freebsd-version
+  #           yarn install
+  #           yarn build:core-rust
+  #           yarn build:core-js
+  #           rm -rf node_modules
+  #           rm -rf target
+  #           rm -rf .yarn/cache
+  #     - name: Upload artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: bindings-freebsd
+  #         path: |
+  #           packages/core/${{ env.APP_NAME }}.*.node
+  #           packages/core/api.js
+  #           packages/core/api.d.ts
+  #           packages/core/api.d.ts.map
+  #         if-no-files-found: error
     
   # test-macOS-windows-binding:
   #   defaults:
@@ -378,7 +378,7 @@ jobs:
     needs:
       - lint
       - build
-      - build-freebsd
+      # - build-freebsd
       # - test-macOS-windows-binding
       # - test-linux-binding
     if: inputs.skip_publish != true
