@@ -198,105 +198,105 @@ jobs:
             packages/core/api.d.ts.map
           if-no-files-found: error
 
-  # build-freebsd:
-  #   runs-on: ubuntu-latest
-  #   name: Build FreeBSD
-  #   defaults:
-  #     run:
-  #       working-directory: ./packages/core
-  #   steps:
-  #     - uses: actions/checkout@v5
-  #     - name: Build
-  #       id: build
-  #       uses: cross-platform-actions/action@v0.29.0
-  #       env:
-  #         DEBUG: napi:*
-  #         RUSTUP_IO_THREADS: 1
-  #       with:
-  #         operating_system: freebsd
-  #         version: '14.2'
-  #         memory: 8G
-  #         cpu_count: 3
-  #         environment_variables: DEBUG RUSTUP_IO_THREADS
-  #         shell: bash
-  #         run: |
-  #           sudo pkg install -y -f curl node libnghttp2 npm cmake yasm perl5
-  #           sudo npm install -g yarn --ignore-scripts
-  #           curl https://sh.rustup.rs -sSf --output rustup.sh
-  #           sh rustup.sh -y --profile minimal --default-toolchain stable
-  #           source "$HOME/.cargo/env"
-  #           echo "~~~~ rustc --version ~~~~"
-  #           rustc --version
-  #           echo "~~~~ node -v ~~~~"
-  #           node -v
-  #           echo "~~~~ yarn --version ~~~~"
-  #           yarn --version
-  #           pwd
-  #           ls -lah
-  #           whoami
-  #           env
-  #           freebsd-version
-  #           yarn install
-  #           yarn build:core-rust
-  #           yarn build:core-js
-  #           rm -rf node_modules
-  #           rm -rf target
-  #           rm -rf .yarn/cache
-  #     - name: Upload artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: bindings-freebsd
-  #         path: |
-  #           packages/core/${{ env.APP_NAME }}.*.node
-  #           packages/core/api.js
-  #           packages/core/api.d.ts
-  #           packages/core/api.d.ts.map
-  #         if-no-files-found: error
+  build-freebsd:
+    runs-on: ubuntu-latest
+    name: Build FreeBSD
+    defaults:
+      run:
+        working-directory: ./packages/core
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build
+        id: build
+        uses: cross-platform-actions/action@v0.29.0
+        env:
+          DEBUG: napi:*
+          RUSTUP_IO_THREADS: 1
+        with:
+          operating_system: freebsd
+          version: '14.2'
+          memory: 8G
+          cpu_count: 3
+          environment_variables: DEBUG RUSTUP_IO_THREADS
+          shell: bash
+          run: |
+            sudo pkg install -y -f curl node libnghttp2 npm cmake yasm perl5
+            sudo npm install -g yarn --ignore-scripts
+            curl https://sh.rustup.rs -sSf --output rustup.sh
+            sh rustup.sh -y --profile minimal --default-toolchain stable
+            source "$HOME/.cargo/env"
+            echo "~~~~ rustc --version ~~~~"
+            rustc --version
+            echo "~~~~ node -v ~~~~"
+            node -v
+            echo "~~~~ yarn --version ~~~~"
+            yarn --version
+            pwd
+            ls -lah
+            whoami
+            env
+            freebsd-version
+            yarn install
+            yarn build:core-rust
+            yarn build:core-js
+            rm -rf node_modules
+            rm -rf target
+            rm -rf .yarn/cache
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-freebsd
+          path: |
+            packages/core/${{ env.APP_NAME }}.*.node
+            packages/core/api.js
+            packages/core/api.d.ts
+            packages/core/api.d.ts.map
+          if-no-files-found: error
     
-  # test-macOS-windows-binding:
-  #   defaults:
-  #     run:
-  #       working-directory: ./packages/core
-  #   name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
-  #   needs:
-  #     - build
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       settings:
-  #         - host: windows-latest
-  #           target: x86_64-pc-windows-msvc
-  #           architecture: x64
-  #         - host: macos-latest
-  #           target: aarch64-apple-darwin
-  #           architecture: arm64
-  #         - host: macos-13
-  #           target: x86_64-apple-darwin
-  #           architecture: x64
-  #       node:
-  #         - "20"
-  #         - "22"
-  #   runs-on: ${{ matrix.settings.host }}
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Setup node
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node }}
-  #         cache: yarn
-  #         architecture: ${{ matrix.settings.architecture }}
-  #     - name: Install dependencies
-  #       run: yarn install
-  #     - name: Download artifacts
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: bindings-${{ matrix.settings.target }}
-  #         path: packages/core
-  #     - name: List packages
-  #       run: ls -R .
-  #       shell: bash
-  #     - name: Test bindings
-  #       run: yarn workspace @nocojs/core test
+  test-macOS-windows-binding:
+    defaults:
+      run:
+        working-directory: ./packages/core
+    name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
+    needs:
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - host: windows-latest
+            target: x86_64-pc-windows-msvc
+            architecture: x64
+          - host: macos-latest
+            target: aarch64-apple-darwin
+            architecture: arm64
+          - host: macos-13
+            target: x86_64-apple-darwin
+            architecture: x64
+        node:
+          - "20"
+          - "22"
+    runs-on: ${{ matrix.settings.host }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: yarn
+          architecture: ${{ matrix.settings.architecture }}
+      - name: Install dependencies
+        run: yarn install
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: bindings-${{ matrix.settings.target }}
+          path: packages/core
+      - name: List packages
+        run: ls -R .
+        shell: bash
+      - name: Test bindings
+        run: yarn workspace @nocojs/core test
 
   # test-linux-binding:
   #   defaults:
@@ -378,7 +378,7 @@ jobs:
     needs:
       - lint
       - build
-      # - build-freebsd
+      - build-freebsd
       # - test-macOS-windows-binding
       # - test-linux-binding
     if: inputs.skip_publish != true
