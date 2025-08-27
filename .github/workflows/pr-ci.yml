@@ -28,7 +28,7 @@ jobs:
             echo "has_core_changes=true" >> $GITHUB_OUTPUT
           else
             echo "No core changes"
-            echo "has_core_changes=false" >> $GITHUB_OUTPUT
+            echo "has_core_changes=true" >> $GITHUB_OUTPUT
           fi
           
           # Check if JS packages have changes
