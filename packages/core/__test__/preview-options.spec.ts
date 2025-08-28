@@ -1,5 +1,4 @@
-import { rm } from 'fs/promises';
-import { beforeEach, describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { transform } from '../api';
 import {
   base64ToSharpImage,
@@ -11,8 +10,7 @@ import {
 } from './utils';
 
 describe('Preview options', async () => {
-  beforeEach(() => rm(defaultTransformOptions.cacheFileDir!, { recursive: true, force: true }));
-
+  const cacheFileDir = `${defaultTransformOptions.cacheFileDir}/preview-options`;
   test('aspect ratio: default is working', async () => {
     const input = getInput({
       url: '/good_boy_4x5.jpg',
@@ -21,9 +19,10 @@ describe('Preview options', async () => {
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'normal',
+      cacheFileDir,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
     const sharpInstance = base64ToSharpImage(imageSrc![1]);
     const metadata = await sharpInstance.metadata();
@@ -44,9 +43,10 @@ describe('Preview options', async () => {
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'normal',
+      cacheFileDir,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
     const sharpInstance = base64ToSharpImage(imageSrc![1]);
     const metadata = await sharpInstance.metadata();
@@ -68,9 +68,10 @@ describe('Preview options', async () => {
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'normal',
+      cacheFileDir,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
     const sharpInstance = base64ToSharpImage(imageSrc![1]);
     const metadata = await sharpInstance.metadata();
@@ -93,9 +94,10 @@ describe('Preview options', async () => {
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'normal',
+      cacheFileDir,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
     const sharpInstance = base64ToSharpImage(imageSrc![1]);
     const metadata = await sharpInstance.metadata();
@@ -114,9 +116,10 @@ describe('Preview options', async () => {
 
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
     const sharpInstance = base64ToSharpImage(imageSrc![1]);
     // Not exactly checking for dominant color, this one simply checks if the generated image is a single color
@@ -137,9 +140,10 @@ describe('Preview options', async () => {
 
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
     const sharpInstance = base64ToSharpImage(imageSrc![1]);
     const hasSingleColor = await isImageSingleColor(sharpInstance);
@@ -156,9 +160,10 @@ describe('Preview options', async () => {
 
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
     const sharpInstance = base64ToSharpImage(imageSrc![1]);
     const pngSharp = sharpInstance.png();
@@ -188,9 +193,10 @@ describe('Preview options', async () => {
 
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
     const sharpInstance = base64ToSharpImage(imageSrc![1]);
     const isTransparent = await isFullyTransparent(sharpInstance);
@@ -207,9 +213,10 @@ describe('Preview options', async () => {
 
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
 
     const { found } = verifyPreviewCall(result.code);
@@ -226,9 +233,10 @@ describe('Preview options', async () => {
 
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
 
     const { found, imageUpdated } = verifyPreviewCall(result.code);
@@ -247,13 +255,14 @@ describe('Preview options', async () => {
 
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
 
-   const sharpInstance = base64ToSharpImage(imageSrc![1]);
-   const metadata = await sharpInstance.metadata();
-   expect(metadata.format).toBe('png');
+    const sharpInstance = base64ToSharpImage(imageSrc![1]);
+    const metadata = await sharpInstance.metadata();
+    expect(metadata.format).toBe('png');
   });
 });
