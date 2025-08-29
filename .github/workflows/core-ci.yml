@@ -370,8 +370,8 @@ jobs:
           options: "-v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}"
           run: |
             if command -v apt-get >/dev/null; then
-              apt-get update && apt-get install -y ca-certificates && update-ca-certificates
-              curl -v https://raw.githubusercontent.com/
+              apt-get update && apt-get install -y ca-certificates openssl && update-ca-certificates
+              openssl s_client -connect raw.githubusercontent.com:443 -CAfile /etc/ssl/certs/ca-certificates.crt </dev/null 2>/dev/null | grep "Verify return code"
             fi
             yarn workspace @nocojs/core test
   publish:
