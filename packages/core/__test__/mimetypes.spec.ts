@@ -23,7 +23,7 @@ describe.for(fileTypes)('Process image type %s', (fileType) => {
       placeholderType,
     });
 
-    const imageSrc = result.code.match(/let img\s*=\s*"(.*?)";/);
+    const imageSrc = result.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
 
     expect(imageSrc![1].startsWith("data:image")).toBeTruthy();

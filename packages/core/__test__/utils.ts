@@ -21,7 +21,9 @@ export const getInput = (props?: GetInputProps | GetInputProps[]): string => {
     const previewStatements = props
       .map((prop, i) => {
         const previewOptions = prop?.previewOptions ? `, ${JSON.stringify(prop.previewOptions)}` : '';
-        const url = prop?.url || 'https://picsum.photos/id/237/200/300';
+        const url =
+          prop?.url ||
+          'https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg';
 
         return `const img${i} = preview("${url}"${previewOptions});`;
       })
@@ -33,11 +35,13 @@ ${previewStatements}`;
   }
 
   const previewOptions = props?.previewOptions ? `, ${JSON.stringify(props.previewOptions)}` : '';
-  const url = props?.url || 'https://picsum.photos/id/237/200/300';
+  const url =
+    props?.url ||
+    'https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg';
 
   return `import { preview } from '@nocojs/client';
 
-let img = preview("${url}"${previewOptions});`;
+const img = preview("${url}"${previewOptions});`;
 };
 
 export const base64ToSharpImage = (base64: string) => {
@@ -71,7 +75,6 @@ export const getDominantColor = async (image: sharp.Sharp) => {
 export async function isImageSingleColor(sharpInstance: sharp.Sharp): Promise<boolean> {
   const { data, info } = await sharpInstance.clone().raw().toBuffer({ resolveWithObject: true });
   const pixelValue = Array.from(data.subarray(0, info.channels));
-  console.log(pixelValue, info.channels);
 
   for (let i = 0; i < data.length; i += info.channels) {
     for (let c = 0; c < info.channels; c++) {
@@ -96,6 +99,15 @@ export async function isFullyTransparent(sharpInstance: sharp.Sharp) {
   }
   return true;
 }
+
+export const checkPreviewImage = (code: string): boolean => {
+  const imageSrc = code.match(/const img\d*\s*=\s*"(.*?)";/);
+  if (!imageSrc) {
+    return false;
+  }
+
+  return imageSrc[1].startsWith('data:image');
+};
 
 export function verifyPreviewCall(code: string) {
   const ast = parse(code, {

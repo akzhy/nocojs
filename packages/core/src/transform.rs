@@ -34,10 +34,14 @@ use crate::{
 };
 
 static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| {
-  Client::builder()
-    .timeout(Duration::from_secs(10))
-    .build()
-    .unwrap()
+  let mut builder = Client::builder().timeout(Duration::from_secs(10));
+
+  // In CI or testing environments, be more permissive with certificates
+  if std::env::var("NOCOJS_DANGEROUSLY_IGNORE_ACCEPT_INVALID_SSL_CERTS").is_ok() {
+    builder = builder.danger_accept_invalid_certs(true);
+  }
+
+  builder.build().unwrap()
 });
 
 #[derive(PartialEq, Debug, Clone)]
