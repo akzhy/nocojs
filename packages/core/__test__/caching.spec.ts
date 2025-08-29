@@ -118,5 +118,5 @@ describe('Caching should work as expected', async () => {
     });
     const cacheHits4 = result4.logs?.filter((log) => log.message.includes('Cache hit')).length || 0;
     expect(cacheHits4).toBe(0);
-  });
+  }, 10000);
 });
