@@ -648,13 +648,16 @@ impl<'a> TransformVisitor<'a> {
               &options,
             );
           }
-          Err(e) => create_log(
-            format!(
-              "Failed to process image {} in {}. Error: {}",
-              url_clone, file_path_clone, e
-            ),
-            LogLevel::Error,
-          ),
+          Err(e) => {
+            println!("Error: {:#?}", e);
+            create_log(
+              format!(
+                "Failed to process image {} in {}. Error: {}",
+                url_clone, file_path_clone, e
+              ),
+              LogLevel::Error,
+            )
+          }
         }
       }));
     }
