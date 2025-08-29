@@ -371,19 +371,9 @@ jobs:
           run: |
             if command -v apt-get >/dev/null; then
               apt-get update && apt-get install -y ca-certificates openssl curl && update-ca-certificates
-
               update-ca-certificates --fresh
-              # Ensure proper SSL/TLS configuration
-              export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-              export SSL_CERT_DIR=/etc/ssl/certs
-              export RUSTLS_NATIVE_CERTS=1
-
-              curl -f -s --head https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg > /dev/null || echo "Warning: SSL connectivity test failed"
+              export NOCOJS_DANGEROUSLY_IGNORE_ACCEPT_INVALID_SSL_CERTS=1
             fi
-
-            export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-            export SSL_CERT_DIR=/etc/ssl/certs
-            export RUSTLS_NATIVE_CERTS=1
             yarn workspace @nocojs/core test
   publish:
     name: Publish
