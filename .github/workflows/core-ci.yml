@@ -370,9 +370,8 @@ jobs:
           options: "-v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}"
           run: |
             if command -v apt-get >/dev/null; then
-              ls -l /etc/ssl/certs/ca-certificates.crt || echo "No certs installed"
-              apt-get update && apt-get install -y ca-certificates
-              ls -l /etc/ssl/certs/ca-certificates.crt || echo "No certs installed"
+              apt-get update && apt-get install -y ca-certificates && update-ca-certificates
+              curl -v https://raw.githubusercontent.com/
             fi
             yarn workspace @nocojs/core test
   publish:
