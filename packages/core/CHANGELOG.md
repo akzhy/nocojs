@@ -1,5 +1,11 @@
 # @nocojs/core
 
+## 0.0.1-beta.2
+
+### Patch Changes
+
+- 5465a69: Added freebsd build
+
 ## 0.0.1-beta.1
 
 ### Patch Changes
