@@ -368,7 +368,13 @@ jobs:
         with:
           image: ${{ steps.docker.outputs.IMAGE }}
           options: "-v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}"
-          run: yarn workspace @nocojs/core test
+          run: |
+            if command -v apt-get >/dev/null; then
+              ls -l /etc/ssl/certs/ca-certificates.crt || echo "No certs installed"
+              apt-get update && apt-get install -y ca-certificates
+              ls -l /etc/ssl/certs/ca-certificates.crt || echo "No certs installed"
+            fi
+            yarn workspace @nocojs/core test
   publish:
     name: Publish
     runs-on: ubuntu-latest
