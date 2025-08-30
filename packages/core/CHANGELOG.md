@@ -1,5 +1,11 @@
 # @nocojs/core
 
+## 0.0.1-beta.3
+
+### Patch Changes
+
+- 12d4dff: Add wasm support
+
 ## 0.0.1-beta.2
 
 ### Patch Changes
