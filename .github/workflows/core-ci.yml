@@ -189,6 +189,7 @@ jobs:
           export CMAKE_BUILD_PARALLEL_LEVEL=2
           export TARGET_CXXFLAGS="--target=wasm32-wasi-threads --sysroot=$(pwd)/wasi-sdk-27.0-x86_64-linux/share/wasi-sysroot -pthread -mllvm -wasm-enable-sjlj -lsetjmp"
           export TARGET_CFLAGS="$TARGET_CXXFLAGS"
+        if: ${{ matrix.settings.target == 'wasm32-wasip1-threads' }}
 
       - name: Install dependencies
         run: yarn install
