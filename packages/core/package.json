@@ -37,7 +37,8 @@
       "x86_64-unknown-freebsd",
       "aarch64-unknown-linux-musl",
       "aarch64-pc-windows-msvc",
-      "armv7-linux-androideabi"
+      "armv7-linux-androideabi",
+      "wasm32-wasi-preview1-threads"
     ]
   },
   "engines": {
