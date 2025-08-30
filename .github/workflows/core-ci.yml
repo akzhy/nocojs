@@ -8,7 +8,7 @@ env:
   workflow_call:
     inputs:
       skip_publish:
-        description: 'Skip the publish step'
+        description: "Skip the publish step"
         required: false
         type: boolean
         default: false
@@ -101,6 +101,10 @@ jobs:
             target: aarch64-unknown-linux-musl
             build: yarn build --target aarch64-unknown-linux-musl -x
 
+          - host: ubuntu-latest
+            target: wasm32-wasip1-threads
+            build: yarn build --target wasm32-wasip1-threads
+
     name: stable - ${{ matrix.settings.target }} - node@22
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -175,6 +179,17 @@ jobs:
           export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++
         if: ${{ matrix.settings.target == 'aarch64-unknown-linux-gnu' }}
 
+      - name: Setup Ubuntu for wasm
+        run: |
+          wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sdk-27.0-x86_64-linux.tar.gz
+          tar -xvf wasi-sdk-27.0-x86_64-linux.tar.gz
+
+          export WASI_SDK_PATH="$(pwd)/wasi-sdk-27.0-x86_64-linux"
+          export BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$WASI_SDK_PATH/share/wasi-sysroot"
+          export CMAKE_BUILD_PARALLEL_LEVEL=2
+          export TARGET_CXXFLAGS="--target=wasm32-wasi-threads --sysroot=$(pwd)/wasi-sdk-27.0-x86_64-linux/share/wasi-sysroot -pthread -mllvm -wasm-enable-sjlj -lsetjmp"
+          export TARGET_CFLAGS="$TARGET_CXXFLAGS"
+
       - name: Install dependencies
         run: yarn install
       - name: Build
@@ -214,7 +229,7 @@ jobs:
           RUSTUP_IO_THREADS: 1
         with:
           operating_system: freebsd
-          version: '14.2'
+          version: "14.2"
           memory: 8G
           cpu_count: 3
           environment_variables: DEBUG RUSTUP_IO_THREADS
@@ -252,7 +267,7 @@ jobs:
             packages/core/api.d.ts
             packages/core/api.d.ts.map
           if-no-files-found: error
-    
+
   test-macOS-windows-binding:
     defaults:
       run:
@@ -375,6 +390,37 @@ jobs:
               export NOCOJS_DANGEROUSLY_ACCEPT_INVALID_SSL_CERTS=1
             fi
             yarn workspace @nocojs/core test
+
+  test-wasi-on-nodejs:
+    defaults:
+      run:
+        working-directory: ./packages/core
+
+    name: Test wasi on Node.js
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: bindings-wasm32-wasip1-threads
+          path: packages/core
+      - name: Install dependencies
+        run: yarn install
+      - name: List packages
+        run: ls -R packages
+        shell: bash
+      - name: Run tests
+        run: yarn test
+        env:
+          NAPI_RS_FORCE_WASI: "1"
+
   publish:
     name: Publish
     runs-on: ubuntu-latest
@@ -387,6 +433,7 @@ jobs:
       - build-freebsd
       - test-macOS-windows-binding
       - test-linux-binding
+      - test-wasi-on-nodejs
     if: inputs.skip_publish != true
     steps:
       - uses: actions/checkout@v4
