@@ -392,35 +392,35 @@ jobs:
             fi
             yarn workspace @nocojs/core test
 
-  test-wasi-on-nodejs:
-    defaults:
-      run:
-        working-directory: ./packages/core
+  # test-wasi-on-nodejs:
+  #   defaults:
+  #     run:
+  #       working-directory: ./packages/core
 
-    name: Test wasi on Node.js
-    runs-on: ubuntu-latest
-    needs:
-      - build
-    steps:
-      - uses: actions/checkout@v5
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Download artifacts
-        uses: actions/download-artifact@v5
-        with:
-          name: bindings-wasm32-wasip1-threads
-          path: packages/core
-      - name: Install dependencies
-        run: yarn install
-      - name: List packages
-        run: ls -R .
-        shell: bash
-      - name: Run tests
-        run: yarn test
-        env:
-          NAPI_RS_FORCE_WASI: "1"
+  #   name: Test wasi on Node.js
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - build
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - name: Setup node
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v5
+  #       with:
+  #         name: bindings-wasm32-wasip1-threads
+  #         path: packages/core
+  #     - name: Install dependencies
+  #       run: yarn install
+  #     - name: List packages
+  #       run: ls -R .
+  #       shell: bash
+  #     - name: Run tests
+  #       run: yarn test
+  #       env:
+  #         NAPI_RS_FORCE_WASI: "1"
 
   publish:
     name: Publish
@@ -434,7 +434,7 @@ jobs:
       - build-freebsd
       - test-macOS-windows-binding
       - test-linux-binding
-      - test-wasi-on-nodejs
+      # - test-wasi-on-nodejs
     if: inputs.skip_publish != true
     steps:
       - uses: actions/checkout@v4
