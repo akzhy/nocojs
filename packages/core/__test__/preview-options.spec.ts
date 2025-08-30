@@ -3,6 +3,7 @@ import { transform } from '../api';
 import {
   base64ToSharpImage,
   defaultTransformOptions,
+  getCacheFileDirName,
   getInput,
   isFullyTransparent,
   isImageSingleColor,
@@ -10,7 +11,7 @@ import {
 } from './utils';
 
 describe('Preview options', async () => {
-  const cacheFileDir = `${defaultTransformOptions.cacheFileDir}/preview-options`;
+  const cacheFileDir = getCacheFileDirName();
   test('aspect ratio: default is working', async () => {
     const input = getInput({
       url: '/good_boy_4x5.jpg',
