@@ -1,4 +1,6 @@
 use bytes::Bytes;
+use futures::Future;
+#[cfg(not(target_arch = "wasm32"))]
 use futures::{stream::FuturesUnordered, StreamExt};
 use napi_derive::napi;
 use once_cell::sync::Lazy;
@@ -18,12 +20,19 @@ use oxc::{
 };
 use reqwest::Client;
 use rusqlite::Connection;
+#[cfg(target_arch = "wasm32")]
+use std::mem;
+#[cfg(target_arch = "wasm32")]
+use std::pin::Pin;
+#[cfg(not(target_arch = "wasm32"))]
+use std::time::Duration;
 use std::{
   collections::HashMap,
   path::PathBuf,
   sync::{Arc, Mutex},
-  time::{Duration, Instant},
+  time::Instant,
 };
+#[cfg(not(target_arch = "wasm32"))]
 use tokio::task::JoinHandle;
 use url::Url;
 
@@ -34,10 +43,19 @@ use crate::{
 };
 
 static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| {
-  let mut builder = Client::builder().timeout(Duration::from_secs(10));
+  #[cfg(not(target_arch = "wasm32"))]
+  let mut builder = Client::builder();
 
+  #[cfg(target_arch = "wasm32")]
+  let builder = Client::builder();
+
+  #[cfg(not(target_arch = "wasm32"))]
+  {
+    builder = builder.timeout(Duration::from_secs(10));
+  }
   // In CI or testing environments, be more permissive with certificates
-  if std::env::var("NOCOJS_DANGEROUSLY_IGNORE_ACCEPT_INVALID_SSL_CERTS").is_ok() {
+  #[cfg(not(target_arch = "wasm32"))]
+  if std::env::var("NOCOJS_DANGEROUSLY_ACCEPT_INVALID_SSL_CERTS").is_ok() {
     builder = builder.danger_accept_invalid_certs(true);
   }
 
@@ -103,6 +121,22 @@ impl PreviewOptions {
 
 static RUSQLITE_FILE_NAME: &str = "cache.db";
 
+#[cfg(target_arch = "wasm32")]
+fn spawn_task<F>(fut: F) -> std::pin::Pin<Box<dyn Future<Output = ()> + 'static>>
+where
+  F: Future<Output = ()> + 'static,
+{
+  Box::pin(fut)
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn spawn_task<F>(fut: F) -> tokio::task::JoinHandle<()>
+where
+  F: Future<Output = ()> + Send + 'static,
+{
+  tokio::spawn(fut)
+}
+
 pub async fn transform(
   code: String,
   file_path: String,
@@ -146,7 +180,11 @@ pub async fn transform(
   let ast_builder = AstBuilder::new(&allocator);
   let util_import_symbols: Vec<SymbolId> = vec![];
 
+  #[cfg(not(target_arch = "wasm32"))]
   let tasks = FuturesUnordered::new();
+
+  #[cfg(target_arch = "wasm32")]
+  let tasks = vec![];
 
   let store_data = Arc::new(Mutex::new(HashMap::new()));
   let store = Arc::new(Store { data: store_data });
@@ -276,6 +314,12 @@ fn init_cache_dir(dirname: &str) -> Result<String, Box<dyn std::error::Error>> {
   Ok(dirname.to_string())
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+type TasksType<T> = FuturesUnordered<JoinHandle<T>>;
+
+#[cfg(target_arch = "wasm32")]
+type TasksType<T> = Vec<Pin<Box<dyn Future<Output = T>>>>;
+
 struct TransformVisitor<'a> {
   allocator: &'a Allocator,
   ast_builder: AstBuilder<'a>,
@@ -283,7 +327,7 @@ struct TransformVisitor<'a> {
   util_import_symbols: Vec<SymbolId>,
   pass: Pass,
   rusqlite_conn: Connection,
-  tasks: FuturesUnordered<JoinHandle<()>>,
+  tasks: TasksType<()>,
   options: TransformOptions,
   has_changes: bool,
   store: Arc<Store>,
@@ -309,6 +353,16 @@ impl<'a> TransformVisitor<'a> {
     self.pass = Pass::Second;
 
     if self.has_changes {
+      #[cfg(target_arch = "wasm32")]
+      {
+        let tasks = mem::take(&mut self.tasks); // replace with empty Vec
+
+        for task in tasks {
+          let _ = task.await;
+        }
+      }
+
+      #[cfg(not(target_arch = "wasm32"))]
       while let Some(_) = self.tasks.next().await {}
 
       let _ = self.push_store_data_to_db();
@@ -572,7 +626,7 @@ impl<'a> TransformVisitor<'a> {
   /// If the URL is an actual URL, it downloads the image and processes it.
   /// If the URL is a relative path, it reads the image from the public directory.
   /// The processed image output is then inserted or updated in the store.
-  fn spawn_image_resize(&self, url: String, options: PreviewOptions) {
+  fn spawn_image_resize(&mut self, url: String, options: PreviewOptions) {
     let url_parse = Url::parse(&url);
 
     if url_parse.is_err() {
@@ -600,7 +654,7 @@ impl<'a> TransformVisitor<'a> {
           let store = Arc::clone(&self.store);
           let file_path_clone = self.file_path.clone();
 
-          self.tasks.push(tokio::spawn(async move {
+          self.tasks.push(spawn_task(async move {
             match process_image(&bytes, &url_clone, &options).await {
               Ok(out) => {
                 let _ = store.insert_or_update(
@@ -641,7 +695,7 @@ impl<'a> TransformVisitor<'a> {
       let store = Arc::clone(&self.store);
       let file_path_clone = self.file_path.clone();
 
-      self.tasks.push(tokio::spawn(async move {
+      self.tasks.push(spawn_task(async move {
         match download_and_process_image(client, &url, &options).await {
           Ok(image) => {
             let _ = store.insert_or_update(

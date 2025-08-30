@@ -4,6 +4,7 @@ import { PreviewOptions } from '..';
 import sharp from 'sharp';
 import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
+import { expect } from 'vitest';
 
 export const defaultTransformOptions: TransformOptions = {
   cacheFileDir: path.join(import.meta.dirname, '.cache'),
@@ -107,6 +108,13 @@ export const checkPreviewImage = (code: string): boolean => {
   }
 
   return imageSrc[1].startsWith('data:image');
+};
+
+export const getCacheFileDirName = () => {
+  return path.join(
+    defaultTransformOptions.cacheFileDir!,
+    expect.getState().currentTestName?.replaceAll(' ', '_')?.replaceAll('>', '_') ?? 'default',
+  );
 };
 
 export function verifyPreviewCall(code: string) {

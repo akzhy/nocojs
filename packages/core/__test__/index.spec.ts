@@ -2,14 +2,14 @@ import { readFile } from 'fs/promises';
 import path from 'path';
 import { describe, expect, test } from 'vitest';
 import { transform } from '../api';
-import { checkPreviewImage, defaultTransformOptions, getInput } from './utils';
+import { checkPreviewImage, defaultTransformOptions, getCacheFileDirName, getInput } from './utils';
 
 describe('Basic Transform Tests', () => {
   test('transforms with no options', async () => {
     const input = getInput();
     const result = await transform(input, 'index.ts');
     expect(checkPreviewImage(result.code)).toBeTruthy();
-  }, 10000);
+  });
 
   test('transforms with custom cache dir', async () => {
     const input = getInput();
@@ -66,7 +66,7 @@ describe('Basic Transform Tests', () => {
 
 describe('Global placeholderType option tests with remote image', () => {
   test('placeholderType - normal', async () => {
-    const cacheFileDir = `${defaultTransformOptions.cacheFileDir}/${new Date().getTime()}`;
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
@@ -77,7 +77,7 @@ describe('Global placeholderType option tests with remote image', () => {
   });
 
   test('placeholderType - normal', async () => {
-    const cacheFileDir = `${defaultTransformOptions.cacheFileDir}/${new Date().getTime()}`;
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
@@ -88,7 +88,7 @@ describe('Global placeholderType option tests with remote image', () => {
   });
 
   test('placeholderType - average-color', async () => {
-    const cacheFileDir = `${defaultTransformOptions.cacheFileDir}/${new Date().getTime()}`;
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
@@ -99,7 +99,7 @@ describe('Global placeholderType option tests with remote image', () => {
   });
 
   test('placeholderType - dominant-color', async () => {
-    const cacheFileDir = `${defaultTransformOptions.cacheFileDir}/${new Date().getTime()}`;
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
@@ -110,7 +110,7 @@ describe('Global placeholderType option tests with remote image', () => {
   });
 
   test('placeholderType - grayscale', async () => {
-    const cacheFileDir = `${defaultTransformOptions.cacheFileDir}/${new Date().getTime()}`;
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
@@ -121,7 +121,7 @@ describe('Global placeholderType option tests with remote image', () => {
   });
 
   test('placeholderType - transparent', async () => {
-    const cacheFileDir = `${defaultTransformOptions.cacheFileDir}/${new Date().getTime()}`;
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,

@@ -1,10 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import { transform } from '../api';
-import { defaultTransformOptions, getInput } from './utils';
+import { defaultTransformOptions, getCacheFileDirName, getInput } from './utils';
+import { existsSync } from 'fs';
 
 describe('Caching should work as expected', async () => {
   test('no cache is working', async () => {
-    const cacheFileDir = `${defaultTransformOptions.cacheFileDir}/${new Date().getTime()}`;
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput({
       url: '/good_boy.avif',
       previewOptions: {
@@ -49,7 +50,7 @@ describe('Caching should work as expected', async () => {
       url: `/good_boy.avif`,
     });
 
-    const cacheFileDir = `${defaultTransformOptions.cacheFileDir}/${new Date().getTime()}`;
+    const cacheFileDir = getCacheFileDirName();
 
     await transform(input, 'index.ts', {
       ...defaultTransformOptions,
@@ -69,7 +70,7 @@ describe('Caching should work as expected', async () => {
   });
 
   test('cache ignored if preview options change', async () => {
-    const cacheFileDir = `${defaultTransformOptions.cacheFileDir}/${new Date().getTime()}`;
+    const cacheFileDir = getCacheFileDirName();
 
     const input = getInput({
       url: '/good_boy.avif',
@@ -118,5 +119,5 @@ describe('Caching should work as expected', async () => {
     });
     const cacheHits4 = result4.logs?.filter((log) => log.message.includes('Cache hit')).length || 0;
     expect(cacheHits4).toBe(0);
-  }, 10000);
+  });
 });
