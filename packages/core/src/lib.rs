@@ -11,7 +11,8 @@ use napi_derive::napi;
 
 use crate::transform::{TransformOptions, TransformOutput};
 
-#[tokio::main]
+#[cfg_attr(target_arch = "wasm32", napi::tokio::main(flavor = "current_thread"))]
+#[cfg_attr(not(target_arch = "wasm32"), napi::tokio::main)]
 #[napi]
 pub async fn transform(
   code: String,

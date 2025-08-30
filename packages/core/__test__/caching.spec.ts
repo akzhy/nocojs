@@ -1,12 +1,11 @@
-import { rm } from 'fs/promises';
-import { beforeEach, describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { transform } from '../api';
-import { defaultTransformOptions, getInput } from './utils';
+import { defaultTransformOptions, getCacheFileDirName, getInput } from './utils';
+import { existsSync } from 'fs';
 
 describe('Caching should work as expected', async () => {
-  beforeEach(() => rm(defaultTransformOptions.cacheFileDir!, { recursive: true }));
-
   test('no cache is working', async () => {
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput({
       url: '/good_boy.avif',
       previewOptions: {
@@ -16,11 +15,13 @@ describe('Caching should work as expected', async () => {
 
     await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
       placeholderType: 'normal',
     });
 
     const result2 = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
       placeholderType: 'normal',
     });
 
@@ -49,13 +50,17 @@ describe('Caching should work as expected', async () => {
       url: `/good_boy.avif`,
     });
 
+    const cacheFileDir = getCacheFileDirName();
+
     await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
       placeholderType: 'normal',
     });
 
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
       placeholderType: 'normal',
     });
 
@@ -65,17 +70,21 @@ describe('Caching should work as expected', async () => {
   });
 
   test('cache ignored if preview options change', async () => {
+    const cacheFileDir = getCacheFileDirName();
+
     const input = getInput({
       url: '/good_boy.avif',
     });
     await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'normal',
+      cacheFileDir,
       cache: false,
     });
 
     const result1 = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
+      cacheFileDir,
       placeholderType: 'dominant-color',
     });
 
@@ -85,27 +94,28 @@ describe('Caching should work as expected', async () => {
     const result2 = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'average-color',
+      cacheFileDir,
     });
 
     const cacheHits2 = result2.logs?.filter((log) => log.message.includes('Cache hit')).length || 0;
     expect(cacheHits2).toBe(0);
 
-    
     const result3 = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'average-color',
       width: 10,
+      cacheFileDir,
     });
 
     const cacheHits3 = result3.logs?.filter((log) => log.message.includes('Cache hit')).length || 0;
     expect(cacheHits3).toBe(0);
 
-    
     const result4 = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'average-color',
       width: 10,
       height: 10,
+      cacheFileDir,
     });
     const cacheHits4 = result4.logs?.filter((log) => log.message.includes('Cache hit')).length || 0;
     expect(cacheHits4).toBe(0);

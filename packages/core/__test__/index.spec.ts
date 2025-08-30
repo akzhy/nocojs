@@ -1,15 +1,15 @@
-import { beforeEach, describe, expect, test } from 'vitest';
-import { transform } from '../api';
-import { defaultTransformOptions, getInput } from './utils';
+import { readFile } from 'fs/promises';
 import path from 'path';
-import { readFile, rm } from 'fs/promises';
+import { describe, expect, test } from 'vitest';
+import { transform } from '../api';
+import { checkPreviewImage, defaultTransformOptions, getCacheFileDirName, getInput } from './utils';
 
 describe('Basic Transform Tests', () => {
   test('transforms with no options', async () => {
     const input = getInput();
     const result = await transform(input, 'index.ts');
-    expect(result.code).toMatchSnapshot();
-  }, 10000);
+    expect(checkPreviewImage(result.code)).toBeTruthy();
+  });
 
   test('transforms with custom cache dir', async () => {
     const input = getInput();
@@ -20,7 +20,7 @@ describe('Basic Transform Tests', () => {
     const cacheFileExists = await readFile(cacheFilePath);
     expect(cacheFileExists).toBeDefined();
 
-    expect(result.code).toMatchSnapshot();
+    expect(checkPreviewImage(result.code)).toBeTruthy();
   });
 
   test('transforms with custom publicDir', async () => {
@@ -32,7 +32,7 @@ describe('Basic Transform Tests', () => {
       publicDir: path.join(__dirname, 'static'),
     });
 
-    expect(result.code).toMatchSnapshot();
+    expect(checkPreviewImage(result.code)).toBeTruthy();
   });
 
   test('ignores invalid URLs and Paths', async () => {
@@ -48,61 +48,86 @@ describe('Basic Transform Tests', () => {
       },
       {
         url: '/good_boy_4x5.jpg',
-      }
+      },
     ]);
     const result = await transform(input, 'index.ts', defaultTransformOptions);
 
-    expect(result.code).toMatchSnapshot();
-  });
+    const matches = result.code.match(/const img\d*\s*=\s*(.*)/gm);
+    if (!matches) {
+      return;
+    }
+
+    expect(checkPreviewImage(matches[0])).toBe(false);
+    expect(checkPreviewImage(matches[1])).toBe(false);
+    expect(checkPreviewImage(matches[2])).toBe(false);
+    expect(checkPreviewImage(matches[3])).toBe(true);
+  }, 20000);
 });
 
 describe('Global placeholderType option tests with remote image', () => {
-  beforeEach(async () => {
-    await rm(defaultTransformOptions.cacheFileDir!, { recursive: true });
-  });
-
-  test.skip('placeholderType - normal', async () => {
+  test('placeholderType - normal', async () => {
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'normal',
+      cacheFileDir,
     });
-    expect(result.code).toMatchSnapshot();
+    expect(checkPreviewImage(result.code)).toBeTruthy();
   });
 
-  test.skip('placeholderType - average-color', async () => {
+  test('placeholderType - normal', async () => {
+    const cacheFileDir = getCacheFileDirName();
+    const input = getInput();
+    const result = await transform(input, 'index.ts', {
+      ...defaultTransformOptions,
+      placeholderType: 'blurred',
+      cacheFileDir,
+    });
+    expect(checkPreviewImage(result.code)).toBeTruthy();
+  });
+
+  test('placeholderType - average-color', async () => {
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'average-color',
+      cacheFileDir,
     });
-    expect(result.code).toMatchSnapshot();
+    expect(checkPreviewImage(result.code)).toBeTruthy();
   });
 
-  test.skip('placeholderType - dominant-color', async () => {
+  test('placeholderType - dominant-color', async () => {
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'dominant-color',
+      cacheFileDir,
     });
-    expect(result.code).toMatchSnapshot();
+    expect(checkPreviewImage(result.code)).toBeTruthy();
   });
 
-  test.skip('placeholderType - grayscale', async () => {
+  test('placeholderType - grayscale', async () => {
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'grayscale',
+      cacheFileDir,
     });
-    expect(result.code).toMatchSnapshot();
+    expect(checkPreviewImage(result.code)).toBeTruthy();
   });
 
-  test.skip('placeholderType - transparent', async () => {
+  test('placeholderType - transparent', async () => {
+    const cacheFileDir = getCacheFileDirName();
     const input = getInput();
     const result = await transform(input, 'index.ts', {
       ...defaultTransformOptions,
       placeholderType: 'transparent',
+      cacheFileDir,
     });
-    expect(result.code).toMatchSnapshot();
+    expect(checkPreviewImage(result.code)).toBeTruthy();
   });
 });

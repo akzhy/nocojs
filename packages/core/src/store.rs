@@ -176,7 +176,7 @@ impl Store {
     &self,
     url: String,
     options: &PreviewOptions,
-  ) -> Result<bool, Box<dyn std::error::Error + '_>> {
+  ) -> Result<bool, Box<dyn std::error::Error>> {
     let map = self.data.lock().unwrap();
     let cache_key = Store::create_cache_key(options);
     let item = map.get(format!("{}-{}", url, cache_key).as_str());

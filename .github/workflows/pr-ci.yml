@@ -1,0 +1,56 @@
+name: PR CI
+
+on:
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: pr-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      has_core_changes: ${{ steps.detect.outputs.has_core_changes }}
+      has_js_changes: ${{ steps.detect.outputs.has_js_changes }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Detect changes
+        id: detect
+        run: |
+          # Check if core package has changes
+          if git diff --name-only ${{ github.event.before || 'HEAD~1' }} HEAD | grep -q "^packages/core/"; then
+            echo "Core changes detected"
+            echo "has_core_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "No core changes"
+            echo "has_core_changes=true" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check if JS packages have changes
+          if git diff --name-only ${{ github.event.before || 'HEAD~1' }} HEAD | grep -qE "^packages/(client|parcel-transformer|rollup-plugin|rspack-loader|webpack-loader)/"; then
+            echo "JS package changes detected"
+            echo "has_js_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "No JS package changes"
+            echo "has_js_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+  test-core:
+    needs: check-changes
+    if: needs.check-changes.outputs.has_core_changes == 'true'
+    uses: ./.github/workflows/core-ci.yml
+    with:
+      skip_publish: true
+    secrets: inherit
+
+  # Should implement this later once the test cases for JS packages are ready. 
+  # test-js:
+  #   needs: check-changes
+  #   if: needs.check-changes.outputs.has_js_changes == 'true'
+  #   uses: ./.github/workflows/js-test.yml
+  #   secrets: inherit

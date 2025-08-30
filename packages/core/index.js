@@ -78,12 +78,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-android-arm64')
-        const bindingPackageVersion = require('@nocojs/core-android-arm64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-android-arm64')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -94,12 +89,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-android-arm-eabi')
-        const bindingPackageVersion = require('@nocojs/core-android-arm-eabi/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-android-arm-eabi')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -114,12 +104,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-win32-x64-msvc')
-        const bindingPackageVersion = require('@nocojs/core-win32-x64-msvc/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-win32-x64-msvc')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -130,12 +115,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-win32-ia32-msvc')
-        const bindingPackageVersion = require('@nocojs/core-win32-ia32-msvc/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-win32-ia32-msvc')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -146,12 +126,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-win32-arm64-msvc')
-        const bindingPackageVersion = require('@nocojs/core-win32-arm64-msvc/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-win32-arm64-msvc')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -165,12 +140,7 @@ function requireNative() {
       loadErrors.push(e)
     }
     try {
-      const binding = require('@nocojs/core-darwin-universal')
-      const bindingPackageVersion = require('@nocojs/core-darwin-universal/package.json').version
-      if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-        throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-      }
-      return binding
+      return require('@nocojs/core-darwin-universal')
     } catch (e) {
       loadErrors.push(e)
     }
@@ -181,12 +151,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-darwin-x64')
-        const bindingPackageVersion = require('@nocojs/core-darwin-x64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-darwin-x64')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -197,12 +162,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-darwin-arm64')
-        const bindingPackageVersion = require('@nocojs/core-darwin-arm64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-darwin-arm64')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -217,12 +177,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-freebsd-x64')
-        const bindingPackageVersion = require('@nocojs/core-freebsd-x64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-freebsd-x64')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -233,12 +188,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-freebsd-arm64')
-        const bindingPackageVersion = require('@nocojs/core-freebsd-arm64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-freebsd-arm64')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -254,12 +204,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          const binding = require('@nocojs/core-linux-x64-musl')
-          const bindingPackageVersion = require('@nocojs/core-linux-x64-musl/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-          }
-          return binding
+          return require('@nocojs/core-linux-x64-musl')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -270,12 +215,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          const binding = require('@nocojs/core-linux-x64-gnu')
-          const bindingPackageVersion = require('@nocojs/core-linux-x64-gnu/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-          }
-          return binding
+          return require('@nocojs/core-linux-x64-gnu')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -288,12 +228,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          const binding = require('@nocojs/core-linux-arm64-musl')
-          const bindingPackageVersion = require('@nocojs/core-linux-arm64-musl/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-          }
-          return binding
+          return require('@nocojs/core-linux-arm64-musl')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -304,12 +239,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          const binding = require('@nocojs/core-linux-arm64-gnu')
-          const bindingPackageVersion = require('@nocojs/core-linux-arm64-gnu/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-          }
-          return binding
+          return require('@nocojs/core-linux-arm64-gnu')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -322,12 +252,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          const binding = require('@nocojs/core-linux-arm-musleabihf')
-          const bindingPackageVersion = require('@nocojs/core-linux-arm-musleabihf/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-          }
-          return binding
+          return require('@nocojs/core-linux-arm-musleabihf')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -338,12 +263,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          const binding = require('@nocojs/core-linux-arm-gnueabihf')
-          const bindingPackageVersion = require('@nocojs/core-linux-arm-gnueabihf/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-          }
-          return binding
+          return require('@nocojs/core-linux-arm-gnueabihf')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -356,12 +276,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          const binding = require('@nocojs/core-linux-riscv64-musl')
-          const bindingPackageVersion = require('@nocojs/core-linux-riscv64-musl/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-          }
-          return binding
+          return require('@nocojs/core-linux-riscv64-musl')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -372,12 +287,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          const binding = require('@nocojs/core-linux-riscv64-gnu')
-          const bindingPackageVersion = require('@nocojs/core-linux-riscv64-gnu/package.json').version
-          if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-            throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-          }
-          return binding
+          return require('@nocojs/core-linux-riscv64-gnu')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -389,12 +299,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-linux-ppc64-gnu')
-        const bindingPackageVersion = require('@nocojs/core-linux-ppc64-gnu/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-linux-ppc64-gnu')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -405,12 +310,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-linux-s390x-gnu')
-        const bindingPackageVersion = require('@nocojs/core-linux-s390x-gnu/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-linux-s390x-gnu')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -420,49 +320,34 @@ function requireNative() {
   } else if (process.platform === 'openharmony') {
     if (process.arch === 'arm64') {
       try {
-        return require('./nocojs_core.openharmony-arm64.node')
+        return require('./nocojs_core.linux-arm64-ohos.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-openharmony-arm64')
-        const bindingPackageVersion = require('@nocojs/core-openharmony-arm64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-linux-arm64-ohos')
       } catch (e) {
         loadErrors.push(e)
       }
     } else if (process.arch === 'x64') {
       try {
-        return require('./nocojs_core.openharmony-x64.node')
+        return require('./nocojs_core.linux-x64-ohos.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-openharmony-x64')
-        const bindingPackageVersion = require('@nocojs/core-openharmony-x64/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-linux-x64-ohos')
       } catch (e) {
         loadErrors.push(e)
       }
     } else if (process.arch === 'arm') {
       try {
-        return require('./nocojs_core.openharmony-arm.node')
+        return require('./nocojs_core.linux-arm-ohos.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('@nocojs/core-openharmony-arm')
-        const bindingPackageVersion = require('@nocojs/core-openharmony-arm/package.json').version
-        if (bindingPackageVersion !== '0.0.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
-          throw new Error(`Native binding package version mismatch, expected 0.0.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
-        }
-        return binding
+        return require('@nocojs/core-linux-arm-ohos')
       } catch (e) {
         loadErrors.push(e)
       }

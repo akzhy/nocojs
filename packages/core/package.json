@@ -1,7 +1,7 @@
 {
   "name": "@nocojs/core",
   "author": "akzhy <hi@akzhy.com>",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1-beta.3",
   "description": "Core library for NocoJS",
   "main": "api.js",
   "repository": "git@github.com:akzhy/nocojs.git",
@@ -34,10 +34,18 @@
       "armv7-unknown-linux-gnueabihf",
       "aarch64-apple-darwin",
       "aarch64-linux-android",
+      "x86_64-unknown-freebsd",
       "aarch64-unknown-linux-musl",
       "aarch64-pc-windows-msvc",
-      "armv7-linux-androideabi"
-    ]
+      "armv7-linux-androideabi",
+      "wasm32-wasi-preview1-threads"
+    ],
+    "wasm": {
+      "browser": {
+        "asyncInit": true,
+        "fs": false
+      }
+    }
   },
   "engines": {
     "node": ">= 10.16.0 < 11 || >= 11.8.0 < 12 || >= 12.0.0"
@@ -71,6 +79,7 @@
     "@emnapi/core": "^1.4.5",
     "@emnapi/runtime": "^1.4.5",
     "@napi-rs/cli": "^3.0.3",
+    "@napi-rs/wasm-runtime": "^1.0.3",
     "@oxc-node/core": "^0.0.30",
     "@taplo/cli": "^0.7.0",
     "@tybys/wasm-util": "^0.10.0",
