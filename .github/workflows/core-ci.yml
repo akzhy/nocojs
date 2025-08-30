@@ -372,7 +372,7 @@ jobs:
             if command -v apt-get >/dev/null; then
               apt-get update && apt-get install -y ca-certificates openssl curl && update-ca-certificates
               update-ca-certificates --fresh
-              export NOCOJS_DANGEROUSLY_IGNORE_ACCEPT_INVALID_SSL_CERTS=1
+              export NOCOJS_DANGEROUSLY_ACCEPT_INVALID_SSL_CERTS=1
             fi
             yarn workspace @nocojs/core test
   publish:
