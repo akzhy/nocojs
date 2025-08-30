@@ -111,8 +111,11 @@ export const checkPreviewImage = (code: string): boolean => {
 };
 
 export const getCacheFileDirName = () => {
-  return `${defaultTransformOptions.cacheFileDir}/${expect.getState().currentTestName?.replaceAll(' ', '_')}`;
-}
+  return path.join(
+    defaultTransformOptions.cacheFileDir!,
+    expect.getState().currentTestName?.replaceAll(' ', '_')?.replaceAll('>', '_') ?? 'default',
+  );
+};
 
 export function verifyPreviewCall(code: string) {
   const ast = parse(code, {

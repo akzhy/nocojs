@@ -71,7 +71,6 @@ describe('Caching should work as expected', async () => {
 
   test('cache ignored if preview options change', async () => {
     const cacheFileDir = getCacheFileDirName();
-    console.log("Cache file dir ----- ", cacheFileDir, existsSync(cacheFileDir));
 
     const input = getInput({
       url: '/good_boy.avif',
