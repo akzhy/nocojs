@@ -415,7 +415,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: List packages
-        run: ls -R packages
+        run: ls -R .
         shell: bash
       - name: Run tests
         run: yarn test
