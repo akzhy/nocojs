@@ -1,5 +1,7 @@
 use bytes::Bytes;
-use futures::{future::join_all, stream::FuturesUnordered, Future, StreamExt};
+use futures::Future;
+#[cfg(not(target_arch = "wasm32"))]
+use futures::{stream::FuturesUnordered, StreamExt};
 use napi_derive::napi;
 use once_cell::sync::Lazy;
 use oxc::{
@@ -18,27 +20,34 @@ use oxc::{
 };
 use reqwest::Client;
 use rusqlite::Connection;
+#[cfg(target_arch = "wasm32")]
 use std::mem;
+#[cfg(target_arch = "wasm32")]
+use std::pin::Pin;
+#[cfg(not(target_arch = "wasm32"))]
+use std::time::Duration;
 use std::{
   collections::HashMap,
   path::PathBuf,
-  pin::Pin,
   sync::{Arc, Mutex},
-  time::{Duration, Instant},
+  time::Instant,
 };
+#[cfg(not(target_arch = "wasm32"))]
 use tokio::task::JoinHandle;
 use url::Url;
 
 use crate::{
   log::{self, create_log, set_log_level, style_error, LogLevel},
-  placeholder_image::{
-    download_and_process_image, process_image, PlaceholderImageOutputKind, ProcessImageOutput,
-  },
+  placeholder_image::{download_and_process_image, process_image, PlaceholderImageOutputKind},
   store::Store,
 };
 
 static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| {
+  #[cfg(not(target_arch = "wasm32"))]
   let mut builder = Client::builder();
+
+  #[cfg(target_arch = "wasm32")]
+  let builder = Client::builder();
 
   #[cfg(not(target_arch = "wasm32"))]
   {
