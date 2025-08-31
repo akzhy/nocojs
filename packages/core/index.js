@@ -393,6 +393,7 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding
+module.exports.getPlaceholder = nativeBinding.getPlaceholder
 module.exports.LogLevel = nativeBinding.LogLevel
 module.exports.PlaceholderImageOutputKind = nativeBinding.PlaceholderImageOutputKind
 module.exports.transform = nativeBinding.transform

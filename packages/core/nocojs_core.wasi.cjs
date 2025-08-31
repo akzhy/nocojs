@@ -108,6 +108,7 @@ const { instance: __napiInstance, module: __wasiModule, napiModule: __napiModule
   },
 })
 module.exports = __napiModule.exports
+module.exports.getPlaceholder = __napiModule.exports.getPlaceholder
 module.exports.LogLevel = __napiModule.exports.LogLevel
 module.exports.PlaceholderImageOutputKind = __napiModule.exports.PlaceholderImageOutputKind
 module.exports.transform = __napiModule.exports.transform

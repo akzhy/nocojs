@@ -1,14 +1,17 @@
 #![deny(clippy::all)]
 #![allow(clippy::uninlined_format_args)]
 
+pub mod get_placeholder;
 pub mod log;
 pub mod placeholder_image;
 pub mod store;
 pub mod transform;
-pub mod get_placeholder;
 
 use napi_derive::napi;
 
+use crate::get_placeholder::{
+  get_placeholder as get_placeholder_fn, GetPlaceholderOptions, GetPlaceholderOutput,
+};
 use crate::transform::{TransformOptions, TransformOutput};
 
 #[cfg_attr(target_arch = "wasm32", napi::tokio::main(flavor = "current_thread"))]
@@ -42,4 +45,19 @@ pub async fn transform(
     sourcemap: None,
     logs: Some(log::collect_logs()),
   }))
+}
+
+#[napi]
+pub async fn get_placeholder(
+  url: String,
+  options: GetPlaceholderOptions,
+) -> Result<GetPlaceholderOutput, napi::Error> {
+  match get_placeholder_fn(url.clone(), options).await {
+    Ok(output) => Ok(output),
+    Err(_) => Ok(GetPlaceholderOutput {
+      placeholder: url,
+      logs: log::collect_logs(),
+      is_error: true,
+    }),
+  }
 }
