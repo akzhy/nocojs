@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { transform } from '../api';
 import { defaultTransformOptions, getCacheFileDirName, getInput } from './utils';
-import { existsSync } from 'fs';
 
 describe('Caching should work as expected', async () => {
   test('no cache is working', async () => {
