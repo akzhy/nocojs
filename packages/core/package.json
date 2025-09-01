@@ -3,7 +3,9 @@
   "author": "akzhy <hi@akzhy.com>",
   "version": "0.0.1-beta.3",
   "description": "Core library for NocoJS",
-  "main": "api.js",
+  "main": "dist/cjs/api.js",
+  "module": "dist/esm/api.js",
+  "types": "dist/types/api.d.ts",
   "repository": "git@github.com:akzhy/nocojs.git",
   "license": "MIT",
   "keywords": [
@@ -15,13 +17,8 @@
     "node-addon-api"
   ],
   "files": [
-    "index.d.ts",
-    "index.js",
-    "api.js",
-    "api.d.ts",
-    "api.d.ts.map"
+    "dist"
   ],
-  "types": "api.d.ts",
   "napi": {
     "binaryName": "nocojs_core",
     "targets": [
@@ -60,8 +57,8 @@
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform && yarn build:js",
     "build:full": "napi build --platform --release && yarn build:js",
-    "dev:js": "tsc -w",
-    "build:js": "tsc",
+    "dev:js": "rolldown -c rolldown.config.ts --watch",
+    "build:js": "rolldown -c",
     "format": "run-p format:prettier format:rs format:toml",
     "format:prettier": "prettier . -w",
     "format:toml": "taplo format",
@@ -81,6 +78,7 @@
     "@napi-rs/cli": "^3.0.3",
     "@napi-rs/wasm-runtime": "^1.0.3",
     "@oxc-node/core": "^0.0.30",
+    "@rollup/plugin-typescript": "^12.1.4",
     "@taplo/cli": "^0.7.0",
     "@tybys/wasm-util": "^0.10.0",
     "@types/babel__traverse": "^7.28.0",
@@ -91,6 +89,8 @@
     "npm-run-all2": "^8.0.4",
     "oxlint": "^1.11.0",
     "prettier": "^3.6.2",
+    "rolldown": "^1.0.0-beta.34",
+    "rollup-plugin-copy": "^3.5.0",
     "sharp": "^0.34.3",
     "tinybench": "^4.0.1",
     "typescript": "^5.9.2",

@@ -56,6 +56,7 @@ const {
   },
 })
 export default __napiModule.exports
+export const getPlaceholder = __napiModule.exports.getPlaceholder
 export const LogLevel = __napiModule.exports.LogLevel
 export const PlaceholderImageOutputKind = __napiModule.exports.PlaceholderImageOutputKind
 export const transform = __napiModule.exports.transform

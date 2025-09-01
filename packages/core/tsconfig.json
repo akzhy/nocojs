@@ -11,7 +11,9 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": true,
-    "skipLibCheck": true
+    "declarationDir": "dist/types",
+    "skipLibCheck": true,
+    "emitDeclarationOnly": true
   },
   "include": ["./api.ts"],
   "exclude": ["node_modules", "bench", "__test__"]

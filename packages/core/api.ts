@@ -1,5 +1,12 @@
 import * as path from 'path';
-import { PlaceholderImageOutputKind, transform as rustTransform, LogLevel, Log } from './index.js';
+import {
+  PlaceholderImageOutputKind,
+  transform as rustTransform,
+  getPlaceholder as rustGetPlaceholder,
+  LogLevel,
+  Log,
+  GetPlaceholderOptions as RustGetPlaceholderOptions,
+} from './index';
 
 const placeholderTypeToEnum = {
   normal: PlaceholderImageOutputKind.Normal,
@@ -59,7 +66,7 @@ export const transform = async (
       width: options?.width,
       height: options?.height,
       sourcemapFilePath: options?.sourcemapFilePath,
-      wrapWithSvg: options?.wrapWithSvg ?? true
+      wrapWithSvg: options?.wrapWithSvg ?? true,
     });
 
     if (!result) {
@@ -83,4 +90,17 @@ export const transform = async (
       logs: [],
     };
   }
+};
+
+export interface GetPlaceholderOptions extends Omit<RustGetPlaceholderOptions, 'placeholderType'> {
+  placeholderType?: PlaceholderType;
+}
+
+export const getPlaceholder = async (url: string, options?: GetPlaceholderOptions) => {
+  return rustGetPlaceholder(url, {
+    ...options,
+    placeholderType: options?.placeholderType
+      ? placeholderTypeToEnum[options.placeholderType]
+      : PlaceholderImageOutputKind.Normal,
+  });
 };

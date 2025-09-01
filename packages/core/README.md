@@ -4,13 +4,23 @@ The Rust-powered core engine for nocojs, providing high-performance AST parsing 
 
 ## Overview
 
-`@nocojs/core` is the heart of the nocojs ecosystem, built in Rust with Node.js bindings via NAPI-RS. It handles the heavy lifting of:
+`@nocojs/core` is the heart of the nocojs ecosystem, built in Rust with Node.js bindings via NAPI-RS. It serves two main purposes:
+
+### 1. Build Tool Integration
+Powers bundler integrations like `@nocojs/webpack-loader`, `@nocojs/rollup-plugin`, and `@nocojs/parcel-transformer` for build-time image placeholder generation.
+
+### 2. Direct Node.js Usage  
+Provides the `getPlaceholder()` function for server-side frameworks and applications like:
+- **Astro** - Generate placeholders during static site generation
+- **Next.js** - Create placeholders in API routes or server components  
+- **Custom Node.js apps** - Programmatic placeholder generation
+- **Build scripts** - Custom image processing workflows
+
+## Core Capabilities
 
 - **AST Parsing & Transformation** - Uses OXC (Oxc Compiler) for blazing-fast JavaScript/TypeScript parsing
 - **Image Processing** - Leverages Rust's `image`, `avif_decode` and `fast_image_resize` crates for efficient image manipulation
 - **Caching** - SQLite-based caching system to avoid redundant processing
-
-This package is typically not used directly but rather through build tool integrations like `@nocojs/webpack-loader`, `@nocojs/rollup-plugin`, or `@nocojs/parcel-transformer`.
 
 ## API Reference
 
@@ -48,6 +58,93 @@ console.log(result.code); // Transformed code with inlined placeholder
   map: string | null;  // Source map (if enabled)
   logs: Log[];        // Processing logs and warnings
 }
+```
+
+### `getPlaceholder(url, options?)`
+
+Direct function for generating image placeholders programmatically in Node.js environments, perfect for server-side frameworks and custom build scripts.
+
+```typescript
+import { getPlaceholder } from '@nocojs/core';
+
+const result = await getPlaceholder(
+  '/path/to/image.jpg',
+  {
+    width: 16,
+    placeholderType: 'blurred',
+    cache: true,
+    wrapWithSvg: true
+  }
+);
+
+console.log(result.placeholder); // Base64 data URL
+console.log(result.logs);       // Processing logs
+console.log(result.isError);    // Error status
+```
+
+#### Parameters
+
+- **`url`** (`string`) - Path to local image file or HTTP/HTTPS URL
+- **`options`** (`GetPlaceholderOptions`, optional) - Placeholder generation options
+
+#### Returns
+
+```typescript
+{
+  placeholder: string;  // Base64 data URL of the generated placeholder
+  logs: Log[];         // Processing logs and warnings  
+  isError: boolean;    // Whether an error occurred during processing
+}
+```
+
+#### `GetPlaceholderOptions`
+
+```typescript
+interface GetPlaceholderOptions {
+  width?: number;        // Placeholder width in pixels (default: 12)
+  height?: number;       // Placeholder height in pixels (auto-calculated if not provided)
+  placeholderType?: 'normal' | 'blurred' | 'grayscale' | 'dominant-color' | 'average-color' | 'transparent';
+  cacheFileDir?: string; // Cache directory (default: '.nocojs')
+  cache?: boolean;       // Enable caching (default: true)
+  wrapWithSvg?: boolean; // Wrap in SVG for exact aspect ratio (default: true)
+}
+```
+
+#### Usage Examples
+
+**Static Site Generation (Astro)**
+```typescript
+// In an Astro component or build script
+const heroPlaceholder = await getPlaceholder('/src/assets/hero.jpg', {
+  placeholderType: 'blurred',
+  width: 20
+});
+```
+
+**Server-Side Rendering (Next.js)**
+```typescript
+// In API routes or server components
+export async function getServerSideProps() {
+  const placeholder = await getPlaceholder('https://cdn.example.com/image.jpg', {
+    placeholderType: 'dominant-color'
+  });
+  
+  return {
+    props: { imagePlaceholder: placeholder.placeholder }
+  };
+}
+```
+
+**Custom Build Scripts**
+```typescript
+// Process multiple images programmatically
+const images = ['hero.jpg', 'about.jpg', 'contact.jpg'];
+const placeholders = await Promise.all(
+  images.map(img => getPlaceholder(`/assets/${img}`, { 
+    placeholderType: 'blurred',
+    width: 16 
+  }))
+);
 ```
 
 ### Options
@@ -152,16 +249,35 @@ src/
 └── placeholder.rs     # Placeholder generation algorithms
 ```
 
-## Integration Notes
+## Usage Patterns
 
-This package is designed to be consumed by build tool integrations rather than used directly. For typical usage, install one of:
+### Build Tool Integration
+This package powers build tool integrations for automatic placeholder generation during bundling:
 
 - `@nocojs/rollup-plugin` - For Rollup and Vite projects  
 - `@nocojs/webpack-loader` - For Webpack and Next.js projects
-- `@nocojs/rspack-loader` - For Webpack and Next.js projects
+- `@nocojs/rspack-loader` - For Rspack projects  
 - `@nocojs/parcel-transformer` - For Parcel projects
 
-And requires `@nocojs/client` for parsing.
+These integrations require `@nocojs/client` for the `preview()` function calls.
+
+### Direct Node.js Usage
+For server-side applications and custom build scripts, use the `getPlaceholder()` function directly:
+
+```bash
+npm install @nocojs/core
+```
+
+```typescript
+import { getPlaceholder } from '@nocojs/core';
+// Generate placeholders programmatically
+```
+
+Perfect for:
+- **Astro** static site generation
+- **Next.js** server components and API routes
+- **Custom build scripts** and image processing workflows
+- **Node.js applications** with dynamic image handling
 
 ## License
 

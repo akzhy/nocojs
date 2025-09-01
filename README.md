@@ -20,16 +20,20 @@ nocojs scans your code during build time to find `preview()` function calls impo
 - **Automatic aspect ratio preservation** - Maintains original image proportions
 - **Intelligent caching** - Avoids redundant processing with SQLite-based caching
 - **Universal build tool support** - Works with Webpack, Rollup/Vite, Parcel, and Next.js
+- **Direct Node.js API** - Use `getPlaceholder()` function in server-side frameworks (Astro, Next.js, etc.)
 - **TypeScript support** - Full type safety out of the box
 
 ## How It Works
 
-1. **Build time**: Build tool integrations:
+**Build tool integrations**
    - Analyze your code for `preview()` function calls using OXC AST parser
    - Download or access images from specified paths
    - Generate small, optimized placeholder images using Rust-based image processing
    - Replace function calls with base64-encoded data URLs
-2. **Runtime**: Your `preview()` calls become tiny optimized images in the final bundle
+
+**Server-side**
+
+Use `getPlaceholder()` directly in Node.js for server-side rendering, static generation, or custom workflows
 
 ## Packages
 
@@ -41,6 +45,7 @@ This monorepo contains the following packages:
   - `image` and `fast_image_resize` crates for high-performance image processing  
   - `reqwest` for HTTP image downloading
   - `rusqlite` for intelligent caching
+  - Exports `getPlaceholder()` function for direct Node.js usage (Astro, Next.js, etc.)
 
 ### Client Package
 - **[@nocojs/client](./packages/client)** - TypeScript client library that exports the `preview()` function
@@ -60,10 +65,13 @@ This monorepo contains the following packages:
 npm install @nocojs/client
 
 # Install the appropriate build tool integration
-npm install --save-dev @nocojs/rollup-plugin      # For Rollup/Vite  
-npm install --save-dev @nocojs/webpack-loader     # For Webpack/Next.js
-npm install --save-dev @nocojs/rspack-loader     # For Webpack/Next.js
-npm install --save-dev @nocojs/parcel-transformer # For Parcel
+npm install --save-dev @nocojs/rollup-plugin @nocojs/core     # For Rollup/Vite  
+npm install --save-dev @nocojs/webpack-loader @nocojs/core    # For Webpack/Next.js
+npm install --save-dev @nocojs/rspack-loader @nocojs/core    # For Rspack
+npm install --save-dev @nocojs/parcel-transformer @nocojs/core # For Parcel
+
+# Or install core package alone for direct Node.js usage
+npm install @nocojs/core                          # For server-side frameworks (Astro, Next.js, etc.)
 ```
 
 ### Usage
@@ -154,6 +162,45 @@ const nextConfig = {
 };
 ```
 
+## Direct Node.js Usage
+
+For server-side frameworks like Astro, Next.js, or custom Node.js applications, you can use the `getPlaceholder` function directly from `@nocojs/core` to generate placeholders programmatically:
+
+```typescript
+import { getPlaceholder } from '@nocojs/core';
+
+// Generate placeholder for a local image
+const placeholder = await getPlaceholder('/path/to/image.jpg', {
+  width: 16,
+  placeholderType: 'blurred', // 'normal', 'blurred', 'grayscale', 'dominant-color', 'average-color', 'transparent'
+  cache: true,
+  wrapWithSvg: true
+});
+
+console.log(placeholder.placeholder); // Base64 data URL
+
+// Use in Astro components
+const heroPlaceholder = await getPlaceholder('/public/hero.jpg', {
+  width: 12,
+  placeholderType: 'blurred'
+});
+
+// Use in Next.js API routes or server components
+export async function generateStaticProps() {
+  const imagePlaceholder = await getPlaceholder('https://example.com/image.jpg', {
+    placeholderType: 'dominant-color',
+    width: 20
+  });
+  
+  return {
+    props: {
+      placeholder: imagePlaceholder.placeholder
+    }
+  };
+}
+```
+
+
 ## Preview Options
 
 ```typescript
@@ -176,7 +223,7 @@ interface PreviewOptions {
 - **`average-color`** - Single color rectangle based on the average color
 - **`transparent`** - Fully transparent placeholder
 
-## Important Guidelines
+## Important Guidelines (for bundler integration)
 
 ### DOs ✅
 

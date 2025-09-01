@@ -196,7 +196,6 @@ jobs:
       - name: Build
         run: |
           ${{ matrix.settings.build }}
-          yarn build:js
         shell: bash
         env:
           CFLAGS_aarch64_unknown_linux_gnu: ${{ matrix.settings.target == 'aarch64-unknown-linux-gnu' && '-D__ARM_ARCH=8' || '' }}
@@ -209,9 +208,6 @@ jobs:
           path: |
             packages/core/${{ env.APP_NAME }}.*.node
             packages/core/${{ env.APP_NAME }}.*.wasm
-            packages/core/api.js
-            packages/core/api.d.ts
-            packages/core/api.d.ts.map
           if-no-files-found: error
 
   build-freebsd:
@@ -254,7 +250,6 @@ jobs:
             freebsd-version
             yarn install
             yarn build:core-rust
-            yarn build:core-js
             rm -rf node_modules
             rm -rf target
             rm -rf .yarn/cache
@@ -264,9 +259,6 @@ jobs:
           name: bindings-freebsd
           path: |
             packages/core/${{ env.APP_NAME }}.*.node
-            packages/core/api.js
-            packages/core/api.d.ts
-            packages/core/api.d.ts.map
           if-no-files-found: error
 
   test-macOS-windows-binding:

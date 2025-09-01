@@ -119,7 +119,7 @@ impl PreviewOptions {
   }
 }
 
-static RUSQLITE_FILE_NAME: &str = "cache.db";
+pub static RUSQLITE_FILE_NAME: &str = "cache.db";
 
 #[cfg(target_arch = "wasm32")]
 fn spawn_task<F>(fut: F) -> std::pin::Pin<Box<dyn Future<Output = ()> + 'static>>
@@ -242,7 +242,7 @@ pub async fn transform(
   Ok(transform_result)
 }
 
-fn setup_sqlite(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+pub fn setup_sqlite(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
   let create_images_table = conn.execute(
     "CREATE TABLE IF NOT EXISTS images (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -297,7 +297,7 @@ fn setup_sqlite(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
   Ok(())
 }
 
-fn init_cache_dir(dirname: &str) -> Result<String, Box<dyn std::error::Error>> {
+pub fn init_cache_dir(dirname: &str) -> Result<String, Box<dyn std::error::Error>> {
   let path = PathBuf::from(dirname);
   if !path.exists() {
     let create = std::fs::create_dir_all(&path);

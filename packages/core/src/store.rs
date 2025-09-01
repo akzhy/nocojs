@@ -216,7 +216,7 @@ impl Store {
     )))
   }
 
-  fn create_cache_key(options: &PreviewOptions) -> String {
+  pub fn create_cache_key(options: &PreviewOptions) -> String {
     format!(
       "{}_{}_{}",
       options.output_kind.get_string_name(),
