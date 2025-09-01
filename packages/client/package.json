@@ -20,10 +20,10 @@
     "access": "public"
   },
   "devDependencies": {
-    "@nocojs/core": "0.0.1-beta.3",
+    "@nocojs/core": "0.0.1-beta.4",
     "typescript": "^5.9.2"
   },
   "peerDependencies": {
-    "@nocojs/core": ">=0.0.1-beta.3"
+    "@nocojs/core": ">=0.0.1-beta.4"
   }
 }
