@@ -1,0 +1,49 @@
+---
+import { getPlaceholder } from "@nocojs/core";
+
+interface Props extends Omit<astroHTML.JSX.ImgHTMLAttributes, "src"> {
+  src: string;
+}
+
+const { src, ...props } = Astro.props;
+
+const placeholder = await getPlaceholder(src, {
+  placeholderType: "blurred",
+});
+---
+
+<div class="image-container">
+  <img src={placeholder.placeholder} class="placeholder-image" />
+  <img
+    src={src}
+    {...props}
+    class:list={["main-image", props.class]}
+    loading="lazy"
+  />
+</div>
+
+<style>
+  .image-container {
+    display: inline-block;
+    font-size: 0;
+    position: relative;
+  }
+
+  .placeholder-image {
+    width: 100%;
+    height: auto;
+  }
+
+  .main-image {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+  }
+
+  .image-container:hover .main-image {
+    opacity: 1;
+  }
+</style>
