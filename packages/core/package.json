@@ -1,7 +1,7 @@
 {
   "name": "@nocojs/core",
   "author": "akzhy <hi@akzhy.com>",
-  "version": "0.0.1-beta.3",
+  "version": "0.0.1-beta.4",
   "description": "Core library for NocoJS",
   "main": "dist/cjs/api.js",
   "module": "dist/esm/api.js",

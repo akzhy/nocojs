@@ -1,5 +1,11 @@
 # @nocojs/core
 
+## 0.0.1-beta.4
+
+### Patch Changes
+
+- faa2271: Added get_placeholder function
+
 ## 0.0.1-beta.3
 
 ### Patch Changes
