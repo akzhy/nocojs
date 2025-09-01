@@ -5,8 +5,8 @@ import {
   getPlaceholder as rustGetPlaceholder,
   LogLevel,
   Log,
-  GetPlaceholderOptions,
-} from './index.js';
+  GetPlaceholderOptions as RustGetPlaceholderOptions,
+} from './index';
 
 const placeholderTypeToEnum = {
   normal: PlaceholderImageOutputKind.Normal,
@@ -92,6 +92,15 @@ export const transform = async (
   }
 };
 
-export const getPlaceholder = async (url: string, options: GetPlaceholderOptions) => {
-  return rustGetPlaceholder(url, options);
+export interface GetPlaceholderOptions extends Omit<RustGetPlaceholderOptions, 'placeholderType'> {
+  placeholderType?: PlaceholderType;
+}
+
+export const getPlaceholder = async (url: string, options?: GetPlaceholderOptions) => {
+  return rustGetPlaceholder(url, {
+    ...options,
+    placeholderType: options?.placeholderType
+      ? placeholderTypeToEnum[options.placeholderType]
+      : PlaceholderImageOutputKind.Normal,
+  });
 };
