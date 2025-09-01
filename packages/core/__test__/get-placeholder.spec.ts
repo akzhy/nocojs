@@ -1,7 +1,6 @@
 import path from 'path';
 import { describe, expect, test } from 'vitest';
-import { getPlaceholder } from '../api';
-import { GetPlaceholderOptions } from '../index.js';
+import { getPlaceholder, GetPlaceholderOptions } from '../api';
 import { defaultTransformOptions } from './utils';
 
 describe('getPlaceholder function tests', () => {
