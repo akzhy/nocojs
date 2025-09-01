@@ -18,7 +18,7 @@ use crate::{
 pub struct GetPlaceholderOptions {
   pub width: Option<u32>,
   pub height: Option<u32>,
-  pub output_kind: Option<PlaceholderImageOutputKind>,
+  pub placeholder_type: Option<PlaceholderImageOutputKind>,
   pub cache_file_dir: Option<String>,
   pub cache: Option<bool>,
   pub wrap_with_svg: Option<bool>,
@@ -54,7 +54,7 @@ pub async fn get_placeholder(
     width: options.width,
     height: options.height,
     output_kind: options
-      .output_kind
+      .placeholder_type
       .clone()
       .unwrap_or(PlaceholderImageOutputKind::Normal),
     cache: options.cache.unwrap_or(true),
@@ -73,7 +73,9 @@ pub async fn get_placeholder(
     create_log(format!("Cache hit for {}", url), LogLevel::Info);
 
     return Ok(GetPlaceholderOutput {
-      placeholder: if preview_options.wrap_with_svg {
+      placeholder: if preview_options.wrap_with_svg
+        && preview_options.output_kind != PlaceholderImageOutputKind::Blurred
+      {
         wrap_with_svg(placeholder, original_width, original_height)
       } else {
         placeholder
@@ -90,7 +92,9 @@ pub async fn get_placeholder(
       if !preview_options.cache {
         return Ok(GetPlaceholderOutput {
           placeholder: {
-            if preview_options.wrap_with_svg {
+            if preview_options.wrap_with_svg
+              && preview_options.output_kind != PlaceholderImageOutputKind::Blurred
+            {
               wrap_with_svg(out.base64_str, out.original_width, out.original_height)
             } else {
               out.base64_str
@@ -124,7 +128,9 @@ pub async fn get_placeholder(
       )?;
 
       Ok(GetPlaceholderOutput {
-        placeholder: if preview_options.wrap_with_svg {
+        placeholder: if preview_options.wrap_with_svg
+          && preview_options.output_kind != PlaceholderImageOutputKind::Blurred
+        {
           wrap_with_svg(out.base64_str, out.original_width, out.original_height)
         } else {
           out.base64_str
