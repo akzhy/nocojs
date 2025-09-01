@@ -183,7 +183,9 @@ fn check_cache(
 async fn get_bytes(url: String) -> Result<Bytes, Box<dyn std::error::Error>> {
   let url_parse = Url::parse(&url);
 
-  if url_parse.is_err() {
+  if url_parse.is_err()
+    || !(url.starts_with("http://") || url.starts_with("https://") || url.starts_with("file://"))
+  {
     let image_path = PathBuf::from(url);
 
     if !image_path.exists() {
