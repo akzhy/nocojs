@@ -5,7 +5,7 @@ export declare function getPlaceholder(url: string, options: GetPlaceholderOptio
 export interface GetPlaceholderOptions {
   width?: number
   height?: number
-  outputKind?: PlaceholderImageOutputKind
+  placeholderType?: PlaceholderImageOutputKind
   cacheFileDir?: string
   cache?: boolean
   wrapWithSvg?: boolean
