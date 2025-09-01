@@ -1,10 +1,11 @@
-use napi_derive::napi;
-use std::{path::PathBuf, time::Duration};
-
 use bytes::Bytes;
+use napi_derive::napi;
 use once_cell::sync::Lazy;
 use reqwest::Client;
 use rusqlite::{params, Connection};
+use std::path::PathBuf;
+#[cfg(not(target_arch = "wasm32"))]
+use std::time::Duration;
 use url::Url;
 
 use crate::{
@@ -32,12 +33,24 @@ pub struct GetPlaceholderOutput {
 }
 
 static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| {
-  Client::builder()
-    .timeout(Duration::from_secs(10))
-    .build()
-    .unwrap()
-});
+  #[cfg(not(target_arch = "wasm32"))]
+  let mut builder = Client::builder();
 
+  #[cfg(target_arch = "wasm32")]
+  let builder = Client::builder();
+
+  #[cfg(not(target_arch = "wasm32"))]
+  {
+    builder = builder.timeout(Duration::from_secs(10));
+  }
+  // In CI or testing environments, be more permissive with certificates
+  #[cfg(not(target_arch = "wasm32"))]
+  if std::env::var("NOCOJS_DANGEROUSLY_ACCEPT_INVALID_SSL_CERTS").is_ok() {
+    builder = builder.danger_accept_invalid_certs(true);
+  }
+
+  builder.build().unwrap()
+});
 pub async fn get_placeholder(
   url: String,
   options: GetPlaceholderOptions,
