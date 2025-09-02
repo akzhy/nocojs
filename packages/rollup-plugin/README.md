@@ -18,7 +18,7 @@ pnpm add @nocojs/rollup-plugin
 
 ```js
 // rollup.config.js
-import rollupNocoPlugin from '@nocojs/rollup-plugin';
+import { rollupNocoPlugin } from '@nocojs/rollup-plugin';
 
 export default {
   input: 'src/index.js',
@@ -36,7 +36,7 @@ export default {
 
 ```js
 // rollup.config.js
-import rollupNocoPlugin from '@nocojs/rollup-plugin';
+import { rollupNocoPlugin } from '@nocojs/rollup-plugin';
 
 export default {
   input: 'src/index.js',

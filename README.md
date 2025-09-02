@@ -134,10 +134,10 @@ module.exports = {
 #### Vite (Rollup)
 ```javascript
 import { defineConfig } from 'vite';
-import nocojs from '@nocojs/rollup-plugin';
+import { rollupNocoPlugin } from '@nocojs/rollup-plugin';
 
 export default defineConfig({
-  plugins: [nocojs({
+  plugins: [rollupNocoPlugin ({
     placeholderType: 'blurred',
     width: 12
   })]
