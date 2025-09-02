@@ -42,6 +42,7 @@ export interface TransformOptions extends PreviewOptions {
   cacheFileDir?: string;
   logLevel?: LogLevelType;
   sourcemapFilePath?: string;
+  forceSupportedFileExtensions?: string[];
 }
 
 export const transform = async (
@@ -53,8 +54,15 @@ export const transform = async (
   map: string | null;
   logs: Log[];
 }> => {
+  const { forceSupportedFileExtensions = ['.svelte', '.vue'] } = options ?? {};
+
+  let resolvedFilePath = filePath;
+  if (forceSupportedFileExtensions.some((ext) => filePath.endsWith(ext))) {
+    resolvedFilePath = `${resolvedFilePath}.ts`
+  }
+
   try {
-    const result = await rustTransform(code, filePath, {
+    const result = await rustTransform(code, resolvedFilePath, {
       placeholderType: options?.placeholderType
         ? placeholderTypeToEnum[options.placeholderType]
         : PlaceholderImageOutputKind.Normal,
@@ -65,7 +73,7 @@ export const transform = async (
       logLevel: options?.logLevel ? logLevelTypeToEnum[options.logLevel] : LogLevel.Error,
       width: options?.width,
       height: options?.height,
-      sourcemapFilePath: options?.sourcemapFilePath,
+      sourcemapFilePath: options?.sourcemapFilePath ?? filePath,
       wrapWithSvg: options?.wrapWithSvg ?? true,
     });
 
