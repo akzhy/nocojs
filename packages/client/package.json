@@ -1,7 +1,7 @@
 {
   "name": "@nocojs/client",
   "author": "akzhy <hi@akzhy.com>",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1-beta.2",
   "main": "dist/cjs/index.js",
   "types": "dist/types/index.d.ts",
   "module": "dist/esm/index.js",
@@ -20,12 +20,12 @@
     "access": "public"
   },
   "devDependencies": {
-    "@nocojs/core": "0.0.1-beta.4",
+    "@nocojs/core": "0.0.1-beta.5",
     "@rollup/plugin-typescript": "^12.1.4",
     "rolldown": "^1.0.0-beta.34",
     "typescript": "^5.9.2"
   },
   "peerDependencies": {
-    "@nocojs/core": ">=0.0.1-beta.4"
+    "@nocojs/core": ">=0.0.1-beta.5"
   }
 }

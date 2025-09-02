@@ -1,5 +1,13 @@
 # @nocojs/rollup-plugin
 
+## 0.0.1-beta.2
+
+### Patch Changes
+
+- 8aa24b8: Use rolldown build step - use new output files
+- Updated dependencies [8aa24b8]
+  - @nocojs/core@0.0.1-beta.5
+
 ## 0.0.1-beta.1
 
 ### Patch Changes
