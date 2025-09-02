@@ -1,13 +1,13 @@
 {
   "name": "@nocojs/client",
   "author": "akzhy <hi@akzhy.com>",
-  "type": "module",
   "version": "0.0.1-beta.1",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "types": "dist/types/index.d.ts",
+  "module": "dist/esm/index.js",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc -w"
+    "build": "rolldown -c",
+    "dev": "rolldown --watch -c"
   },
   "files": [
     "dist/index.js",
@@ -21,6 +21,8 @@
   },
   "devDependencies": {
     "@nocojs/core": "0.0.1-beta.4",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "rolldown": "^1.0.0-beta.34",
     "typescript": "^5.9.2"
   },
   "peerDependencies": {

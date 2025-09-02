@@ -66,7 +66,7 @@ function shouldProcessFile(id: string, include: string[], exclude: string[]): bo
  * @param options - Plugin configuration options
  * @returns Rollup plugin instance
  */
-export default function rollupNocoPlugin(options: RollupNocoOptions = {}): Plugin {
+function rollupNocoPlugin(options: RollupNocoOptions = {}): Plugin {
   const {
     include = defaultOptions.include,
     exclude = defaultOptions.exclude,
@@ -108,8 +108,6 @@ export default function rollupNocoPlugin(options: RollupNocoOptions = {}): Plugi
   };
 }
 
-// Named export for ESM compatibility
 export { rollupNocoPlugin };
 
-// Re-export types for convenience
 export type { TransformOptions, PreviewOptions, PlaceholderType, LogLevelType } from '@nocojs/core';

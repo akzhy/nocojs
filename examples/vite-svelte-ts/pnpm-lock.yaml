@@ -11,13 +11,13 @@ importers:
       '@nocojs/client':
         specifier: link:../../packages/client
         version: link:../../packages/client
-      '@nocojs/rollup-plugin':
-        specifier: link:../../packages/plugin-rollup
-        version: link:../../packages/plugin-rollup
     devDependencies:
       '@nocojs/core':
         specifier: link:../../packages/core
         version: link:../../packages/core
+      '@nocojs/rollup-plugin':
+        specifier: link:../../packages/plugin-rollup
+        version: link:../../packages/plugin-rollup
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.1.0
         version: 6.1.1(svelte@5.38.0)(vite@7.1.1)

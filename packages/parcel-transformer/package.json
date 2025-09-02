@@ -2,10 +2,10 @@
   "name": "@nocojs/parcel-transformer",
   "author": "akzhy <hi@akzhy.com>",
   "version": "0.0.1-beta.1",
-  "type": "module",
   "description": "Parcel plugin for nocojs image optimization",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "types": "dist/types/index.d.ts",
+  "module": "dist/esm/index.js",
   "license": "MIT",
   "keywords": [
     "parcel",
@@ -19,8 +19,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "rolldown -c",
+    "dev": "rolldown --watch -c",
     "test": "vitest",
     "test:watch": "vitest --watch"
   },
@@ -30,8 +30,10 @@
   },
   "devDependencies": {
     "@nocojs/core": "0.0.1-beta.4",
+    "@rollup/plugin-typescript": "^12.1.4",
     "@types/node": "^24.2.0",
     "parcel": "^2.12.0",
+    "rolldown": "^1.0.0-beta.34",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },
