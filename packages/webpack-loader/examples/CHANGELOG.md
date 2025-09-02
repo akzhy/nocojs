@@ -1,5 +1,12 @@
 # @nocojs/webpack-loader-example
 
+## 1.0.1-beta.2
+
+### Patch Changes
+
+- Updated dependencies [8aa24b8]
+  - @nocojs/webpack-loader@0.0.1-beta.2
+
 ## 1.0.1-beta.1
 
 ### Patch Changes

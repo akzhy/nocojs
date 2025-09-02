@@ -1,5 +1,11 @@
 # @nocojs/core
 
+## 0.0.1-beta.5
+
+### Patch Changes
+
+- 8aa24b8: Use rolldown build step - use new output files
+
 ## 0.0.1-beta.4
 
 ### Patch Changes

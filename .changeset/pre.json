@@ -12,6 +12,7 @@
     "@nocojs/webpack-loader-example": "1.0.0"
   },
   "changesets": [
+    "better-coats-agree",
     "few-ducks-buy",
     "gentle-apples-clean",
     "quiet-garlics-bake",
