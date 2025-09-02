@@ -29,7 +29,7 @@
   <div class="image-gallery">
     {#each images as image}
       <img
-        src={hovered ? image.src : image.preview}
+        src={hovered === image.src ? image.src : image.preview}
         alt=""
         onmouseenter={() => (hovered = image.src)}
         onmouseleave={() => (hovered = null)}
@@ -49,12 +49,9 @@
   .image-gallery img {
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
     width: 500px;
     max-width: 500px;
+    object-fit: cover;
   }
 
-  .image-gallery img:hover {
-    transform: scale(1.05);
-  }
 </style>
