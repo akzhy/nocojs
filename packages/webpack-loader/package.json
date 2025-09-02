@@ -1,11 +1,11 @@
 {
   "name": "@nocojs/webpack-loader",
   "author": "akzhy <hi@akzhy.com>",
-  "type": "module",
   "version": "0.0.1-beta.1",
   "description": "Webpack loader for @nocojs/core transformations",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "types": "dist/types/index.d.ts",
+  "module": "dist/esm/index.js",
   "license": "MIT",
   "keywords": [
     "webpack",
@@ -25,8 +25,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc -w",
+    "build": "rolldown -c",
+    "dev": "rolldown --watch -c",
     "test": "vitest"
   },
   "dependencies": {
@@ -34,8 +34,10 @@
   },
   "devDependencies": {
     "@nocojs/core": "0.0.1-beta.4",
+    "@rollup/plugin-typescript": "^12.1.4",
     "@types/loader-utils": "^2.0.6",
     "@types/node": "^20.0.0",
+    "rolldown": "^1.0.0-beta.34",
     "typescript": "^5.9.2",
     "vitest": "^1.0.0",
     "webpack": "^5.101.0"

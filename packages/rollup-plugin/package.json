@@ -1,11 +1,11 @@
 {
   "name": "@nocojs/rollup-plugin",
   "author": "akzhy <hi@akzhy.com>",
-  "type": "module",
   "version": "0.0.1-beta.1",
   "description": "Rollup plugin for nocojs image optimization",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "types": "dist/types/index.d.ts",
+  "module": "dist/esm/index.js",
   "license": "MIT",
   "keywords": [
     "rollup",
@@ -19,8 +19,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "rolldown -c",
+    "dev": "rolldown --watch -c",
     "test": "vitest",
     "test:watch": "vitest --watch"
   },
@@ -28,9 +28,11 @@
     "picomatch": "^4.0.3"
   },
   "devDependencies": {
-    "@types/node": "^24.2.0",
     "@nocojs/core": "0.0.1-beta.4",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@types/node": "^24.2.0",
     "@types/picomatch": "^4.0.2",
+    "rolldown": "^1.0.0-beta.34",
     "rollup": "^4.0.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
