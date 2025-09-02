@@ -173,7 +173,6 @@ function App() {
 
 After transformation (conceptual):
 ```jsx
-// The plugin will transform the code to include lazy loading and optimization
 function App() {
   return (
     <div>
