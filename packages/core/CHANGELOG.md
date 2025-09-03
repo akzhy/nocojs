@@ -1,5 +1,11 @@
 # @nocojs/core
 
+## 0.0.1-beta.6
+
+### Patch Changes
+
+- e8cbdd2: Use wasm_js backend for getrandom
+
 ## 0.0.1-beta.5
 
 ### Patch Changes

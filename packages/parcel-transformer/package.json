@@ -29,7 +29,7 @@
     "picomatch": "^4.0.3"
   },
   "devDependencies": {
-    "@nocojs/core": "0.0.1-beta.5",
+    "@nocojs/core": "0.0.1-beta.6",
     "@rollup/plugin-typescript": "^12.1.4",
     "@types/node": "^24.2.0",
     "parcel": "^2.12.0",
@@ -38,7 +38,7 @@
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
-    "@nocojs/core": ">=0.0.1-beta.5",
+    "@nocojs/core": ">=0.0.1-beta.6",
     "parcel": "^2.0.0"
   },
   "engines": {
