@@ -51,6 +51,9 @@ jobs:
 
   # Case 2: Only JS packages changed → publish directly here
   js-release:
+    permissions:
+      contents: write
+      id-token: write
     needs: check
     if: needs.check.outputs.has_core == 'false'
     runs-on: ubuntu-latest
