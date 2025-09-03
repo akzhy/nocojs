@@ -4,6 +4,7 @@ env:
   APP_NAME: nocojs_core
   MACOSX_DEPLOYMENT_TARGET: "10.13"
   CARGO_INCREMENTAL: "1"
+  NODE_ENV: production
 "on":
   workflow_call:
     inputs:
