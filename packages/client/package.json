@@ -15,7 +15,8 @@
   "license": "ISC",
   "description": "",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "devDependencies": {
     "@nocojs/core": "0.0.1-beta.8",
