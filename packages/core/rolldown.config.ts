@@ -15,7 +15,7 @@ const createOptions = (format: 'esm' | 'cjs'): RolldownOptions => {
       return id.endsWith('.node') || id.includes('node_modules');
     },
     plugins: [
-      process.env.NODE_ENV !== 'production' &&
+      !process.env.CI &&
         copy({
           targets: [
             {

@@ -1,7 +1,5 @@
 name: Release
 
-env:
-  NODE_ENV: production
 on:
   workflow_dispatch: {}
 
