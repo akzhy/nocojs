@@ -19,12 +19,12 @@
     "provenance": true
   },
   "devDependencies": {
-    "@nocojs/core": "0.0.1-beta.8",
+    "@nocojs/core": "0.0.1-beta.9",
     "@rollup/plugin-typescript": "^12.1.4",
     "rolldown": "^1.0.0-beta.34",
     "typescript": "^5.9.2"
   },
   "peerDependencies": {
-    "@nocojs/core": ">=0.0.1-beta.8"
+    "@nocojs/core": ">=0.0.1-beta.9"
   }
 }

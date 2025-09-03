@@ -1,5 +1,11 @@
 # @nocojs/core
 
+## 0.0.1-beta.9
+
+### Patch Changes
+
+- 525edb6: Add browser field in package.json
+
 ## 0.0.1-beta.8
 
 ### Patch Changes
