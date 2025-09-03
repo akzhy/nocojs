@@ -33,7 +33,7 @@
     "loader-utils": "^3.3.1"
   },
   "devDependencies": {
-    "@nocojs/core": "0.0.1-beta.7",
+    "@nocojs/core": "0.0.1-beta.8",
     "@rollup/plugin-typescript": "^12.1.4",
     "@types/loader-utils": "^2.0.6",
     "@types/node": "^20.0.0",
@@ -43,7 +43,7 @@
     "webpack": "^5.101.0"
   },
   "peerDependencies": {
-    "@nocojs/core": ">=0.0.1-beta.7",
+    "@nocojs/core": ">=0.0.1-beta.8",
     "webpack": "^5.0.0"
   }
 }
