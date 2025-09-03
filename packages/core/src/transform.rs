@@ -161,7 +161,7 @@ pub async fn transform(
   .unwrap_or("".to_string());
 
   let db_filepath = PathBuf::from(&cache_dir).join(RUSQLITE_FILE_NAME);
-  let conn = Connection::open(&db_filepath).unwrap();
+  let conn = Connection::open(&db_filepath)?;
 
   let _ = setup_sqlite(&conn);
 
