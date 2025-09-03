@@ -63,6 +63,8 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
       - run: yarn install --frozen-lockfile
+      - name: Build
+        run: yarn build:non-core-packages
       - name: Publish JS packages
         uses: changesets/action@v1
         with:
