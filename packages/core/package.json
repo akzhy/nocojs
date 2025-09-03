@@ -3,6 +3,7 @@
   "author": "akzhy <hi@akzhy.com>",
   "version": "0.0.1-beta.8",
   "description": "Core library for NocoJS",
+  "browser": "browser.js",
   "main": "dist/cjs/api.js",
   "module": "dist/esm/api.js",
   "types": "dist/types/api.d.ts",
