@@ -1,5 +1,11 @@
 # @nocojs/core
 
+## 0.0.1-beta.7
+
+### Patch Changes
+
+- 505c85a: Fix issues with release flow
+
 ## 0.0.1-beta.6
 
 ### Patch Changes
