@@ -1,6 +1,6 @@
 {
   "name": "@nocojs/webpack-loader-example",
-  "version": "1.0.1-beta.2",
+  "version": "1.0.1-beta.3",
   "private": true,
   "description": "Example project using @nocojs/webpack-loader",
   "scripts": {
@@ -9,7 +9,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@nocojs/webpack-loader": "0.0.1-beta.2"
+    "@nocojs/webpack-loader": "0.0.1-beta.3"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

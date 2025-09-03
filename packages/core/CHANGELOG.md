@@ -1,5 +1,11 @@
 # @nocojs/core
 
+## 0.0.1-beta.10
+
+### Patch Changes
+
+- f6cf762: Add publish provenance
+
 ## 0.0.1-beta.9
 
 ### Patch Changes
