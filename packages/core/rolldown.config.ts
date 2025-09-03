@@ -15,18 +15,19 @@ const createOptions = (format: 'esm' | 'cjs'): RolldownOptions => {
       return id.endsWith('.node') || id.includes('node_modules');
     },
     plugins: [
-      copy({
-        targets: [
-          {
-            src: '*.node',
-            dest: `dist/${format}`,
-          },
-          {
-            src: '*.wasm',
-            dest: `dist/${format}`,
-          },
-        ],
-      }),
+      process.env.NODE_ENV !== 'production' &&
+        copy({
+          targets: [
+            {
+              src: '*.node',
+              dest: `dist/${format}`,
+            },
+            {
+              src: '*.wasm',
+              dest: `dist/${format}`,
+            },
+          ],
+        }),
     ],
   };
 };
