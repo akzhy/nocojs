@@ -1,5 +1,13 @@
 # @nocojs/client
 
+## 0.0.1-beta.4
+
+### Patch Changes
+
+- f6cf762: Add publish provenance
+- Updated dependencies [f6cf762]
+  - @nocojs/core@0.0.1-beta.10
+
 ## 0.0.1-beta.3
 
 ### Patch Changes
