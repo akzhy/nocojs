@@ -1,5 +1,11 @@
 # @nocojs/client
 
+## 0.0.1-beta.3
+
+### Patch Changes
+
+- 10c774c: Update files field
+
 ## 0.0.1-beta.2
 
 ### Patch Changes
