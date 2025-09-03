@@ -1,7 +1,7 @@
 {
   "name": "@nocojs/client",
   "author": "akzhy <hi@akzhy.com>",
-  "version": "0.0.1-beta.2",
+  "version": "0.0.1-beta.3",
   "main": "dist/cjs/index.js",
   "types": "dist/types/index.d.ts",
   "module": "dist/esm/index.js",
