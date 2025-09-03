@@ -7,6 +7,7 @@
   "types": "dist/types/index.d.ts",
   "module": "dist/esm/index.js",
   "license": "MIT",
+  "repository": "git@github.com:akzhy/nocojs.git",
   "keywords": [
     "rollup",
     "plugin",
