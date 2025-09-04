@@ -1,5 +1,28 @@
 # @nocojs/client
 
+## 0.0.1
+
+### Patch Changes
+
+- 8aa24b8: Use rolldown build step - use new output files
+- f6cf762: Add publish provenance
+- d4cb1a8: Initial release
+- 98d8186: Update version to fix missing files, fix package json issues
+- 10c774c: Update files field
+- Updated dependencies [8aa24b8]
+- Updated dependencies [f6cf762]
+- Updated dependencies [d4cb1a8]
+- Updated dependencies [fa17b34]
+- Updated dependencies [505c85a]
+- Updated dependencies [faa2271]
+- Updated dependencies [525edb6]
+- Updated dependencies [1abbfc5]
+- Updated dependencies [e8cbdd2]
+- Updated dependencies [98d8186]
+- Updated dependencies [5465a69]
+- Updated dependencies [12d4dff]
+  - @nocojs/core@0.0.1
+
 ## 0.0.1-beta.4
 
 ### Patch Changes

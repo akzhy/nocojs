@@ -1,5 +1,22 @@
 # @nocojs/core
 
+## 0.0.1
+
+### Patch Changes
+
+- 8aa24b8: Use rolldown build step - use new output files
+- f6cf762: Add publish provenance
+- d4cb1a8: Initial release
+- fa17b34: Remove .node and .wasm files from npm publish
+- 505c85a: Fix issues with release flow
+- faa2271: Added get_placeholder function
+- 525edb6: Add browser field in package.json
+- 1abbfc5: Avoid panicing on rusqlite errors
+- e8cbdd2: Use wasm_js backend for getrandom
+- 98d8186: Update version to fix missing files, fix package json issues
+- 5465a69: Added freebsd build
+- 12d4dff: Add wasm support
+
 ## 0.0.1-beta.11
 
 ### Patch Changes

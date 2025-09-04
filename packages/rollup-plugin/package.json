@@ -1,7 +1,7 @@
 {
   "name": "@nocojs/rollup-plugin",
   "author": "akzhy <hi@akzhy.com>",
-  "version": "0.0.1-beta.3",
+  "version": "0.0.1",
   "description": "Rollup plugin for nocojs image optimization",
   "main": "dist/cjs/index.js",
   "types": "dist/types/index.d.ts",
@@ -29,7 +29,7 @@
     "picomatch": "^4.0.3"
   },
   "devDependencies": {
-    "@nocojs/core": "0.0.1-beta.11",
+    "@nocojs/core": "0.0.1",
     "@rollup/plugin-typescript": "^12.1.4",
     "@types/node": "^24.2.0",
     "@types/picomatch": "^4.0.2",
@@ -39,7 +39,7 @@
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
-    "@nocojs/core": ">=0.0.1-beta.11",
+    "@nocojs/core": ">=0.0.1",
     "rollup": "^2.0.0 || ^3.0.0 || ^4.0.0"
   },
   "engines": {
