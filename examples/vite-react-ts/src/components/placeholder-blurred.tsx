@@ -48,7 +48,7 @@ export const PlaceholderBlurredType = () => {
           <div className="item" key={image.src}>
             <PreviewImage
               placeholder={image.preview}
-              actualSrc={image.src}
+              src={image.src}
               imageSource={image.source}
             />
           </div>
