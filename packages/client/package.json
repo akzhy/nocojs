@@ -13,7 +13,7 @@
   "files": [
     "dist"
   ],
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "publishConfig": {
     "access": "public",
