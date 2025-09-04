@@ -143,8 +143,8 @@ pub async fn get_placeholder(
         out.original_height,
       );
 
-      if conn.is_some() {
-        conn.unwrap().execute(
+      if let Some(conn) = &conn {
+        conn.execute(
         "INSERT INTO images (url, placeholder, preview_type, cache_key, original_width, original_height) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
         params![
           to_insert.0,
