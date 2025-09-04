@@ -51,6 +51,7 @@ static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| {
 
   builder.build().unwrap()
 });
+
 pub async fn get_placeholder(
   url: String,
   options: GetPlaceholderOptions,
@@ -76,7 +77,21 @@ pub async fn get_placeholder(
   };
 
   let db_filepath = PathBuf::from(&cache_dir).join(RUSQLITE_FILE_NAME);
-  let conn = Connection::open(&db_filepath).unwrap();
+  let conn = Connection::open(&db_filepath);
+
+  let conn = match conn {
+    Ok(c) => Some(c),
+    Err(e) => {
+      create_log(
+        log::style_error(format!(
+          "Failed to open sqlite database at {:?}. Persistent caching won't work. Error: {}",
+          db_filepath, e
+        )),
+        LogLevel::Error,
+      );
+      None
+    }
+  };
 
   let _ = setup_sqlite(&conn);
 
@@ -128,7 +143,8 @@ pub async fn get_placeholder(
         out.original_height,
       );
 
-      conn.execute(
+      if conn.is_some() {
+        conn.unwrap().execute(
         "INSERT INTO images (url, placeholder, preview_type, cache_key, original_width, original_height) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
         params![
           to_insert.0,
@@ -139,6 +155,7 @@ pub async fn get_placeholder(
           to_insert.5
         ],
       )?;
+      }
 
       Ok(GetPlaceholderOutput {
         placeholder: if preview_options.wrap_with_svg
@@ -165,8 +182,15 @@ pub async fn get_placeholder(
 fn check_cache(
   url: String,
   preview_options: &PreviewOptions,
-  conn: &Connection,
+  connection: &Option<Connection>,
 ) -> Result<(String, u32, u32), Box<dyn std::error::Error>> {
+  let conn = match connection {
+    Some(conn) => conn,
+    None => {
+      return Err("No sqlite connection provided. Persistent caching won't work".into());
+    }
+  };
+
   let cache_key = Store::create_cache_key(preview_options);
   let sql = "SELECT id, placeholder, original_width, original_height FROM images WHERE url = ? AND cache_key = ?";
   let params = params![url, cache_key];

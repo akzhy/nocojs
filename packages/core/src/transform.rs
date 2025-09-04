@@ -161,7 +161,21 @@ pub async fn transform(
   .unwrap_or("".to_string());
 
   let db_filepath = PathBuf::from(&cache_dir).join(RUSQLITE_FILE_NAME);
-  let conn = Connection::open(&db_filepath)?;
+  let conn = Connection::open(&db_filepath);
+
+  let conn = match conn {
+    Ok(c) => Some(c),
+    Err(e) => {
+      create_log(
+        log::style_error(format!(
+          "Failed to open sqlite database at {:?}. Persistent caching won't work. Error: {}",
+          db_filepath, e
+        )),
+        LogLevel::Error,
+      );
+      None
+    }
+  };
 
   let _ = setup_sqlite(&conn);
 
@@ -242,7 +256,14 @@ pub async fn transform(
   Ok(transform_result)
 }
 
-pub fn setup_sqlite(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+pub fn setup_sqlite(connection: &Option<Connection>) -> Result<(), Box<dyn std::error::Error>> {
+  let conn = match connection {
+    Some(conn) => conn,
+    None => {
+      return Ok(());
+    }
+  };
+
   let create_images_table = conn.execute(
     "CREATE TABLE IF NOT EXISTS images (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -326,7 +347,7 @@ struct TransformVisitor<'a> {
   scoping: &'a Scoping,
   util_import_symbols: Vec<SymbolId>,
   pass: Pass,
-  rusqlite_conn: Connection,
+  rusqlite_conn: Option<Connection>,
   tasks: TasksType<()>,
   options: TransformOptions,
   has_changes: bool,
@@ -375,9 +396,14 @@ impl<'a> TransformVisitor<'a> {
   /// This is called at the beginning of the transformation to ensure that any existing cached images
   /// are available for the transformation process.
   fn set_store_data_from_db(&mut self) -> Result<(), Box<dyn std::error::Error + '_>> {
-    let mut stmt = self
-      .rusqlite_conn
-      .prepare("SELECT id, url, placeholder, preview_type, cache_key, original_width, original_height FROM images")?;
+    let conn = match &self.rusqlite_conn {
+      Some(c) => c,
+      None => {
+        return Ok(());
+      }
+    };
+
+    let mut stmt = conn.prepare("SELECT id, url, placeholder, preview_type, cache_key, original_width, original_height FROM images")?;
 
     let rows = stmt.query_map([], |row| {
       Ok((
@@ -475,9 +501,16 @@ impl<'a> TransformVisitor<'a> {
       return Ok(());
     }
 
+    let conn = match &mut self.rusqlite_conn {
+      Some(c) => c,
+      None => {
+        return Ok(());
+      }
+    };
+
     let (to_insert, to_update) = self.store.get_prepared_data()?;
 
-    let tx = self.rusqlite_conn.transaction()?;
+    let tx = conn.transaction()?;
     {
       let mut insert_query = tx.prepare(
         "INSERT INTO images (url, placeholder, preview_type, cache_key, original_width, original_height) VALUES (?, ?, ?, ?, ?, ?)",
