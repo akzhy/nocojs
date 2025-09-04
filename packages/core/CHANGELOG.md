@@ -1,5 +1,11 @@
 # @nocojs/core
 
+## 0.0.1-beta.11
+
+### Patch Changes
+
+- 1abbfc5: Avoid panicing on rusqlite errors
+
 ## 0.0.1-beta.10
 
 ### Patch Changes

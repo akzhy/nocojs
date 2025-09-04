@@ -35,7 +35,7 @@
     "loader-utils": "^3.3.1"
   },
   "devDependencies": {
-    "@nocojs/core": "0.0.1-beta.10",
+    "@nocojs/core": "0.0.1-beta.11",
     "@rollup/plugin-typescript": "^12.1.4",
     "@rspack/core": "^1.0.0",
     "@types/loader-utils": "^2.0.6",
@@ -45,7 +45,7 @@
     "vitest": "^1.0.0"
   },
   "peerDependencies": {
-    "@nocojs/core": ">=0.0.1-beta.10",
+    "@nocojs/core": ">=0.0.1-beta.11",
     "@rspack/core": "^1.0.0"
   }
 }
