@@ -483,6 +483,7 @@ yarn build:debug  # Debug build for development
 2. **Make your changes** with appropriate tests
 3. **Update documentation** if needed
 4. **Run the full test suite**
+3. **Add changeset**. Run `yarn changeset` and update the appropriate packages with proper changelog
 5. **Submit a pull request** with a clear description
 
 
