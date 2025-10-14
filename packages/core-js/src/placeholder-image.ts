@@ -17,10 +17,16 @@ export interface PlaceholderOptions {
   wrapWithSvg?: boolean;
 }
 
+export interface GetPlaceholderImageResult {
+  placeholder: string;
+  originalWidth: number;
+  originalHeight: number;
+}
+
 export const getPlaceholderImage = async (
   url: string,
   options: PlaceholderOptions
-) => {
+): Promise<GetPlaceholderImageResult> => {
   const sharpInstance = await getSharpInstance(url);
   const metadata = await sharpInstance.metadata();
 
@@ -31,7 +37,13 @@ export const getPlaceholderImage = async (
 
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${metadata.width} ${metadata.height}' width='${metadata.width}' height='${metadata.height}'><rect width='100%' height='100%' fill='rgb(${r}, ${g}, ${b})'/></svg>`;
 
-    return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+    return {
+      placeholder: `data:image/svg+xml;base64,${Buffer.from(svg).toString(
+        "base64"
+      )}`,
+      originalWidth: metadata.width || 0,
+      originalHeight: metadata.height || 0,
+    };
   } else if (options.placeholderType === "average-color") {
     const stats = await sharpInstance.stats();
     const r = Math.round(stats.channels[0].mean);
@@ -39,10 +51,22 @@ export const getPlaceholderImage = async (
     const b = Math.round(stats.channels[2].mean);
 
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${metadata.width} ${metadata.height}' width='${metadata.width}' height='${metadata.height}'><rect width='100%' height='100%' fill='rgb(${r}, ${g}, ${b})'/></svg>`;
-    return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+    return {
+      placeholder: `data:image/svg+xml;base64,${Buffer.from(svg).toString(
+        "base64"
+      )}`,
+      originalWidth: metadata.width || 0,
+      originalHeight: metadata.height || 0,
+    };
   } else if (options.placeholderType === "transparent") {
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${metadata.width} ${metadata.height}' width='${metadata.width}' height='${metadata.height}'><rect width='100%' height='100%' fill='transparent'/></svg>`;
-    return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+    return {
+      placeholder: `data:image/svg+xml;base64,${Buffer.from(svg).toString(
+        "base64"
+      )}`,
+      originalWidth: metadata.width || 0,
+      originalHeight: metadata.height || 0,
+    };
   }
 
   sharpInstance.resize(options.width, options.height);
@@ -55,15 +79,40 @@ export const getPlaceholderImage = async (
   const base64 = buffer.toString("base64");
 
   if (options.placeholderType === "blurred") {
-    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${metadata.width} ${metadata.height}' width='${metadata.width}' height='${metadata.height}'><filter id='b' color-interpolation-filters='sRGB'><feGaussianBlur stdDeviation='${Math.round(metadata.width * 0.05)}'/><feColorMatrix values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 100 -1' result='s'/><feFlood x='0' y='0' width='100%' height='100%'/><feComposite operator='out' in='s'/><feComposite in2='SourceGraphic'/><feGaussianBlur stdDeviation='${Math.round(metadata.width * 0.05)}'/></filter><image width='100%' height='100%' x='0' y='0' preserveAspectRatio='none' style='filter: url(#b);' href='data:image/png;base64,${base64}'/></svg>`;
-    
-    return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${
+      metadata.width
+    } ${metadata.height}' width='${metadata.width}' height='${
+      metadata.height
+    }'><filter id='b' color-interpolation-filters='sRGB'><feGaussianBlur stdDeviation='${Math.round(
+      metadata.width * 0.05
+    )}'/><feColorMatrix values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 100 -1' result='s'/><feFlood x='0' y='0' width='100%' height='100%'/><feComposite operator='out' in='s'/><feComposite in2='SourceGraphic'/><feGaussianBlur stdDeviation='${Math.round(
+      metadata.width * 0.05
+    )}'/></filter><image width='100%' height='100%' x='0' y='0' preserveAspectRatio='none' style='filter: url(#b);' href='data:image/png;base64,${base64}'/></svg>`;
+
+    return {
+      placeholder: `data:image/svg+xml;base64,${Buffer.from(svg).toString(
+        "base64"
+      )}`,
+      originalWidth: metadata.width || 0,
+      originalHeight: metadata.height || 0,
+    };
   }
 
   if (options.wrapWithSvg) {
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${metadata.width} ${metadata.height}' width='${metadata.width}' height='${metadata.height}'><image href='data:image/png;base64,${base64}' width='${metadata.width}' height='${metadata.height}'/></svg>`;
-    return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+    return {
+      placeholder: `data:image/svg+xml;base64,${Buffer.from(svg).toString(
+        "base64"
+      )}`,
+      originalWidth: metadata.width || 0,
+      originalHeight: metadata.height || 0,
+    };
   }
 
   const placeholder = `data:image/png;base64,${base64}`;
+  return {
+    placeholder,
+    originalWidth: metadata.width || 0,
+    originalHeight: metadata.height || 0,
+  };
 };
