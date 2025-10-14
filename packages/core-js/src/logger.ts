@@ -1,12 +1,21 @@
-class Logger {
-  logLevel = 1; // 0: none, 1: error, 2: warn, 3: info, 4: debug
+export type LogType = "none" | "info" | "warn" | "error" | "debug";
+const logLevels: Record<LogType, number> = {
+  none: 0,
+  error: 1,
+  warn: 2,
+  info: 3,
+  debug: 4,
+};
 
-  constructor(logLevel: number) {
-    this.logLevel = logLevel;
+class Logger {
+  logLevel = logLevels.error;
+
+  constructor(logLevel: LogType) {
+    this.logLevel = logLevels[logLevel];
   }
 
-  setLogLevel(level: number) {
-    this.logLevel = level;
+  setLogLevel(level: LogType) {
+    this.logLevel = logLevels[level];
   }
 
   static colors = {
@@ -53,4 +62,4 @@ class Logger {
   }
 }
 
-export const logger = new Logger(1);
+export const logger = new Logger('error');
