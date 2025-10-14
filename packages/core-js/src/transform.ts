@@ -1,20 +1,37 @@
 import { Argument, ParseResult, parseSync, Visitor } from "oxc-parser";
-import { PreviewOptions } from "./placeholder-image";
+import {
+  getPlaceholderImage,
+  PlaceholderImageType,
+  PlaceholderOptions,
+} from "./placeholder-image";
 import { getSharpInstance } from "./image";
 import path from "path";
 import MagicString from "magic-string";
+import { mkdir } from "fs/promises";
+import {
+  getAllPlaceholderImages,
+  initSqlite,
+  insertPlaceholderImages,
+} from "./sqlite";
+import { logger, LogType } from "./logger";
+import { Database } from "sqlite3";
+import { Store } from "./store";
 
-export interface TransformOptions extends PreviewOptions {
+export interface TransformOptions extends PlaceholderOptions {
   publicDir?: string;
   cacheFileDir?: string;
-  logLevel?: "none" | "info" | "warn" | "error" | "debug";
+  logLevel?: LogType;
   sourceMapFilePath?: string;
 }
 
-export class Transform {
+export class Transformer {
   code: string;
   filePath: string;
   options: TransformOptions;
+
+  store: Store = new Store();
+
+  database: Database | null = null;
 
   constructor(code: string, filePath: string, options?: TransformOptions) {
     this.code = code;
@@ -32,9 +49,11 @@ export class Transform {
       width: 12,
       ...options,
     };
+
+    logger.setLogLevel(this.options.logLevel!);
   }
 
-  async begin() {
+  async transform() {
     const parsedResult = parseSync(this.filePath, this.code);
 
     const previewFnName = this.getPreviewFnName(parsedResult);
@@ -46,23 +65,53 @@ export class Transform {
       previewFnName,
     });
 
-    const processed = await Promise.all(
+    const processed = await Promise.allSettled(
       foundCalls.map(async (call) => {
-        const sharpInstance = await getSharpInstance(call.url);
-        sharpInstance.resize(call.options.width, call.options.height);
-        const buffer = await sharpInstance.toBuffer();
-        const base64 = buffer.toString("base64");
-        const placeholder = `data:image/png;base64,${base64}`;
-        return {
-          ...call,
-          placeholder,
-        };
+        try {
+          const cached = this.store.getPlaceholder(call.url, call.options);
+          if (cached) {
+            logger.debug(`Cache hit for URL: ${call.url}`);
+
+            return {
+              ...call,
+              placeholder: cached.placeholder,
+            };
+          }
+
+          const { placeholder, originalHeight, originalWidth } =
+            await getPlaceholderImage(call.url, call.options);
+
+          this.store.insertItem(
+            call.url,
+            placeholder,
+            originalWidth,
+            originalHeight,
+            call.options
+          );
+
+          return {
+            ...call,
+            placeholder,
+          };
+        } catch (error) {
+          logger.error(`Error processing image for URL ${call.url}: ${error}`);
+          return {
+            ...call,
+            placeholder: call.url,
+          };
+        }
       })
     );
 
     const magicString = new MagicString(this.code);
     for (const item of processed) {
-      magicString.overwrite(item.start, item.end, `"${item.placeholder}"`);
+      if (item.status === "fulfilled") {
+        magicString.overwrite(
+          item.value.start,
+          item.value.end,
+          `"${item.value.placeholder}"`
+        );
+      }
     }
 
     const map = magicString.generateMap({
@@ -77,6 +126,64 @@ export class Transform {
       code: magicString.toString(),
       map,
     };
+  }
+
+  async preTransform() {
+    try {
+      await this.initCacheDir();
+      this.database = initSqlite(
+        path.join(this.options.cacheFileDir!, "cache.db")
+      );
+      const existingItems = await getAllPlaceholderImages(this.database);
+      this.store.initStore(
+        existingItems.map((item) => ({
+          cacheKey: item.cache_key,
+          url: item.url,
+          placeholder: item.placeholder,
+          cache: true,
+          dbAction: "none",
+          originalHeight: item.original_height,
+          originalWidth: item.original_width,
+          previewType: item.preview_type as PlaceholderImageType,
+        }))
+      );
+    } catch (error) {
+      logger.error(`Error during pre-transform: ${error}`);
+    }
+  }
+
+  async postTransform() {
+    try {
+      if (this.database && this.store.hasChanges()) {
+        const itemsToSync = this.store.getItemsToSync();
+        await insertPlaceholderImages(
+          this.database,
+          itemsToSync.map((item) => ({
+            url: item.url,
+            placeholder: item.placeholder,
+            cache_key: item.cacheKey,
+            preview_type: item.previewType,
+            original_width: item.originalWidth,
+            original_height: item.originalHeight,
+          }))
+        );
+      }
+
+      this.database?.close();
+    } catch (error) {
+      logger.error(`Error during post-transform: ${error}`);
+    }
+  }
+
+  async initCacheDir() {
+    try {
+      if (this.options.cacheFileDir) {
+        const cacheDir = path.resolve(this.options.cacheFileDir);
+        await mkdir(cacheDir, { recursive: true });
+      }
+    } catch (error) {
+      logger.error(`Error creating cache directory: ${error}`);
+    }
   }
 
   private getPreviewFnName(parseResult: ParseResult): string | null {
@@ -103,7 +210,7 @@ export class Transform {
       url: string;
       start: number;
       end: number;
-      options: PreviewOptions;
+      options: PlaceholderOptions;
     }[] = [];
 
     const visitor = new Visitor({
@@ -118,6 +225,10 @@ export class Transform {
             typeof node.arguments[0].value === "string"
           ) {
             url = node.arguments[0].value;
+
+            if (url.startsWith("/")) {
+              url = path.join(this.options.publicDir!, url);
+            }
           }
 
           const optionsArg = node.arguments[1];
@@ -138,10 +249,14 @@ export class Transform {
     return foundCalls;
   }
 
-  private extractOptions(argument: Argument): PreviewOptions {
-    const options: PreviewOptions = {
+  private extractOptions(argument?: Argument): PlaceholderOptions {
+    const options: PlaceholderOptions = {
       ...this.options,
     };
+
+    if (!argument) {
+      return options;
+    }
 
     if (argument.type === "ObjectExpression") {
       for (const prop of argument.properties) {
@@ -150,7 +265,7 @@ export class Transform {
           prop.key.type === "Literal" &&
           prop.value.type === "Literal"
         ) {
-          const keyName = prop.key.value as keyof PreviewOptions;
+          const keyName = prop.key.value as keyof PlaceholderOptions;
           if (options.hasOwnProperty(keyName)) {
             // @ts-expect-error
             options[keyName] = prop.value.value;
