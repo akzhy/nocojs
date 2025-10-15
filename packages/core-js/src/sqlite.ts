@@ -114,3 +114,25 @@ export const getAllPlaceholderImages = (
     );
   });
 };
+
+export const getPlaceholderImageByCacheKey = (
+  db: Database,
+  cacheKey: string
+): Promise<PlaceholderImageRow | null> => {
+  return new Promise((resolve, reject) => {
+    db.get(
+      /*sql*/
+      `SELECT url, placeholder, preview_type, cache_key, original_width, original_height
+      FROM placeholder_images
+      WHERE cache_key = ?`,
+      [cacheKey],
+      (err, row) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(row as PlaceholderImageRow | null);
+      }
+    );
+  });
+};
