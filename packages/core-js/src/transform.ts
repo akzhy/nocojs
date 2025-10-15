@@ -25,18 +25,13 @@ export interface TransformOptions extends PlaceholderOptions {
 }
 
 export class Transformer {
-  code: string;
-  filePath: string;
   options: TransformOptions;
 
   store: Store = new Store();
 
   database: Database | null = null;
 
-  constructor(code: string, filePath: string, options?: TransformOptions) {
-    this.code = code;
-    this.filePath = filePath;
-
+  constructor(options?: TransformOptions) {
     this.options = {
       cache: true,
       placeholderType: "blurred",
@@ -45,16 +40,16 @@ export class Transformer {
       cacheFileDir: path.join(process.cwd(), ".nocojs"),
       publicDir: path.join(process.cwd(), "public"),
       logLevel: "error",
-      sourceMapFilePath: filePath,
       width: 12,
+      height: undefined,
       ...options,
     };
 
     logger.setLogLevel(this.options.logLevel!);
   }
 
-  async transform() {
-    const parsedResult = parseSync(this.filePath, this.code);
+  async transform(code: string, filePath: string) {
+    const parsedResult = parseSync(filePath, code);
 
     const previewFnName = this.getPreviewFnName(parsedResult);
     if (!previewFnName) {
@@ -103,7 +98,7 @@ export class Transformer {
       })
     );
 
-    const magicString = new MagicString(this.code);
+    const magicString = new MagicString(code);
     for (const item of processed) {
       if (item.status === "fulfilled") {
         magicString.overwrite(
@@ -115,12 +110,12 @@ export class Transformer {
     }
 
     const map = magicString.generateMap({
-      source: this.filePath,
-      file: this.filePath + ".map",
+      source: filePath,
+      file: filePath + ".map",
       includeContent: true,
     });
 
-    console.log(magicString.toString());
+    // console.log(magicString.toString());
 
     return {
       code: magicString.toString(),
@@ -236,8 +231,12 @@ export class Transformer {
 
           foundCalls.push({
             url,
-            start: node.start,
-            end: node.end,
+            start: previewOptions?.replaceFunctionCall
+              ? node.start
+              : node.arguments[0].start,
+            end: previewOptions?.replaceFunctionCall
+              ? node.end
+              : node.arguments[0].end,
             options: previewOptions,
           });
         }
