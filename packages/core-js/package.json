@@ -1,9 +1,11 @@
 {
   "name": "@nocojs/core-js",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "build": "rolldown",
-    "dev": "rolldown -w -c"
+    "dev": "rolldown -w -c",
+    "test": "vitest"
   },
   "dependencies": {
     "oxc-parser": "^0.94.0",
@@ -15,6 +17,7 @@
     "@types/node": "^24.7.2",
     "magic-string": "^0.30.19",
     "rolldown": "^1.0.0-beta.42",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   }
 }
