@@ -87,7 +87,6 @@ export const insertPlaceholderImages = (
     }
 
     stmt.finalize((err) => {
-      console.log("Finalizing statement");
       if (err) {
         reject(err);
         return;
