@@ -55,7 +55,9 @@ export class Transformer {
     };
   }
 
-  async transform(code: string, filePath: string) {
+  async transform(code: string, filePath: string, transformConfig?: {
+    sourcemapFilePath?: string;
+  }) {
     const parsedResult = parseSync(filePath, code);
 
     const previewFnName = this.getPreviewFnName(parsedResult);
@@ -118,7 +120,7 @@ export class Transformer {
 
     const map = magicString.generateMap({
       source: filePath,
-      file: filePath + ".map",
+      file: transformConfig?.sourcemapFilePath || filePath + ".map",
       includeContent: true,
     });
 
