@@ -1,0 +1,287 @@
+import { Argument, ParseResult, parseSync, Visitor } from "oxc-parser";
+import {
+  getPlaceholderImage,
+  PlaceholderImageType,
+  PlaceholderOptions,
+} from "./placeholder-image";
+import { getSharpInstance } from "./image";
+import path from "path";
+import MagicString from "magic-string";
+import { mkdir } from "fs/promises";
+import {
+  getAllPlaceholderImages,
+  initSqlite,
+  insertPlaceholderImages,
+} from "./sqlite";
+import { logger, LogType } from "./logger";
+import { Database } from "sqlite3";
+import { Store } from "./store";
+
+export interface TransformOptions extends PlaceholderOptions {
+  publicDir?: string;
+  cacheFileDir?: string;
+  logLevel?: LogType;
+  sourceMapFilePath?: string;
+}
+
+export class Transformer {
+  options: TransformOptions;
+
+  store: Store = new Store();
+
+  database: Database | null = null;
+
+  constructor(options?: TransformOptions) {
+    this.options = {
+      cache: true,
+      placeholderType: "blurred",
+      replaceFunctionCall: true,
+      wrapWithSvg: true,
+      cacheFileDir: path.join(process.cwd(), ".nocojs"),
+      publicDir: path.join(process.cwd(), "public"),
+      logLevel: "error",
+      width: 12,
+      height: undefined,
+      ...options,
+    };
+
+    logger.setLogLevel(this.options.logLevel!);
+  }
+
+  setOptions(options: TransformOptions) {
+    this.options = {
+      ...this.options,
+      ...options,
+    };
+  }
+
+  async transform(code: string, filePath: string) {
+    const parsedResult = parseSync(filePath, code);
+
+    const previewFnName = this.getPreviewFnName(parsedResult);
+    if (!previewFnName) {
+      return null;
+    }
+
+    const foundCalls = this.visitCallExpressions(parsedResult, {
+      previewFnName,
+    });
+
+    const processed = await Promise.allSettled(
+      foundCalls.map(async (call) => {
+        try {
+          const cached = this.store.getPlaceholder(call.url, call.options);
+          if (cached) {
+            logger.debug(`Cache hit for URL: ${call.url}`);
+
+            return {
+              ...call,
+              placeholder: cached.placeholder,
+            };
+          }
+
+          const { placeholder, originalHeight, originalWidth } =
+            await getPlaceholderImage(call.url, call.options);
+
+          this.store.insertItem(
+            call.url,
+            placeholder,
+            originalWidth,
+            originalHeight,
+            call.options
+          );
+
+          return {
+            ...call,
+            placeholder,
+          };
+        } catch (error) {
+          logger.error(`Error processing image for URL ${call.url}: ${error}`);
+          return {
+            ...call,
+            placeholder: call.url,
+          };
+        }
+      })
+    );
+
+    const magicString = new MagicString(code);
+    for (const item of processed) {
+      if (item.status === "fulfilled") {
+        magicString.overwrite(
+          item.value.start,
+          item.value.end,
+          `"${item.value.placeholder}"`
+        );
+      }
+    }
+
+    const map = magicString.generateMap({
+      source: filePath,
+      file: filePath + ".map",
+      includeContent: true,
+    });
+
+    // console.log(magicString.toString());
+
+    return {
+      code: magicString.toString(),
+      map,
+    };
+  }
+
+  async preTransform() {
+    try {
+      await this.initCacheDir();
+      this.database = initSqlite(
+        path.join(this.options.cacheFileDir!, "cache.db")
+      );
+      const existingItems = await getAllPlaceholderImages(this.database);
+      this.store.initStore(
+        existingItems.map((item) => ({
+          cacheKey: item.cache_key,
+          url: item.url,
+          placeholder: item.placeholder,
+          cache: true,
+          dbAction: "none",
+          originalHeight: item.original_height,
+          originalWidth: item.original_width,
+          previewType: item.preview_type as PlaceholderImageType,
+        }))
+      );
+    } catch (error) {
+      logger.error(`Error during pre-transform: ${error}`);
+    }
+  }
+
+  async postTransform(options?: { closeDb?: boolean }) {
+    try {
+      if (this.database && this.store.hasChanges()) {
+        const itemsToSync = this.store.getItemsToSync();
+        await insertPlaceholderImages(
+          this.database,
+          itemsToSync.map((item) => ({
+            url: item.url,
+            placeholder: item.placeholder,
+            cache_key: item.cacheKey,
+            preview_type: item.previewType,
+            original_width: item.originalWidth,
+            original_height: item.originalHeight,
+          }))
+        );
+      }
+
+      if (options?.closeDb ?? true) {
+        this.database?.close();
+      }
+    } catch (error) {
+      logger.error(`Error during post-transform: ${error}`);
+    }
+  }
+
+  async initCacheDir() {
+    try {
+      if (this.options.cacheFileDir) {
+        const cacheDir = path.resolve(this.options.cacheFileDir);
+        await mkdir(cacheDir, { recursive: true });
+      }
+    } catch (error) {
+      logger.error(`Error creating cache directory: ${error}`);
+    }
+  }
+
+  private getPreviewFnName(parseResult: ParseResult): string | null {
+    for (const importDecl of parseResult.module.staticImports) {
+      if (importDecl.moduleRequest.value !== "@nocojs/client") {
+        continue;
+      }
+
+      for (const specifier of importDecl.entries) {
+        if (specifier.importName.name === "preview") {
+          return specifier.localName.value;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private visitCallExpressions(
+    parserResult: ParseResult,
+    { previewFnName }: { previewFnName: string }
+  ) {
+    const foundCalls: {
+      url: string;
+      start: number;
+      end: number;
+      options: PlaceholderOptions;
+    }[] = [];
+
+    const visitor = new Visitor({
+      CallExpression: (node) => {
+        if (
+          node.callee.type === "Identifier" &&
+          node.callee.name === previewFnName
+        ) {
+          let url = "";
+          if (
+            node.arguments[0].type === "Literal" &&
+            typeof node.arguments[0].value === "string"
+          ) {
+            url = node.arguments[0].value;
+
+            if (url.startsWith("/")) {
+              url = path.join(this.options.publicDir!, url);
+            }
+          }
+
+          const optionsArg = node.arguments[1];
+          const previewOptions = this.extractOptions(optionsArg);
+
+          foundCalls.push({
+            url,
+            start: previewOptions?.replaceFunctionCall
+              ? node.start
+              : node.arguments[0].start,
+            end: previewOptions?.replaceFunctionCall
+              ? node.end
+              : node.arguments[0].end,
+            options: previewOptions,
+          });
+        }
+      },
+    });
+
+    visitor.visit(parserResult.program);
+
+    return foundCalls;
+  }
+
+  private extractOptions(argument?: Argument): PlaceholderOptions {
+    const options: PlaceholderOptions = {
+      ...this.options,
+    };
+
+    if (!argument) {
+      return options;
+    }
+
+    if (argument.type === "ObjectExpression") {
+      for (const prop of argument.properties) {
+        if (
+          prop.type === "Property" &&
+          prop.key.type === "Literal" &&
+          prop.value.type === "Literal"
+        ) {
+          const keyName = prop.key.value as keyof PlaceholderOptions;
+          if (options.hasOwnProperty(keyName)) {
+            // @ts-expect-error
+            options[keyName] = prop.value.value;
+          }
+        }
+      }
+    }
+
+    return options;
+  }
+}

@@ -3,116 +3,28 @@
   "author": "akzhy <hi@akzhy.com>",
   "version": "0.0.1",
   "description": "Core library for NocoJS",
-  "browser": "browser.js",
-  "main": "dist/cjs/api.js",
-  "module": "dist/esm/api.js",
-  "types": "dist/types/api.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
   "repository": "git@github.com:akzhy/nocojs.git",
   "license": "MIT",
-  "keywords": [
-    "napi-rs",
-    "NAPI",
-    "N-API",
-    "Rust",
-    "node-addon",
-    "node-addon-api"
-  ],
-  "files": [
-    "dist"
-  ],
-  "napi": {
-    "binaryName": "nocojs_core",
-    "targets": [
-      "x86_64-pc-windows-msvc",
-      "x86_64-apple-darwin",
-      "x86_64-unknown-linux-gnu",
-      "x86_64-unknown-linux-musl",
-      "aarch64-unknown-linux-gnu",
-      "i686-pc-windows-msvc",
-      "armv7-unknown-linux-gnueabihf",
-      "aarch64-apple-darwin",
-      "aarch64-linux-android",
-      "x86_64-unknown-freebsd",
-      "aarch64-unknown-linux-musl",
-      "aarch64-pc-windows-msvc",
-      "armv7-linux-androideabi",
-      "wasm32-wasi-preview1-threads"
-    ],
-    "wasm": {
-      "browser": {
-        "asyncInit": true,
-        "fs": false
-      }
-    }
-  },
-  "engines": {
-    "node": ">= 10.16.0 < 11 || >= 11.8.0 < 12 || >= 12.0.0"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
-    "access": "public",
-    "provenance": true
-  },
+  "files": ["dist", "src"],
   "scripts": {
-    "artifacts": "napi artifacts",
-    "bench": "node --import @oxc-node/core/register benchmark/bench.ts",
-    "build": "napi build --platform --release",
-    "build:debug": "napi build --platform && yarn build:js",
-    "build:full": "napi build --platform --release && yarn build:js",
-    "dev:js": "rolldown -c rolldown.config.ts --watch",
-    "build:js": "rolldown -c",
-    "format": "run-p format:prettier format:rs format:toml",
-    "format:prettier": "prettier . -w",
-    "format:toml": "taplo format",
-    "format:rs": "cargo fmt",
-    "lint": "oxlint .",
-    "prepublishOnly": "napi prepublish -t npm",
-    "test": "vitest",
-    "version": "napi version",
-    "prepare": "husky"
+    "build": "rolldown -c",
+    "dev": "rolldown -w -c",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "magic-string": "^0.30.19",
+    "oxc-parser": "^0.94.0",
+    "sharp": "^0.34.4",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.0",
-    "@babel/parser": "^7.28.0",
-    "@babel/traverse": "^7.28.0",
-    "@emnapi/core": "^1.4.5",
-    "@emnapi/runtime": "^1.4.5",
-    "@napi-rs/cli": "^3.0.3",
-    "@napi-rs/wasm-runtime": "^1.0.3",
-    "@oxc-node/core": "^0.0.30",
     "@rollup/plugin-typescript": "^12.1.4",
-    "@taplo/cli": "^0.7.0",
-    "@tybys/wasm-util": "^0.10.0",
-    "@types/babel__traverse": "^7.28.0",
-    "@types/node": "^24.2.0",
-    "chalk": "^5.5.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
-    "npm-run-all2": "^8.0.4",
-    "oxlint": "^1.11.0",
-    "prettier": "^3.6.2",
-    "rolldown": "^1.0.0-beta.34",
-    "rollup-plugin-copy": "^3.5.0",
-    "sharp": "^0.34.3",
-    "tinybench": "^4.0.1",
-    "typescript": "^5.9.2",
+    "@types/node": "^24.7.2",
+    "rolldown": "^1.0.0-beta.42",
+    "typescript": "^5.9.3",
     "vitest": "^3.2.4"
-  },
-  "lint-staged": {
-    "*.@(js|ts|tsx)": [
-      "oxlint --fix"
-    ],
-    "*.@(js|ts|tsx|yml|yaml|md|json)": [
-      "prettier --write"
-    ],
-    "*.toml": [
-      "taplo format"
-    ]
-  },
-  "prettier": {
-    "printWidth": 120,
-    "trailingComma": "all",
-    "singleQuote": true,
-    "arrowParens": "always"
   }
 }

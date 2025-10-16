@@ -1,0 +1,227 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Basic Transform Tests > ignores invalid URLs and Paths 1`] = `
+{
+  "code": "import { preview } from '@nocojs/client';
+
+const img0 = "C:\\Users\\aksha\\Documents\\Projects\\lazy\\packages\\core-js\\test\\public\\invalid-url.jpg";
+const img1 = "file:///invalid-path.jpg";
+const img2 = "https://example.com/invalid-image.jpg";
+const img3 = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0MDAgNTAwJyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCc+PGZpbHRlciBpZD0nYicgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSdzUkdCJz48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPScyMCcvPjxmZUNvbG9yTWF0cml4IHZhbHVlcz0nMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMTAwIC0xJyByZXN1bHQ9J3MnLz48ZmVGbG9vZCB4PScwJyB5PScwJyB3aWR0aD0nMTAwJScgaGVpZ2h0PScxMDAlJy8+PGZlQ29tcG9zaXRlIG9wZXJhdG9yPSdvdXQnIGluPSdzJy8+PGZlQ29tcG9zaXRlIGluMj0nU291cmNlR3JhcGhpYycvPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249JzIwJy8+PC9maWx0ZXI+PGltYWdlIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHg9JzAnIHk9JzAnIHByZXNlcnZlQXNwZWN0UmF0aW89J25vbmUnIHN0eWxlPSdmaWx0ZXI6IHVybCgjYik7JyBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVBDQU1BQUFEblA5NTdBQUFBNTFCTVZFWC8vL3R3cWN4Wmk2dHhOZ2E0MWZUKytONy8vZTcvL2ZQLzg5WC8rdWYvL3ZpVHR1S213K1hCMnZTMnplNTZocDlqb01WN3ByK0xsSnQraTVUSm1tMTBSU2lweWV6RjRmeWN1ZDZvdnVHMTBlMjMwT21hdytISTJlamc2ZSswdzhlWmhZQnpwY0NFZDNmczBLclc0K3cvZFpXOXh0Um1tTFJ0bXJodE94cUJWak9ZZUZtYWFqMWpMZ1orUlJmUjVQdjI1Tkg0NU0rRG1yN0swZFNXck02SXA5S0FrSytQcGNqOTU4Nm90OC96M2J0SmdxakExT1dWdk5xWnFzdTUyLytjbFpLZW5hUlZmNUtqczc3SzJPRllnNXlOVHhtVVUwUnBNUU5kTHgrcFl5eHZlbmMxSUJlZVBwQ3BBQUFBQ1hCSVdYTUFBQXNUQUFBTEV3RUFtcHdZQUFBQXFVbEVRVlI0bkQzRWhRNkNZQlJBNFF2ODRLVmJ3U0FzeXU3dTF2ZC9IcWR6ZnRzNUFIL0NKMEhJL1VDTzQzaWUvNDRIbGtXV3hkb0NFUkVRc1daWkZ3dG4vUjRNZlQvdFBCZ2oxUFVRTklveTdTdGphQ0dsUVhTSXpPVE9aUFE1cG1IWmFEeVoxNjFGMDdFTzVYWDUyR20zVzZlNlZ3ZXZzcXBrcVcwMzVWSVJpbEtwc0V1YTFmMVdJU0FUUXViQlJnMFVTWVI4WG5Ra1JaMjQwN0VJaFM2UjNZRXpVbFdqK2dacHFoRlU3c1h3andBQUFBQkpSVTVFcmtKZ2dnPT0nLz48L3N2Zz4=";",
+  "map": SourceMap {
+    "file": "index.ts.map",
+    "mappings": "AAAA;;AAEA,aAAa,qFAA2B;AACxC,aAAa,0BAAmC;AAChD,aAAa,uCAAgD;AAC7D,aAAa,omDAA4B",
+    "names": [],
+    "sources": [
+      "index.ts",
+    ],
+    "sourcesContent": [
+      "import { preview } from '@nocojs/client';
+
+const img0 = preview("/invalid-url.jpg");
+const img1 = preview("file:///invalid-path.jpg");
+const img2 = preview("https://example.com/invalid-image.jpg");
+const img3 = preview("/good_boy_4x5.jpg");",
+    ],
+    "version": 3,
+  },
+}
+`;
+
+exports[`Basic Transform Tests > transforms with custom cache dir 1`] = `
+{
+  "code": "import { preview } from '@nocojs/client';
+
+const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0MDAgNTAwJyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCc+PGZpbHRlciBpZD0nYicgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSdzUkdCJz48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPScyMCcvPjxmZUNvbG9yTWF0cml4IHZhbHVlcz0nMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMTAwIC0xJyByZXN1bHQ9J3MnLz48ZmVGbG9vZCB4PScwJyB5PScwJyB3aWR0aD0nMTAwJScgaGVpZ2h0PScxMDAlJy8+PGZlQ29tcG9zaXRlIG9wZXJhdG9yPSdvdXQnIGluPSdzJy8+PGZlQ29tcG9zaXRlIGluMj0nU291cmNlR3JhcGhpYycvPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249JzIwJy8+PC9maWx0ZXI+PGltYWdlIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHg9JzAnIHk9JzAnIHByZXNlcnZlQXNwZWN0UmF0aW89J25vbmUnIHN0eWxlPSdmaWx0ZXI6IHVybCgjYik7JyBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVBDQU1BQUFEblA5NTdBQUFBNTFCTVZFWC8vL3R3cWN4Wmk2dHhOZ2E0MWZUKytONy8vZTcvL2ZQLzg5WC8rdWYvL3ZpVHR1S213K1hCMnZTMnplNTZocDlqb01WN3ByK0xsSnQraTVUSm1tMTBSU2lweWV6RjRmeWN1ZDZvdnVHMTBlMjMwT21hdytISTJlamc2ZSswdzhlWmhZQnpwY0NFZDNmczBLclc0K3cvZFpXOXh0Um1tTFJ0bXJodE94cUJWak9ZZUZtYWFqMWpMZ1orUlJmUjVQdjI1Tkg0NU0rRG1yN0swZFNXck02SXA5S0FrSytQcGNqOTU4Nm90OC96M2J0SmdxakExT1dWdk5xWnFzdTUyLytjbFpLZW5hUlZmNUtqczc3SzJPRllnNXlOVHhtVVUwUnBNUU5kTHgrcFl5eHZlbmMxSUJlZVBwQ3BBQUFBQ1hCSVdYTUFBQXNUQUFBTEV3RUFtcHdZQUFBQXFVbEVRVlI0bkQzRWhRNkNZQlJBNFF2ODRLVmJ3U0FzeXU3dTF2ZC9IcWR6ZnRzNUFIL0NKMEhJL1VDTzQzaWUvNDRIbGtXV3hkb0NFUkVRc1daWkZ3dG4vUjRNZlQvdFBCZ2oxUFVRTklveTdTdGphQ0dsUVhTSXpPVE9aUFE1cG1IWmFEeVoxNjFGMDdFTzVYWDUyR20zVzZlNlZ3ZXZzcXBrcVcwMzVWSVJpbEtwc0V1YTFmMVdJU0FUUXViQlJnMFVTWVI4WG5Ra1JaMjQwN0VJaFM2UjNZRXpVbFdqK2dacHFoRlU3c1h3andBQUFBQkpSVTVFcmtKZ2dnPT0nLz48L3N2Zz4=";",
+  "map": SourceMap {
+    "file": "index.ts.map",
+    "mappings": "AAAA;;AAEA,YAAY,omDAA0H",
+    "names": [],
+    "sources": [
+      "index.ts",
+    ],
+    "sourcesContent": [
+      "import { preview } from '@nocojs/client';
+
+const img = preview("https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg");",
+    ],
+    "version": 3,
+  },
+}
+`;
+
+exports[`Basic Transform Tests > transforms with custom publicDir 1`] = `
+{
+  "code": "import { preview } from '@nocojs/client';
+
+const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0MDAgNTAwJyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCc+PGZpbHRlciBpZD0nYicgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSdzUkdCJz48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPScyMCcvPjxmZUNvbG9yTWF0cml4IHZhbHVlcz0nMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMTAwIC0xJyByZXN1bHQ9J3MnLz48ZmVGbG9vZCB4PScwJyB5PScwJyB3aWR0aD0nMTAwJScgaGVpZ2h0PScxMDAlJy8+PGZlQ29tcG9zaXRlIG9wZXJhdG9yPSdvdXQnIGluPSdzJy8+PGZlQ29tcG9zaXRlIGluMj0nU291cmNlR3JhcGhpYycvPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249JzIwJy8+PC9maWx0ZXI+PGltYWdlIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHg9JzAnIHk9JzAnIHByZXNlcnZlQXNwZWN0UmF0aW89J25vbmUnIHN0eWxlPSdmaWx0ZXI6IHVybCgjYik7JyBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVBDQU1BQUFEblA5NTdBQUFBNTFCTVZFWC8vL3R3cWN4Wmk2dHhOZ2E0MWZUKytONy8vZTcvL2ZQLzg5WC8rdWYvL3ZpVHR1S213K1hCMnZTMnplNTZocDlqb01WN3ByK0xsSnQraTVUSm1tMTBSU2lweWV6RjRmeWN1ZDZvdnVHMTBlMjMwT21hdytISTJlamc2ZSswdzhlWmhZQnpwY0NFZDNmczBLclc0K3cvZFpXOXh0Um1tTFJ0bXJodE94cUJWak9ZZUZtYWFqMWpMZ1orUlJmUjVQdjI1Tkg0NU0rRG1yN0swZFNXck02SXA5S0FrSytQcGNqOTU4Nm90OC96M2J0SmdxakExT1dWdk5xWnFzdTUyLytjbFpLZW5hUlZmNUtqczc3SzJPRllnNXlOVHhtVVUwUnBNUU5kTHgrcFl5eHZlbmMxSUJlZVBwQ3BBQUFBQ1hCSVdYTUFBQXNUQUFBTEV3RUFtcHdZQUFBQXFVbEVRVlI0bkQzRWhRNkNZQlJBNFF2ODRLVmJ3U0FzeXU3dTF2ZC9IcWR6ZnRzNUFIL0NKMEhJL1VDTzQzaWUvNDRIbGtXV3hkb0NFUkVRc1daWkZ3dG4vUjRNZlQvdFBCZ2oxUFVRTklveTdTdGphQ0dsUVhTSXpPVE9aUFE1cG1IWmFEeVoxNjFGMDdFTzVYWDUyR20zVzZlNlZ3ZXZzcXBrcVcwMzVWSVJpbEtwc0V1YTFmMVdJU0FUUXViQlJnMFVTWVI4WG5Ra1JaMjQwN0VJaFM2UjNZRXpVbFdqK2dacHFoRlU3c1h3andBQUFBQkpSVTVFcmtKZ2dnPT0nLz48L3N2Zz4=";",
+  "map": SourceMap {
+    "file": "index.ts.map",
+    "mappings": "AAAA;;AAEA,YAAY,omDAA4B",
+    "names": [],
+    "sources": [
+      "index.ts",
+    ],
+    "sourcesContent": [
+      "import { preview } from '@nocojs/client';
+
+const img = preview("/good_boy_4x5.jpg");",
+    ],
+    "version": 3,
+  },
+}
+`;
+
+exports[`Basic Transform Tests > transforms with no options 1`] = `
+{
+  "code": "import { preview } from '@nocojs/client';
+
+const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0MDAgNTAwJyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCc+PGZpbHRlciBpZD0nYicgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSdzUkdCJz48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPScyMCcvPjxmZUNvbG9yTWF0cml4IHZhbHVlcz0nMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMTAwIC0xJyByZXN1bHQ9J3MnLz48ZmVGbG9vZCB4PScwJyB5PScwJyB3aWR0aD0nMTAwJScgaGVpZ2h0PScxMDAlJy8+PGZlQ29tcG9zaXRlIG9wZXJhdG9yPSdvdXQnIGluPSdzJy8+PGZlQ29tcG9zaXRlIGluMj0nU291cmNlR3JhcGhpYycvPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249JzIwJy8+PC9maWx0ZXI+PGltYWdlIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHg9JzAnIHk9JzAnIHByZXNlcnZlQXNwZWN0UmF0aW89J25vbmUnIHN0eWxlPSdmaWx0ZXI6IHVybCgjYik7JyBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVBDQU1BQUFEblA5NTdBQUFBNTFCTVZFWC8vL3R3cWN4Wmk2dHhOZ2E0MWZUKytONy8vZTcvL2ZQLzg5WC8rdWYvL3ZpVHR1S213K1hCMnZTMnplNTZocDlqb01WN3ByK0xsSnQraTVUSm1tMTBSU2lweWV6RjRmeWN1ZDZvdnVHMTBlMjMwT21hdytISTJlamc2ZSswdzhlWmhZQnpwY0NFZDNmczBLclc0K3cvZFpXOXh0Um1tTFJ0bXJodE94cUJWak9ZZUZtYWFqMWpMZ1orUlJmUjVQdjI1Tkg0NU0rRG1yN0swZFNXck02SXA5S0FrSytQcGNqOTU4Nm90OC96M2J0SmdxakExT1dWdk5xWnFzdTUyLytjbFpLZW5hUlZmNUtqczc3SzJPRllnNXlOVHhtVVUwUnBNUU5kTHgrcFl5eHZlbmMxSUJlZVBwQ3BBQUFBQ1hCSVdYTUFBQXNUQUFBTEV3RUFtcHdZQUFBQXFVbEVRVlI0bkQzRWhRNkNZQlJBNFF2ODRLVmJ3U0FzeXU3dTF2ZC9IcWR6ZnRzNUFIL0NKMEhJL1VDTzQzaWUvNDRIbGtXV3hkb0NFUkVRc1daWkZ3dG4vUjRNZlQvdFBCZ2oxUFVRTklveTdTdGphQ0dsUVhTSXpPVE9aUFE1cG1IWmFEeVoxNjFGMDdFTzVYWDUyR20zVzZlNlZ3ZXZzcXBrcVcwMzVWSVJpbEtwc0V1YTFmMVdJU0FUUXViQlJnMFVTWVI4WG5Ra1JaMjQwN0VJaFM2UjNZRXpVbFdqK2dacHFoRlU3c1h3andBQUFBQkpSVTVFcmtKZ2dnPT0nLz48L3N2Zz4=";",
+  "map": SourceMap {
+    "file": "index.ts.map",
+    "mappings": "AAAA;;AAEA,YAAY,omDAA0H",
+    "names": [],
+    "sources": [
+      "index.ts",
+    ],
+    "sourcesContent": [
+      "import { preview } from '@nocojs/client';
+
+const img = preview("https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg");",
+    ],
+    "version": 3,
+  },
+}
+`;
+
+exports[`Global placeholderType option tests with remote image > placeholderType - average-color 1`] = `
+{
+  "code": "import { preview } from '@nocojs/client';
+
+const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0MDAgNTAwJyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCc+PHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsbD0ncmdiKDE3OCwgMTgzLCAxODUpJy8+PC9zdmc+";",
+  "map": SourceMap {
+    "file": "index.ts.map",
+    "mappings": "AAAA;;AAEA,YAAY,wOAA0H",
+    "names": [],
+    "sources": [
+      "index.ts",
+    ],
+    "sourcesContent": [
+      "import { preview } from '@nocojs/client';
+
+const img = preview("https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg");",
+    ],
+    "version": 3,
+  },
+}
+`;
+
+exports[`Global placeholderType option tests with remote image > placeholderType - blurred 1`] = `
+{
+  "code": "import { preview } from '@nocojs/client';
+
+const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0MDAgNTAwJyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCc+PGZpbHRlciBpZD0nYicgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSdzUkdCJz48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPScyMCcvPjxmZUNvbG9yTWF0cml4IHZhbHVlcz0nMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMTAwIC0xJyByZXN1bHQ9J3MnLz48ZmVGbG9vZCB4PScwJyB5PScwJyB3aWR0aD0nMTAwJScgaGVpZ2h0PScxMDAlJy8+PGZlQ29tcG9zaXRlIG9wZXJhdG9yPSdvdXQnIGluPSdzJy8+PGZlQ29tcG9zaXRlIGluMj0nU291cmNlR3JhcGhpYycvPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249JzIwJy8+PC9maWx0ZXI+PGltYWdlIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHg9JzAnIHk9JzAnIHByZXNlcnZlQXNwZWN0UmF0aW89J25vbmUnIHN0eWxlPSdmaWx0ZXI6IHVybCgjYik7JyBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVBDQU1BQUFEblA5NTdBQUFBNTFCTVZFWC8vL3R3cWN4Wmk2dHhOZ2E0MWZUKytONy8vZTcvL2ZQLzg5WC8rdWYvL3ZpVHR1S213K1hCMnZTMnplNTZocDlqb01WN3ByK0xsSnQraTVUSm1tMTBSU2lweWV6RjRmeWN1ZDZvdnVHMTBlMjMwT21hdytISTJlamc2ZSswdzhlWmhZQnpwY0NFZDNmczBLclc0K3cvZFpXOXh0Um1tTFJ0bXJodE94cUJWak9ZZUZtYWFqMWpMZ1orUlJmUjVQdjI1Tkg0NU0rRG1yN0swZFNXck02SXA5S0FrSytQcGNqOTU4Nm90OC96M2J0SmdxakExT1dWdk5xWnFzdTUyLytjbFpLZW5hUlZmNUtqczc3SzJPRllnNXlOVHhtVVUwUnBNUU5kTHgrcFl5eHZlbmMxSUJlZVBwQ3BBQUFBQ1hCSVdYTUFBQXNUQUFBTEV3RUFtcHdZQUFBQXFVbEVRVlI0bkQzRWhRNkNZQlJBNFF2ODRLVmJ3U0FzeXU3dTF2ZC9IcWR6ZnRzNUFIL0NKMEhJL1VDTzQzaWUvNDRIbGtXV3hkb0NFUkVRc1daWkZ3dG4vUjRNZlQvdFBCZ2oxUFVRTklveTdTdGphQ0dsUVhTSXpPVE9aUFE1cG1IWmFEeVoxNjFGMDdFTzVYWDUyR20zVzZlNlZ3ZXZzcXBrcVcwMzVWSVJpbEtwc0V1YTFmMVdJU0FUUXViQlJnMFVTWVI4WG5Ra1JaMjQwN0VJaFM2UjNZRXpVbFdqK2dacHFoRlU3c1h3andBQUFBQkpSVTVFcmtKZ2dnPT0nLz48L3N2Zz4=";",
+  "map": SourceMap {
+    "file": "index.ts.map",
+    "mappings": "AAAA;;AAEA,YAAY,omDAA0H",
+    "names": [],
+    "sources": [
+      "index.ts",
+    ],
+    "sourcesContent": [
+      "import { preview } from '@nocojs/client';
+
+const img = preview("https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg");",
+    ],
+    "version": 3,
+  },
+}
+`;
+
+exports[`Global placeholderType option tests with remote image > placeholderType - dominant-color 1`] = `
+{
+  "code": "import { preview } from '@nocojs/client';
+
+const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0MDAgNTAwJyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCc+PHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsbD0ncmdiKDI0OCwgMjQ4LCAyNDgpJy8+PC9zdmc+";",
+  "map": SourceMap {
+    "file": "index.ts.map",
+    "mappings": "AAAA;;AAEA,YAAY,wOAA0H",
+    "names": [],
+    "sources": [
+      "index.ts",
+    ],
+    "sourcesContent": [
+      "import { preview } from '@nocojs/client';
+
+const img = preview("https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg");",
+    ],
+    "version": 3,
+  },
+}
+`;
+
+exports[`Global placeholderType option tests with remote image > placeholderType - grayscale 1`] = `
+{
+  "code": "import { preview } from '@nocojs/client';
+
+const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0MDAgNTAwJyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCc+PGltYWdlIGhyZWY9J2RhdGE6aW1hZ2UvcG5nO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBQXdBQUFBUENBTUFBQURuUDk1N0FBQUFTMUJNVkVYKy92NlRrNU5EUTBPK3ZyN056YzE3ZTN1S2lvcjE5Zlg1K2ZtaG9hSFMwdEthbXBxbnA2ZFJVVkhvNk9qaTR1TEV4TVRXMXRiWTJOaUVoSVMzdDdlenM3TnljbkpoWVdFdkx5OUt1ZnhQQUFBQUNYQklXWE1BQUFzVEFBQUxFd0VBbXB3WUFBQUFnRWxFUVZSNG5HV0hTeFlESVFqQUFFSEVQM1YwNXY0bjdXczNYVFNMdkFUZ24vU3JsTDVLb0tvSk5BOVYxYys0MWR1MDl3NTVocnNkS21aV29GaU43U1lzWmdnb0dJbG9MY0VGY283UVEyY3ROQWhYMkkwZThkRUhkTTh1ZDJ2c3pNQ1RSMmxUekRtRDU4eFhySEZ4MkREbnZnSkhERlkzdkViMlVIWmRFZVVONmZRR09BUE1Bd0FBQUFBQVNVVk9SSzVDWUlJPScgd2lkdGg9JzQwMCcgaGVpZ2h0PSc1MDAnLz48L3N2Zz4=";",
+  "map": SourceMap {
+    "file": "index.ts.map",
+    "mappings": "AAAA;;AAEA,YAAY,wvBAA0H",
+    "names": [],
+    "sources": [
+      "index.ts",
+    ],
+    "sourcesContent": [
+      "import { preview } from '@nocojs/client';
+
+const img = preview("https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg");",
+    ],
+    "version": 3,
+  },
+}
+`;
+
+exports[`Global placeholderType option tests with remote image > placeholderType - normal 1`] = `
+{
+  "code": "import { preview } from '@nocojs/client';
+
+const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0MDAgNTAwJyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCc+PGltYWdlIGhyZWY9J2RhdGE6aW1hZ2UvcG5nO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBQXdBQUFBUENBTUFBQURuUDk1N0FBQUE1MUJNVkVYLy8vdHdxY3haaTZ0eE5nYTQxZlQrK043Ly9lNy8vZlAvODlYLyt1Zi8vdmlUdHVLbXcrWEIydlMyemU1NmhwOWpvTVY3cHIrTGxKdCtpNVRKbW0xMFJTaXB5ZXpGNGZ5Y3VkNm92dUcxMGUyMzBPbWF3K0hJMmVqZzZlKzB3OGVaaFlCenBjQ0VkM2ZzMEtyVzQrdy9kWlc5eHRSbW1MUnRtcmh0T3hxQlZqT1llRm1hYWoxakxnWitSUmZSNVB2MjVOSDQ1TStEbXI3SzBkU1dyTTZJcDlLQWtLK1BwY2o5NTg2b3Q4L3ozYnRKZ3FqQTFPV1Z2TnFacXN1NTIvK2NsWktlbmFSVmY1S2pzNzdLMk9GWWc1eU5UeG1VVTBScE1RTmRMeCtwWXl4dmVuYzFJQmVlUHBDcEFBQUFDWEJJV1hNQUFBc1RBQUFMRXdFQW1wd1lBQUFBcVVsRVFWUjRuRDNFaFE2Q1lCUkE0UXY4NEtWYndTQXN5dTd1MXZkL0hxZHpmdHM1QUgvQ0owSEkvVUNPNDNpZS80NEhsa1dXeGRvQ0VSRVFzV1paRnd0bi9SNE1mVC90UEJnajFQVVFOSW95N1N0amFDR2xRWFNJek9UT1pQUTVwbUhaYUR5WjE2MUYwN0VPNVhYNTJHbTNXNmU2VndldnNxcGtxVzAzNVZJUmlsS3BzRXVhMWYxV0lTQVRRdWJCUmcwVVNZUjhYblFrUloyNDA3RUloUzZSM1lFelVsV2orZ1pwcWhGVTdzWHdqd0FBQUFCSlJVNUVya0pnZ2c9PScgd2lkdGg9JzQwMCcgaGVpZ2h0PSc1MDAnLz48L3N2Zz4=";",
+  "map": SourceMap {
+    "file": "index.ts.map",
+    "mappings": "AAAA;;AAEA,YAAY,wlCAA0H",
+    "names": [],
+    "sources": [
+      "index.ts",
+    ],
+    "sourcesContent": [
+      "import { preview } from '@nocojs/client';
+
+const img = preview("https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg");",
+    ],
+    "version": 3,
+  },
+}
+`;
+
+exports[`Global placeholderType option tests with remote image > placeholderType - transparent 1`] = `
+{
+  "code": "import { preview } from '@nocojs/client';
+
+const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0MDAgNTAwJyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCc+PHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsbD0ndHJhbnNwYXJlbnQnLz48L3N2Zz4=";",
+  "map": SourceMap {
+    "file": "index.ts.map",
+    "mappings": "AAAA;;AAEA,YAAY,gOAA0H",
+    "names": [],
+    "sources": [
+      "index.ts",
+    ],
+    "sourcesContent": [
+      "import { preview } from '@nocojs/client';
+
+const img = preview("https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg");",
+    ],
+    "version": 3,
+  },
+}
+`;
