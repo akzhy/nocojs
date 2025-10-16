@@ -5,7 +5,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c --watch",
-    "serve": "npx serve ."
+    "serve": "serve ."
   },
   "devDependencies": {
     "@nocojs/client": "*",

@@ -1,6 +1,6 @@
 // Example Rollup configuration using @nocojs/rollup-plugin
 
-import rollupNocoPlugin from '@nocojs/rollup-plugin';
+import { rollupNocoPlugin } from '@nocojs/rollup-plugin';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { resolve } from 'path';
 
