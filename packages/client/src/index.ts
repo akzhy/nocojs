@@ -1,3 +1,3 @@
-import { PreviewOptions } from "@nocojs/core";
+import { PlaceholderOptions } from "@nocojs/core";
 
-export const preview = (url: string, options?: PreviewOptions): string => url;
+export const preview = (url: string, options?: PlaceholderOptions): string => url;
