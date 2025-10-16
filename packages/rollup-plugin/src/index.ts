@@ -109,6 +109,8 @@ async function rollupNocoPlugin(options: RollupNocoOptions = {}): Promise<Plugin
       try {
         const result = await nocoTransformer.transform(code, id);
 
+        await nocoTransformer.postTransform({ closeDb: false });
+
         if (!result) {
           return null;
         }
