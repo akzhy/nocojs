@@ -4,10 +4,10 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "packages/plugin-rollup/examples",
-    "packages/webpack-loader/examples",
-    "packages/rspack-loader/examples",
-    "packages/parcel-transformer/examples"
+    "packages/rollup-plugin/example",
+    "packages/webpack-loader/example",
+    "packages/rspack-loader/example",
+    "packages/parcel-transformer/example"
   ],
   "scripts": {
     "build:all": "lerna run build",
