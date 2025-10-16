@@ -1,4 +1,4 @@
-import { transform, TransformOptions } from "@nocojs/core";
+import { Transformer, TransformOptions } from "@nocojs/core";
 import path from "path";
 import { LoaderContext } from "webpack";
 
@@ -16,6 +16,8 @@ export interface NocoLoaderOptions
    */
   cacheFileDir?: string;
 }
+
+let transformer: Transformer | null = null;
 
 /**
  * Webpack loader for @nocojs/core transformations
@@ -42,6 +44,15 @@ export default async function nocoLoader(
     ? path.resolve(context, options.cacheFileDir)
     : path.join(context, ".nocojs");
 
+  if (!transformer) {
+    transformer = new Transformer({
+      ...options,
+      publicDir,
+      cacheFileDir,
+    });
+    await transformer.preTransform();
+  }
+
   let fileName = this.resourcePath;
   let sourcemapFilePath = fileName;
 
@@ -53,22 +64,16 @@ export default async function nocoLoader(
     fileName = `${fileName}.ts`;
   }
 
-  const transformOptions: TransformOptions = {
-    ...options,
-    publicDir,
-    cacheFileDir,
-    logLevel: options.logLevel || "info",
-    sourcemapFilePath,
-  };
-
   try {
-    const transformResult = await transform(source, fileName, transformOptions);
+    const transformResult = await transformer.transform(source, fileName, {
+      sourcemapFilePath,
+    });
 
-    callback(
-      null,
-      transformResult.code,
-      transformResult.map ? JSON.parse(transformResult.map ?? "{}") : sourceMap
-    );
+    if (!transformResult) {
+      return callback(null, source, sourceMap);
+    }
+
+    callback(null, transformResult.code, transformResult.map);
   } catch (error) {
     console.error(error);
     return callback(error as Error, source, sourceMap);
