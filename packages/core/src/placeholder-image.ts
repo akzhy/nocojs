@@ -30,6 +30,9 @@ export const getPlaceholderImage = async (
   const sharpInstance = await getSharpInstance(url);
   const metadata = await sharpInstance.metadata();
 
+  const targetWidth = options?.width ?? 12;
+  const targetHeight = options?.height;
+
   if (options.placeholderType === "dominant-color") {
     const stats = await sharpInstance.stats();
 
@@ -69,7 +72,7 @@ export const getPlaceholderImage = async (
     };
   }
 
-  sharpInstance.resize(options.width, options.height);
+  sharpInstance.resize(targetWidth, targetHeight);
 
   if (options.placeholderType === "grayscale") {
     sharpInstance.grayscale();
