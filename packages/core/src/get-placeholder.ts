@@ -10,7 +10,6 @@ import {
 import { Store } from "./store";
 
 export interface GetPlaceholderOptions extends PlaceholderOptions {
-  useCache?: boolean;
   cacheFileDir?: string;
   _enableLogging?: boolean;
 }
@@ -20,7 +19,7 @@ export const getPlaceholder = async (
   options: GetPlaceholderOptions
 ) => {
   let db: Database | null = null;
-  if (options.useCache ?? true) {
+  if (options.cache ?? true) {
     const cacheFileDir = options.cacheFileDir ?? ".nocojs";
     const cacheDir = path.resolve(cacheFileDir);
     await mkdir(cacheDir, { recursive: true });
