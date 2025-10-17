@@ -49,3 +49,5 @@ coverage/
 *.tsbuildinfo
 
 .parcel-cache/
+
+test/public/get_srcset/
