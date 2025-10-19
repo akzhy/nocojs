@@ -134,9 +134,9 @@ describe("Caching should work as expected", async () => {
     await t5.transform(input, "index.ts");
     await t5.postTransform();
 
-    const cacheHits = logs[currentTestName].filter((log) =>
+    const cacheHits = logs[currentTestName]?.filter((log) =>
       log.includes("Cache hit")
-    ).length;
+    ).length ?? 0;
     expect(cacheHits).toBe(0);
   });
 });
