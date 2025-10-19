@@ -77,7 +77,7 @@ export class Transformer {
     const processed = await Promise.allSettled(
       foundCalls.map(async (call) => {
         try {
-          const cached = this.store.getPlaceholder(call.url, call.options);
+          const cached = this.store.getCachedPlaceholder(call.url, call.options);
           if (cached) {
             logger.debug(`Cache hit for URL: ${call.url}`);
 
@@ -114,7 +114,7 @@ export class Transformer {
           logger.error(`Error processing image for URL ${call.url}: ${error}`);
           return {
             ...call,
-            placeholder: call.url,
+            placeholder: call.originalUrl,
           };
         }
       })
@@ -227,6 +227,7 @@ export class Transformer {
   ) {
     const foundCalls: {
       url: string;
+      originalUrl: string;
       start: number;
       end: number;
       options: PlaceholderOptions;
@@ -239,15 +240,21 @@ export class Transformer {
           node.callee.name === previewFnName
         ) {
           let url = "";
+          let originalUrl: null | string = null;
           if (
             node.arguments[0].type === "Literal" &&
             typeof node.arguments[0].value === "string"
           ) {
             url = node.arguments[0].value;
+            originalUrl = node.arguments[0].value;
 
             if (url.startsWith("/")) {
               url = path.join(this.options.publicDir!, url);
             }
+          }
+
+          if (!originalUrl) {
+            return;
           }
 
           const optionsArg = node.arguments[1];
@@ -255,6 +262,7 @@ export class Transformer {
 
           foundCalls.push({
             url,
+            originalUrl,
             start: previewOptions?.replaceFunctionCall
               ? node.start
               : node.arguments[0].start,
