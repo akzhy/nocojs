@@ -21,6 +21,7 @@ export interface GetPlaceholderImageResult {
   placeholder: string;
   originalWidth: number;
   originalHeight: number;
+  placeholderPng?: string;
 }
 
 export const getPlaceholderImage = async (
@@ -102,20 +103,35 @@ export const getPlaceholderImage = async (
   }
 
   if (options.wrapWithSvg) {
-    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${metadata.width} ${metadata.height}' width='${metadata.width}' height='${metadata.height}'><image href='data:image/png;base64,${base64}' width='${metadata.width}' height='${metadata.height}'/></svg>`;
     return {
-      placeholder: `data:image/svg+xml;base64,${Buffer.from(svg).toString(
-        "base64"
-      )}`,
-      originalWidth: metadata.width || 0,
-      originalHeight: metadata.height || 0,
+      placeholder: wrapWithSvg(
+        `data:image/png;base64,${base64}`,
+        metadata.width,
+        metadata.height
+      ),
+      placeholderPng: `data:image/png;base64,${base64}`,
+      originalWidth: metadata.width,
+      originalHeight: metadata.height,
     };
   }
 
   const placeholder = `data:image/png;base64,${base64}`;
   return {
     placeholder,
-    originalWidth: metadata.width || 0,
-    originalHeight: metadata.height || 0,
+    originalWidth: metadata.width,
+    originalHeight: metadata.height,
   };
+};
+
+export const wrapWithSvg = (base64: string, width: number, height: number) => {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}' width='${width}' height='${height}'><image href='${base64}' width='${width}' height='${height}'/></svg>`;
+
+  return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+};
+
+export const shouldWrapWithSvg = (options: PlaceholderOptions) => {
+  return (
+    (options.wrapWithSvg ?? true) &&
+    ["normal", "grayscale"].includes(options.placeholderType || "blurred")
+  );
 };
