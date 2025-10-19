@@ -19,7 +19,6 @@ describe("getSrcset function tests", () => {
 
   test("should generate srcset local image file", async () => {
     const result = await getSrcset(testImagePath, baseOptions);
-    console.log(result);
     expect(result.images.length).toBeGreaterThan(0);
 
     result.images.forEach((img) => {
