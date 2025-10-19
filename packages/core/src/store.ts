@@ -66,7 +66,7 @@ export class Store {
     return item;
   }
 
-  getPlaceholder(
+  getCachedPlaceholder(
     url: string,
     previewOptions: PlaceholderOptions
   ): StoreDataItem | undefined {
