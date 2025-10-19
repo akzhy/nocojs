@@ -1,8 +1,7 @@
 import path from "path";
 
 import sharp from "sharp";
-import { parse } from "@babel/parser";
-import traverse from "@babel/traverse";
+import { parseSync, Visitor } from "oxc-parser";
 import { expect } from "vitest";
 import { TransformOptions } from "../src/transform";
 import { PlaceholderOptions } from "../src/placeholder-image";
@@ -139,34 +138,33 @@ export const getCacheFileDirName = (randomize = false) => {
 };
 
 export function verifyPreviewCall(code: string) {
-  const ast = parse(code, {
-    sourceType: "module", // or "script" if not ESM
-    plugins: ["jsx", "typescript"], // add if needed
-  });
+  const parsed = parseSync("verify-preview-call.ts", code);
 
   let found = false;
   let imageUpdated = false;
 
-  traverse(ast, {
-    CallExpression(path) {
-      const callee = path.node.callee;
+  const visitor = new Visitor({
+    CallExpression: (node) => {
+      if (found) {
+        return;
+      }
 
-      if (callee.type === "Identifier" && callee.name === "preview") {
+      if (node.callee.type === "Identifier" && node.callee.name === "preview") {
         found = true;
-        const args = path.node.arguments;
-        const firstArg = args[0];
+        const firstArg = node.arguments[0];
 
-        if (
-          firstArg.type === "StringLiteral" &&
-          firstArg.value.startsWith("data:")
-        ) {
-          imageUpdated = true;
+        if (firstArg && firstArg.type === "Literal") {
+          const literalValue = firstArg.value;
+
+          if (typeof literalValue === "string" && literalValue.startsWith("data:")) {
+            imageUpdated = true;
+          }
         }
-
-        path.stop(); // Stop early
       }
     },
   });
+
+  visitor.visit(parsed.program);
 
   return {
     found,
