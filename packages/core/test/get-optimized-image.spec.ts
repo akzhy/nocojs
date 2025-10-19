@@ -1,24 +1,24 @@
 import path, { dirname } from "path";
 import { describe, expect, test } from "vitest";
 import { defaultTransformOptions } from "./utils";
-import { GetSrcsetOptions, getSrcset } from "../src/get-srcset";
+import { GetOptimizedImageOptions, getOptimizedImage } from "../src/get-optimized-image";
 import { fileURLToPath } from "url";
 import { existsSync } from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-describe("getSrcset function tests", () => {
+describe("getOptimizedImage function tests", () => {
   const testImagePath = path.join(
     defaultTransformOptions.publicDir!,
     "good_boy_4x5.jpg"
   );
-  const baseOptions: GetSrcsetOptions = {
+  const baseOptions: GetOptimizedImageOptions = {
     outputDir: path.join(__dirname, "public", "get_srcset"),
   };
 
-  test("should generate srcset local image file", async () => {
-    const result = await getSrcset(testImagePath, baseOptions);
+  test("should generate optimized image files", async () => {
+    const result = await getOptimizedImage(testImagePath, baseOptions);
     expect(result.images.length).toBeGreaterThan(0);
 
     result.images.forEach((img) => {

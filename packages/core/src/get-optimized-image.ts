@@ -4,7 +4,7 @@ import type { Sharp } from "sharp";
 import { getPlaceholder, GetPlaceholderOptions } from "./get-placeholder";
 import { getSharpInstance } from "./image";
 
-export interface GetSrcsetOptions {
+export interface GetOptimizedImageOptions {
   outputDir: string;
   widths?: number[];
   baseUrl?: string;
@@ -29,7 +29,7 @@ export interface ImageMeta {
   format: string;
 }
 
-export interface GetSrcsetOutput {
+export interface GetOptimizedImageOutput {
   srcset: string[];
   images: SrcsetImage[];
   placeholder: string | null;
@@ -37,10 +37,10 @@ export interface GetSrcsetOutput {
   meta: ImageMeta;
 }
 
-export const getSrcset = async (
+export const getOptimizedImage = async (
   url: string,
-  options: GetSrcsetOptions
-): Promise<GetSrcsetOutput> => {
+  options: GetOptimizedImageOptions
+): Promise<GetOptimizedImageOutput> => {
   const defaults = {
     formats: [] as string[],
     quality: 80,
