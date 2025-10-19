@@ -1,20 +1,21 @@
+import { mkdir } from "fs/promises";
+import MagicString from "magic-string";
 import { Argument, ParseResult, parseSync, Visitor } from "oxc-parser";
+import path from "path";
+import { Database } from "sqlite3";
+import { logger, LogType } from "./logger";
 import {
   getPlaceholderImage,
   PlaceholderImageType,
   PlaceholderOptions,
+  shouldWrapWithSvg,
+  wrapWithSvg,
 } from "./placeholder-image";
-import { getSharpInstance } from "./image";
-import path from "path";
-import MagicString from "magic-string";
-import { mkdir } from "fs/promises";
 import {
   getAllPlaceholderImages,
   initSqlite,
   insertPlaceholderImages,
 } from "./sqlite";
-import { logger, LogType } from "./logger";
-import { Database } from "sqlite3";
 import { Store } from "./store";
 
 export interface TransformOptions extends PlaceholderOptions {
@@ -55,9 +56,13 @@ export class Transformer {
     };
   }
 
-  async transform(code: string, filePath: string, transformConfig?: {
-    sourcemapFilePath?: string;
-  }) {
+  async transform(
+    code: string,
+    filePath: string,
+    transformConfig?: {
+      sourcemapFilePath?: string;
+    }
+  ) {
     const parsedResult = parseSync(filePath, code);
 
     const previewFnName = this.getPreviewFnName(parsedResult);
@@ -76,18 +81,26 @@ export class Transformer {
           if (cached) {
             logger.debug(`Cache hit for URL: ${call.url}`);
 
+            const placeholder = shouldWrapWithSvg(call.options)
+              ? wrapWithSvg(
+                  cached.placeholder,
+                  cached.originalWidth,
+                  cached.originalHeight
+                )
+              : cached.placeholder;
+
             return {
               ...call,
-              placeholder: cached.placeholder,
+              placeholder,
             };
           }
 
-          const { placeholder, originalHeight, originalWidth } =
+          const { placeholder, placeholderPng, originalHeight, originalWidth } =
             await getPlaceholderImage(call.url, call.options);
 
           this.store.insertItem(
             call.url,
-            placeholder,
+            placeholderPng ?? placeholder,
             originalWidth,
             originalHeight,
             call.options
