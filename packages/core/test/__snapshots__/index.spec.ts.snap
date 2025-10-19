@@ -4,13 +4,13 @@ exports[`Basic Transform Tests > ignores invalid URLs and Paths 1`] = `
 {
   "code": "import { preview } from '@nocojs/client';
 
-const img0 = "C:\\Users\\aksha\\Documents\\Projects\\lazy\\packages\\core-js\\test\\public\\invalid-url.jpg";
+const img0 = "/invalid-url.jpg";
 const img1 = "file:///invalid-path.jpg";
 const img2 = "https://example.com/invalid-image.jpg";
 const img3 = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0MDAgNTAwJyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCc+PGZpbHRlciBpZD0nYicgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSdzUkdCJz48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPScyMCcvPjxmZUNvbG9yTWF0cml4IHZhbHVlcz0nMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMSAwIDAgMCAwIDAgMTAwIC0xJyByZXN1bHQ9J3MnLz48ZmVGbG9vZCB4PScwJyB5PScwJyB3aWR0aD0nMTAwJScgaGVpZ2h0PScxMDAlJy8+PGZlQ29tcG9zaXRlIG9wZXJhdG9yPSdvdXQnIGluPSdzJy8+PGZlQ29tcG9zaXRlIGluMj0nU291cmNlR3JhcGhpYycvPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249JzIwJy8+PC9maWx0ZXI+PGltYWdlIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHg9JzAnIHk9JzAnIHByZXNlcnZlQXNwZWN0UmF0aW89J25vbmUnIHN0eWxlPSdmaWx0ZXI6IHVybCgjYik7JyBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVBDQU1BQUFEblA5NTdBQUFBNTFCTVZFWC8vL3R3cWN4Wmk2dHhOZ2E0MWZUKytONy8vZTcvL2ZQLzg5WC8rdWYvL3ZpVHR1S213K1hCMnZTMnplNTZocDlqb01WN3ByK0xsSnQraTVUSm1tMTBSU2lweWV6RjRmeWN1ZDZvdnVHMTBlMjMwT21hdytISTJlamc2ZSswdzhlWmhZQnpwY0NFZDNmczBLclc0K3cvZFpXOXh0Um1tTFJ0bXJodE94cUJWak9ZZUZtYWFqMWpMZ1orUlJmUjVQdjI1Tkg0NU0rRG1yN0swZFNXck02SXA5S0FrSytQcGNqOTU4Nm90OC96M2J0SmdxakExT1dWdk5xWnFzdTUyLytjbFpLZW5hUlZmNUtqczc3SzJPRllnNXlOVHhtVVUwUnBNUU5kTHgrcFl5eHZlbmMxSUJlZVBwQ3BBQUFBQ1hCSVdYTUFBQXNUQUFBTEV3RUFtcHdZQUFBQXFVbEVRVlI0bkQzRWhRNkNZQlJBNFF2ODRLVmJ3U0FzeXU3dTF2ZC9IcWR6ZnRzNUFIL0NKMEhJL1VDTzQzaWUvNDRIbGtXV3hkb0NFUkVRc1daWkZ3dG4vUjRNZlQvdFBCZ2oxUFVRTklveTdTdGphQ0dsUVhTSXpPVE9aUFE1cG1IWmFEeVoxNjFGMDdFTzVYWDUyR20zVzZlNlZ3ZXZzcXBrcVcwMzVWSVJpbEtwc0V1YTFmMVdJU0FUUXViQlJnMFVTWVI4WG5Ra1JaMjQwN0VJaFM2UjNZRXpVbFdqK2dacHFoRlU3c1h3andBQUFBQkpSVTVFcmtKZ2dnPT0nLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,aAAa,qFAA2B;AACxC,aAAa,0BAAmC;AAChD,aAAa,uCAAgD;AAC7D,aAAa,omDAA4B",
+    "mappings": "AAAA;;AAEA,aAAa,kBAA2B;AACxC,aAAa,0BAAmC;AAChD,aAAa,uCAAgD;AAC7D,aAAa,omDAA4B",
     "names": [],
     "sources": [
       "index.ts",
