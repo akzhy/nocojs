@@ -1,4 +1,7 @@
-import { PlaceholderImageType, PlaceholderOptions } from "./placeholder-image";
+import type {
+  PlaceholderImageType,
+  PlaceholderOptions,
+} from "./placeholder-image";
 
 type DbAction = "none" | "insert" | "update" | "delete";
 
@@ -46,7 +49,7 @@ export class Store {
     placeholder: string,
     originalWidth: number,
     originalHeight: number,
-    previewOptions: PlaceholderOptions
+    previewOptions: PlaceholderOptions,
   ): StoreDataItem {
     const cacheKey = Store.getCacheKey(url, previewOptions);
 
@@ -68,7 +71,7 @@ export class Store {
 
   getCachedPlaceholder(
     url: string,
-    previewOptions: PlaceholderOptions
+    previewOptions: PlaceholderOptions,
   ): StoreDataItem | undefined {
     const cacheKey = Store.getCacheKey(url, previewOptions);
     return this.data.get(cacheKey);

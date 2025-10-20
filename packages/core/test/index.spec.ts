@@ -1,5 +1,5 @@
-import { readFile } from "fs/promises";
-import path from "path";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { Transformer } from "../src/transform";
 import {

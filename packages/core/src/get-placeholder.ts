@@ -1,7 +1,10 @@
-import { mkdir } from "fs/promises";
-import path from "path";
-import { Database } from "sqlite3";
-import { getPlaceholderImage, PlaceholderOptions } from "./placeholder-image";
+import { mkdir } from "node:fs/promises";
+import path from "node:path";
+import type { Database } from "sqlite3";
+import {
+  getPlaceholderImage,
+  type PlaceholderOptions,
+} from "./placeholder-image";
 import {
   getPlaceholderImageByCacheKey,
   initSqlite,
@@ -16,7 +19,7 @@ export interface GetPlaceholderOptions extends PlaceholderOptions {
 
 export const getPlaceholder = async (
   url: string,
-  options: GetPlaceholderOptions
+  options: GetPlaceholderOptions,
 ) => {
   let db: Database | null = null;
   if (options.cache ?? true) {
@@ -27,7 +30,7 @@ export const getPlaceholder = async (
 
     const existing = await getPlaceholderImageByCacheKey(
       db,
-      Store.getCacheKey(url, options)
+      Store.getCacheKey(url, options),
     );
 
     if (existing) {

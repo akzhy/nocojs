@@ -1,5 +1,6 @@
-import { Database, RunResult, verbose } from "sqlite3";
+import { type Database, type RunResult, verbose } from "sqlite3";
 import { logger } from "./logger";
+
 const sqlite3 = verbose();
 
 export const initSqlite = (dbPath: string): Database => {
@@ -22,7 +23,7 @@ export const initSqlite = (dbPath: string): Database => {
         if (err) {
           console.error("Error creating placeholder_images table", err);
         }
-      }
+      },
     );
 
     db.run(
@@ -35,7 +36,7 @@ export const initSqlite = (dbPath: string): Database => {
         if (err) {
           console.error("Error creating metadata table", err);
         }
-      }
+      },
     );
   });
 
@@ -53,7 +54,7 @@ interface PlaceholderImageRow {
 
 export const insertPlaceholderImages = (
   db: Database,
-  items: PlaceholderImageRow[]
+  items: PlaceholderImageRow[],
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     const stmt = db.prepare(
@@ -65,7 +66,7 @@ export const insertPlaceholderImages = (
           reject(err);
           return;
         }
-      }
+      },
     );
 
     for (const item of items) {
@@ -79,10 +80,10 @@ export const insertPlaceholderImages = (
         (err: Error) => {
           if (err) {
             logger.error(
-              `Error inserting placeholder image for URL ${item.url}: ${err.message}`
+              `Error inserting placeholder image for URL ${item.url}: ${err.message}`,
             );
           }
-        }
+        },
       );
     }
 
@@ -97,7 +98,7 @@ export const insertPlaceholderImages = (
 };
 
 export const getAllPlaceholderImages = (
-  db: Database
+  db: Database,
 ): Promise<PlaceholderImageRow[]> => {
   return new Promise((resolve, reject) => {
     db.all(
@@ -110,14 +111,14 @@ export const getAllPlaceholderImages = (
           return;
         }
         resolve(rows as PlaceholderImageRow[]);
-      }
+      },
     );
   });
 };
 
 export const getPlaceholderImageByCacheKey = (
   db: Database,
-  cacheKey: string
+  cacheKey: string,
 ): Promise<PlaceholderImageRow | null> => {
   return new Promise((resolve, reject) => {
     db.get(
@@ -132,7 +133,7 @@ export const getPlaceholderImageByCacheKey = (
           return;
         }
         resolve(row as PlaceholderImageRow | null);
-      }
+      },
     );
   });
 };

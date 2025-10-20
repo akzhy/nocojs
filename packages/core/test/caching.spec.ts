@@ -47,7 +47,7 @@ describe("Caching should work as expected", async () => {
     await t2.postTransform();
 
     expect(
-      logs[currentTestName].filter((log) => log.includes("Cache hit")).length
+      logs[currentTestName].filter((log) => log.includes("Cache hit")).length,
     ).toBe(1);
   });
 
@@ -70,7 +70,7 @@ describe("Caching should work as expected", async () => {
     await t1.postTransform();
 
     const cacheHits = logs[currentTestName].filter((log) =>
-      log.includes("Cache hit")
+      log.includes("Cache hit"),
     ).length;
     expect(cacheHits).toBe(1);
   });
@@ -110,7 +110,6 @@ describe("Caching should work as expected", async () => {
     await t3.transform(input, "index.ts");
     await t3.postTransform();
 
-
     const t4 = new Transformer({
       ...defaultTransformOptions,
       placeholderType: "average-color",
@@ -121,7 +120,6 @@ describe("Caching should work as expected", async () => {
     await t4.preTransform();
     await t4.transform(input, "index.ts");
     await t4.postTransform();
-
 
     const t5 = new Transformer({
       ...defaultTransformOptions,
@@ -134,9 +132,9 @@ describe("Caching should work as expected", async () => {
     await t5.transform(input, "index.ts");
     await t5.postTransform();
 
-    const cacheHits = logs[currentTestName]?.filter((log) =>
-      log.includes("Cache hit")
-    ).length ?? 0;
+    const cacheHits =
+      logs[currentTestName]?.filter((log) => log.includes("Cache hit"))
+        .length ?? 0;
     expect(cacheHits).toBe(0);
   });
 });

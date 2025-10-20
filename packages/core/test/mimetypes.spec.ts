@@ -1,12 +1,12 @@
-import path from "path";
+import path from "node:path";
 import { describe, expect, test } from "vitest";
+import type { PlaceholderImageType } from "../src/placeholder-image";
 import { Transformer } from "../src/transform";
 import {
   defaultTransformOptions,
   getCacheFileDirName,
   getInput,
 } from "./utils";
-import { PlaceholderImageType } from "../src/placeholder-image";
 
 const fileTypes = ["avif", "webp", "jpg", "png", "gif"];
 const placeholderTypes: PlaceholderImageType[] = [
@@ -41,6 +41,6 @@ describe.for(fileTypes)("Process image type %s", (fileType) => {
       }
 
       expect(result).toMatchSnapshot();
-    }
+    },
   );
 });

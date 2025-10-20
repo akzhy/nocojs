@@ -1,12 +1,16 @@
-import path from "path";
-
-import sharp from "sharp";
+import path from "node:path";
 import { parseSync, Visitor } from "oxc-parser";
+import sharp from "sharp";
 import { expect } from "vitest";
-import { TransformOptions } from "../src/transform";
-import { PlaceholderOptions } from "../src/placeholder-image";
+import type { PlaceholderOptions } from "../src/placeholder-image";
+import type { TransformOptions } from "../src/transform";
 
-export const defaultTransformOptions: TransformOptions = {
+export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
+
+export const defaultTransformOptions: WithRequired<
+  TransformOptions,
+  "cacheFileDir" | "publicDir" | "logLevel"
+> = {
   cacheFileDir: path.join(import.meta.dirname, ".cache"),
   publicDir: path.join(import.meta.dirname, "public"),
   logLevel: "debug",
@@ -52,7 +56,7 @@ const img = preview("${url}"${previewOptions});`;
 export const base64ToSharpImage = (base64: string) => {
   if (base64.startsWith("data:image/svg+xml;")) {
     const base64Data = base64.substring("data:image/svg+xml;base64,".length);
-    const buffer = Buffer.from(base64Data, 'base64');
+    const buffer = Buffer.from(base64Data, "base64");
     return sharp(buffer);
   }
 
@@ -65,7 +69,7 @@ export const base64ToSharpImage = (base64: string) => {
 export const numbersAreWithinPercent = (
   num1: number,
   num2: number,
-  percent: number
+  percent: number,
 ) => {
   const diff = Math.abs(num1 - num2);
   const max = Math.max(Math.abs(num1), Math.abs(num2));
@@ -81,7 +85,7 @@ export const getDominantColor = async (image: sharp.Sharp) => {
 };
 
 export async function isImageSingleColor(
-  sharpInstance: sharp.Sharp
+  sharpInstance: sharp.Sharp,
 ): Promise<boolean> {
   const { data, info } = await sharpInstance
     .clone()
@@ -128,11 +132,11 @@ export const checkPreviewImage = (code: string): boolean => {
 export const getCacheFileDirName = (randomize = false) => {
   return (
     path.join(
-      defaultTransformOptions.cacheFileDir!,
+      defaultTransformOptions.cacheFileDir,
       expect
         .getState()
         .currentTestName?.replaceAll(" ", "_")
-        ?.replaceAll(">", "_") ?? "default"
+        ?.replaceAll(">", "_") ?? "default",
     ) + (randomize ? `_${Date.now()}` : "")
   );
 };
@@ -156,7 +160,10 @@ export function verifyPreviewCall(code: string) {
         if (firstArg && firstArg.type === "Literal") {
           const literalValue = firstArg.value;
 
-          if (typeof literalValue === "string" && literalValue.startsWith("data:")) {
+          if (
+            typeof literalValue === "string" &&
+            literalValue.startsWith("data:")
+          ) {
             imageUpdated = true;
           }
         }

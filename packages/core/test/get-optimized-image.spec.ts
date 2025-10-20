@@ -1,17 +1,20 @@
-import path, { dirname } from "path";
+import { existsSync } from "node:fs";
+import path, { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
+import {
+  type GetOptimizedImageOptions,
+  getOptimizedImage,
+} from "../src/get-optimized-image";
 import { defaultTransformOptions } from "./utils";
-import { GetOptimizedImageOptions, getOptimizedImage } from "../src/get-optimized-image";
-import { fileURLToPath } from "url";
-import { existsSync } from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 describe("getOptimizedImage function tests", () => {
   const testImagePath = path.join(
-    defaultTransformOptions.publicDir!,
-    "good_boy_4x5.jpg"
+    defaultTransformOptions.publicDir,
+    "good_boy_4x5.jpg",
   );
   const baseOptions: GetOptimizedImageOptions = {
     outputDir: path.join(__dirname, "public", "get_srcset"),

@@ -26,7 +26,7 @@ export interface GetPlaceholderImageResult {
 
 export const getPlaceholderImage = async (
   url: string,
-  options: PlaceholderOptions
+  options: PlaceholderOptions,
 ): Promise<GetPlaceholderImageResult> => {
   const sharpInstance = await getSharpInstance(url);
   const metadata = await sharpInstance.metadata();
@@ -43,7 +43,7 @@ export const getPlaceholderImage = async (
 
     return {
       placeholder: `data:image/svg+xml;base64,${Buffer.from(svg).toString(
-        "base64"
+        "base64",
       )}`,
       originalWidth: metadata.width || 0,
       originalHeight: metadata.height || 0,
@@ -57,7 +57,7 @@ export const getPlaceholderImage = async (
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${metadata.width} ${metadata.height}' width='${metadata.width}' height='${metadata.height}'><rect width='100%' height='100%' fill='rgb(${r}, ${g}, ${b})'/></svg>`;
     return {
       placeholder: `data:image/svg+xml;base64,${Buffer.from(svg).toString(
-        "base64"
+        "base64",
       )}`,
       originalWidth: metadata.width || 0,
       originalHeight: metadata.height || 0,
@@ -66,7 +66,7 @@ export const getPlaceholderImage = async (
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${metadata.width} ${metadata.height}' width='${metadata.width}' height='${metadata.height}'><rect width='100%' height='100%' fill='transparent'/></svg>`;
     return {
       placeholder: `data:image/svg+xml;base64,${Buffer.from(svg).toString(
-        "base64"
+        "base64",
       )}`,
       originalWidth: metadata.width || 0,
       originalHeight: metadata.height || 0,
@@ -88,14 +88,14 @@ export const getPlaceholderImage = async (
     } ${metadata.height}' width='${metadata.width}' height='${
       metadata.height
     }'><filter id='b' color-interpolation-filters='sRGB'><feGaussianBlur stdDeviation='${Math.round(
-      metadata.width * 0.05
+      metadata.width * 0.05,
     )}'/><feColorMatrix values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 100 -1' result='s'/><feFlood x='0' y='0' width='100%' height='100%'/><feComposite operator='out' in='s'/><feComposite in2='SourceGraphic'/><feGaussianBlur stdDeviation='${Math.round(
-      metadata.width * 0.05
+      metadata.width * 0.05,
     )}'/></filter><image width='100%' height='100%' x='0' y='0' preserveAspectRatio='none' style='filter: url(#b);' href='data:image/png;base64,${base64}'/></svg>`;
 
     return {
       placeholder: `data:image/svg+xml;base64,${Buffer.from(svg).toString(
-        "base64"
+        "base64",
       )}`,
       originalWidth: metadata.width || 0,
       originalHeight: metadata.height || 0,
@@ -107,7 +107,7 @@ export const getPlaceholderImage = async (
       placeholder: wrapWithSvg(
         `data:image/png;base64,${base64}`,
         metadata.width,
-        metadata.height
+        metadata.height,
       ),
       placeholderPng: `data:image/png;base64,${base64}`,
       originalWidth: metadata.width,

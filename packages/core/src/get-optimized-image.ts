@@ -1,7 +1,7 @@
-import { access, mkdir } from "fs/promises";
-import path from "path";
+import { access, mkdir } from "node:fs/promises";
+import path from "node:path";
 import type { Sharp } from "sharp";
-import { getPlaceholder, GetPlaceholderOptions } from "./get-placeholder";
+import { type GetPlaceholderOptions, getPlaceholder } from "./get-placeholder";
 import { getSharpInstance } from "./image";
 
 export interface GetOptimizedImageOptions {
@@ -39,7 +39,7 @@ export interface GetOptimizedImageOutput {
 
 export const getOptimizedImage = async (
   url: string,
-  options: GetOptimizedImageOptions
+  options: GetOptimizedImageOptions,
 ): Promise<GetOptimizedImageOutput> => {
   const defaults = {
     formats: [] as string[],
@@ -108,8 +108,8 @@ export const getOptimizedImage = async (
       new Set(
         validWidths
           .map((width) => Math.min(width, originalWidth))
-          .filter((width) => width > 0)
-      )
+          .filter((width) => width > 0),
+      ),
     ).sort((a, b) => a - b);
 
     if (effectiveWidths.length === 0) {
@@ -172,7 +172,7 @@ export const getOptimizedImage = async (
 
     return {
       srcset: Array.from(srcsetMap.values()).map((entries) =>
-        entries.join(", ")
+        entries.join(", "),
       ),
       images,
       placeholder,
@@ -226,7 +226,7 @@ const buildFileName = (
     height: number;
     format: string;
     originalFormat: string;
-  }
+  },
 ) => {
   let fileName = pattern
     .replace(/{name}/g, params.name)
@@ -270,6 +270,7 @@ const applyFormat = (sharpInstance: Sharp, format: string, quality: number) => {
       sharpInstance.gif();
       break;
     default:
+      // biome-ignore lint/suspicious/noExplicitAny: format with given value
       sharpInstance.toFormat(format as any, qualityOptions);
       break;
   }

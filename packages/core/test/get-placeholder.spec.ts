@@ -1,17 +1,22 @@
-import path from "path";
+import path from "node:path";
 import { describe, expect, test } from "vitest";
-import { defaultTransformOptions } from "./utils";
-import { getPlaceholder, GetPlaceholderOptions } from "../src/get-placeholder";
+import {
+  type GetPlaceholderOptions,
+  getPlaceholder,
+} from "../src/get-placeholder";
+import { defaultTransformOptions, type WithRequired } from "./utils";
 
 describe("getPlaceholder function tests", () => {
   const testImagePath = path.join(
+    // biome-ignore lint/style/noNonNullAssertion: Value defined
     defaultTransformOptions.publicDir!,
-    "good_boy_4x5.jpg"
+    "good_boy_4x5.jpg",
   );
-  const baseOptions: GetPlaceholderOptions = {
+  const baseOptions: WithRequired<GetPlaceholderOptions, "cacheFileDir"> = {
     cacheFileDir: path.join(
+      // biome-ignore lint/style/noNonNullAssertion: Value defined
       defaultTransformOptions.cacheFileDir!,
-      "get_placeholder"
+      "get_placeholder",
     ),
   };
 
@@ -37,7 +42,7 @@ describe("getPlaceholder function tests", () => {
   });
 
   describe("Caching", () => {
-    const cacheFileDir = path.join(baseOptions.cacheFileDir!, "cache_test");
+    const cacheFileDir = path.join(baseOptions.cacheFileDir, "cache_test");
     const options = {
       ...baseOptions,
       _enableLogging: true,
@@ -46,7 +51,7 @@ describe("getPlaceholder function tests", () => {
 
     test("caching should work", async () => {
       const originalLog = console.log;
-      let logs: string[] = [];
+      const logs: string[] = [];
       console.log = (...args) => {
         logs.push(args.join(" "));
         originalLog(...args);
@@ -68,7 +73,7 @@ describe("getPlaceholder function tests", () => {
       const nonExistentPath = "/non-existent.jpg";
 
       await expect(
-        getPlaceholder(nonExistentPath, baseOptions)
+        getPlaceholder(nonExistentPath, baseOptions),
       ).rejects.toThrow();
     });
 

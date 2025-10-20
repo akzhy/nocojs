@@ -1,4 +1,6 @@
+/** biome-ignore-all lint/style/noNonNullAssertion: Errors expected */
 import { describe, expect, test } from "vitest";
+import { Transformer } from "../src/transform";
 import {
   base64ToSharpImage,
   defaultTransformOptions,
@@ -8,7 +10,6 @@ import {
   isImageSingleColor,
   verifyPreviewCall,
 } from "./utils";
-import { Transformer } from "../src/transform";
 
 describe("Preview options", async () => {
   const cacheFileDir = getCacheFileDirName();
@@ -36,7 +37,7 @@ describe("Preview options", async () => {
     const widthToHeightRatio = 4 / 5;
 
     expect(metadata.height).toBe(
-      Math.floor(metadata.width / widthToHeightRatio)
+      Math.floor(metadata.width / widthToHeightRatio),
     );
   });
 

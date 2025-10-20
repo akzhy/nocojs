@@ -1,13 +1,18 @@
-import { mkdir } from "fs/promises";
+import { mkdir } from "node:fs/promises";
+import path from "node:path";
 import MagicString from "magic-string";
-import { Argument, ParseResult, parseSync, Visitor } from "oxc-parser";
-import path from "path";
-import { Database } from "sqlite3";
-import { logger, LogType } from "./logger";
+import {
+  type Argument,
+  type ParseResult,
+  parseSync,
+  Visitor,
+} from "oxc-parser";
+import type { Database } from "sqlite3";
+import { type LogLevel, logger } from "./logger";
 import {
   getPlaceholderImage,
-  PlaceholderImageType,
-  PlaceholderOptions,
+  type PlaceholderImageType,
+  type PlaceholderOptions,
   shouldWrapWithSvg,
   wrapWithSvg,
 } from "./placeholder-image";
@@ -21,7 +26,7 @@ import { Store } from "./store";
 export interface TransformOptions extends PlaceholderOptions {
   publicDir?: string;
   cacheFileDir?: string;
-  logLevel?: LogType;
+  logLevel?: LogLevel;
   sourceMapFilePath?: string;
 }
 
@@ -46,7 +51,7 @@ export class Transformer {
       ...options,
     };
 
-    logger.setLogLevel(this.options.logLevel!);
+    logger.setLogLevel(this.options.logLevel ?? "error");
   }
 
   setOptions(options: TransformOptions) {
@@ -61,7 +66,7 @@ export class Transformer {
     filePath: string,
     transformConfig?: {
       sourcemapFilePath?: string;
-    }
+    },
   ) {
     const parsedResult = parseSync(filePath, code);
 
@@ -77,7 +82,10 @@ export class Transformer {
     const processed = await Promise.allSettled(
       foundCalls.map(async (call) => {
         try {
-          const cached = this.store.getCachedPlaceholder(call.url, call.options);
+          const cached = this.store.getCachedPlaceholder(
+            call.url,
+            call.options,
+          );
           if (cached) {
             logger.debug(`Cache hit for URL: ${call.url}`);
 
@@ -85,7 +93,7 @@ export class Transformer {
               ? wrapWithSvg(
                   cached.placeholder,
                   cached.originalWidth,
-                  cached.originalHeight
+                  cached.originalHeight,
                 )
               : cached.placeholder;
 
@@ -103,7 +111,7 @@ export class Transformer {
             placeholderPng ?? placeholder,
             originalWidth,
             originalHeight,
-            call.options
+            call.options,
           );
 
           return {
@@ -117,7 +125,7 @@ export class Transformer {
             placeholder: call.originalUrl,
           };
         }
-      })
+      }),
     );
 
     const magicString = new MagicString(code);
@@ -126,14 +134,14 @@ export class Transformer {
         magicString.overwrite(
           item.value.start,
           item.value.end,
-          `"${item.value.placeholder}"`
+          `"${item.value.placeholder}"`,
         );
       }
     }
 
     const map = magicString.generateMap({
       source: filePath,
-      file: transformConfig?.sourcemapFilePath || filePath + ".map",
+      file: transformConfig?.sourcemapFilePath || `${filePath}.map`,
       includeContent: true,
     });
 
@@ -149,7 +157,8 @@ export class Transformer {
     try {
       await this.initCacheDir();
       this.database = initSqlite(
-        path.join(this.options.cacheFileDir!, "cache.db")
+        // biome-ignore lint/style/noNonNullAssertion: cacheFileDir is created in initCacheDir
+        path.join(this.options.cacheFileDir!, "cache.db"),
       );
       const existingItems = await getAllPlaceholderImages(this.database);
       this.store.initStore(
@@ -162,7 +171,7 @@ export class Transformer {
           originalHeight: item.original_height,
           originalWidth: item.original_width,
           previewType: item.preview_type as PlaceholderImageType,
-        }))
+        })),
       );
     } catch (error) {
       logger.error(`Error during pre-transform: ${error}`);
@@ -182,7 +191,7 @@ export class Transformer {
             preview_type: item.previewType,
             original_width: item.originalWidth,
             original_height: item.originalHeight,
-          }))
+          })),
         );
       }
 
@@ -223,7 +232,7 @@ export class Transformer {
 
   private visitCallExpressions(
     parserResult: ParseResult,
-    { previewFnName }: { previewFnName: string }
+    { previewFnName }: { previewFnName: string },
   ) {
     const foundCalls: {
       url: string;
@@ -248,8 +257,8 @@ export class Transformer {
             url = node.arguments[0].value;
             originalUrl = node.arguments[0].value;
 
-            if (url.startsWith("/")) {
-              url = path.join(this.options.publicDir!, url);
+            if (url.startsWith("/") && this.options.publicDir) {
+              url = path.join(this.options.publicDir, url);
             }
           }
 
@@ -297,7 +306,7 @@ export class Transformer {
           prop.value.type === "Literal"
         ) {
           const keyName = prop.key.value as keyof PlaceholderOptions;
-          if (options.hasOwnProperty(keyName)) {
+          if (Object.hasOwn(options, keyName)) {
             // @ts-expect-error
             options[keyName] = prop.value.value;
           }

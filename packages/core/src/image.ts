@@ -1,7 +1,7 @@
 import sharp from "sharp";
 
 export const getSharpInstance = async (
-  urlOrPath: string
+  urlOrPath: string,
 ): Promise<sharp.Sharp> => {
   if (urlOrPath.startsWith("http://") || urlOrPath.startsWith("https://")) {
     if (!isValidUrl(urlOrPath)) {
