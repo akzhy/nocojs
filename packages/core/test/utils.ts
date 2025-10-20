@@ -153,7 +153,10 @@ export function verifyPlaceholderCall(code: string) {
         return;
       }
 
-      if (node.callee.type === "Identifier" && node.callee.name === "placeholder") {
+      if (
+        node.callee.type === "Identifier" &&
+        node.callee.name === "placeholder"
+      ) {
         found = true;
         const firstArg = node.arguments[0];
 
