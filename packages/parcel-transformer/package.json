@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@parcel/source-map": "^2.1.1",
-    "nocojs": "*",
+    "nocojs": "^1.0.1-beta.0",
     "picomatch": "^4.0.3"
   },
   "devDependencies": {

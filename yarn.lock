@@ -1035,10 +1035,13 @@
     "@emnapi/runtime" "^1.5.0"
     "@tybys/wasm-util" "^0.10.1"
 
-"@nocojs/client@*", "@nocojs/client@^0.0.1":
+"@nocojs/parcel-transformer@^0.0.1":
   version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@nocojs/client/-/client-0.0.1.tgz#0372de877073193dac092c8513e9113a2364d048"
-  integrity sha512-yq2sABM6HO+KVieF1axGkNxrjGsnZw9M3Ub8rh1fVi2r3mZcfSZi00gRnQHfcupg7aHBnU7nrtAxStQI3FLAGw==
+  resolved "https://registry.yarnpkg.com/@nocojs/parcel-transformer/-/parcel-transformer-0.0.1.tgz#b9fb3184a770c114973055c1b17e1b960aa8dfe4"
+  integrity sha512-bWDLeB5K+j9rjLEGxOzrJmulOUWgu+m8NaWZKW77mhBThXebo8LMX9behKODi/sxHFiMJiXnR3jJvMotWpl/Fw==
+  dependencies:
+    "@parcel/source-map" "^2.1.1"
+    picomatch "^4.0.3"
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"

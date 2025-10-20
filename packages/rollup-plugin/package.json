@@ -30,7 +30,7 @@
     "format": "biome format"
   },
   "dependencies": {
-    "nocojs": "*",
+    "nocojs": "^1.0.1-beta.0",
     "picomatch": "^4.0.3"
   },
   "devDependencies": {
