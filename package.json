@@ -15,12 +15,15 @@
     "build:non-core-packages": "lerna run build --ignore '@nocojs/*example*' --ignore '*example*' --ignore '@nocojs/core' --no-bail",
     "build:core-rust": "lerna run build --scope '@nocojs/core'",
     "build:core-js": "lerna run build:js --scope '@nocojs/core'",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "biome:check": "lerna run biome:check",
+    "biome:check:changed": "lerna run biome:check -- --changed"
   },
   "dependencies": {
     "@changesets/cli": "^2.29.5"
   },
   "devDependencies": {
+    "lefthook": "^2.0.0",
     "lerna": "^8.2.3"
   }
 }
