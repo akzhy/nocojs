@@ -1,15 +1,15 @@
 # @nocojs/webpack-loader
 
-A webpack loader for [@nocojs/core](../core) that enables automatic image placeholder generation during the build process.
+Webpack loader that finds `placeholder()` calls imported from `nocojs`, generates placeholders, and inlines them while bundling.
 
 ## Installation
 
 ```bash
-npm install @nocojs/webpack-loader
-# or
-yarn add @nocojs/webpack-loader
-# or
-pnpm add @nocojs/webpack-loader
+# application dependency
+npm install nocojs
+
+# dev dependency for your webpack build
+npm install --save-dev @nocojs/webpack-loader
 ```
 
 ## Usage
@@ -42,6 +42,18 @@ module.exports = {
 };
 ```
 
+Import and use the helper in your codebase:
+
+```tsx
+import { placeholder } from 'nocojs';
+
+export function Avatar() {
+  return <img src={placeholder('/images/avatar.jpg')} alt="Avatar" />;
+}
+```
+
+The loader rewrites the call to a data URI in the emitted bundle.
+
 ### TypeScript Configuration
 
 ```javascript
@@ -67,9 +79,6 @@ module.exports = {
 };
 ```
 
-## Options
-
-The loader accepts the same options as the [@nocojs/core transform function](../core/README.md#transform-options)
 
 ## Examples
 

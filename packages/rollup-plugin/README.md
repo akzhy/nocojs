@@ -1,15 +1,15 @@
 # @nocojs/rollup-plugin
 
-A Rollup plugin for nocojs image optimization that transforms your code to optimize and lazy-load images automatically.
+Rollup/Vite plugin that scans for `placeholder()` calls imported from `nocojs`, generates placeholders (and optional cache entries) via `@nocojs/core`, and inlines the results at build time.
 
 ## Installation
 
 ```bash
-npm install @nocojs/rollup-plugin
-# or
-yarn add @nocojs/rollup-plugin
-# or
-pnpm add @nocojs/rollup-plugin
+# application dependency
+npm install nocojs
+
+# dev dependency for your build pipeline
+npm install --save-dev @nocojs/rollup-plugin
 ```
 
 ## Usage
@@ -31,6 +31,18 @@ export default {
   ]
 };
 ```
+
+In your application code import the helper from `nocojs`:
+
+```tsx
+import { placeholder } from 'nocojs';
+
+export function HeroImage() {
+  return <img src={placeholder('/images/hero.jpg')} alt="Hero" />;
+}
+```
+
+The plugin replaces the function call with a data URI during the build.
 
 ### With Custom Options
 
@@ -122,7 +134,7 @@ File patterns to exclude from processing. Supports glob patterns powered by [pic
 
 ### `placeholderType`
 - **Type:** `'normal' | 'blurred' | 'grayscale' | 'dominant-color' | 'average-color' | 'transparent'`
-- **Default:** `'normal'`
+- **Default:** `'blurred'`
 
 Type of placeholder to generate for images.
 
@@ -160,12 +172,12 @@ Log level for the transformation process.
 
 Before transformation:
 ```jsx
-import { preview } from "@nocojs/client";
+import { placeholder } from 'nocojs';
 // src/App.jsx
 function App() {
   return (
     <div>
-      <img src={preview("https://example.com/image.jpg")} alt="Example" />
+      <img src={placeholder('https://example.com/image.jpg')} alt="Example" />
     </div>
   );
 }
@@ -176,8 +188,8 @@ After transformation (conceptual):
 function App() {
   return (
     <div>
-      <img 
-        src="data:image/png;base64,..." 
+      <img
+        src="data:image/svg+xml;base64,..."
         alt="Example"
       />
     </div>
@@ -195,5 +207,5 @@ Contributions are welcome! Please read the contributing guidelines before submit
 
 ## Related
 
-- [@nocojs/core](../core) - Core transformation library
-- [@nocojs/client](../client) - Client library
+- [nocojs](../nocojs) - Public API package (`placeholder`, `getPlaceholder`, `getOptimizedImage`)
+- [@nocojs/core](../core) - Transformer and server utilities
