@@ -1,5 +1,5 @@
 // Basic example of how to use the plugin in a JavaScript project
-import { preview } from "@nocojs/client";
+import { placeholder } from "nocojs";
 
 // src/main.js
 console.log("Starting application...");
@@ -7,9 +7,9 @@ console.log("Starting application...");
 // Example component that uses images
 function createImageGallery() {
   const images = [
-    preview("https://images.unsplash.com/photo-1506905925346-21bda4d32df4"),
-    preview("https://images.unsplash.com/photo-1518837695005-2083093ee35b"),
-    preview("https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5"),
+    placeholder("https://images.unsplash.com/photo-1506905925346-21bda4d32df4"),
+    placeholder("https://images.unsplash.com/photo-1518837695005-2083093ee35b"),
+    placeholder("https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5"),
   ];
 
   const gallery = document.createElement("div");

@@ -1,23 +1,23 @@
 // Basic example of how to use the plugin in a JavaScript project
-import { preview } from "@nocojs/client";
+import { placeholder } from "nocojs";
 
 // Example component that uses images
 function createImageGallery() {
   const images = [
     {
-      preview: preview(
+      preview: placeholder(
         "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
       ),
       src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
     },
     {
-      preview: preview(
+      preview: placeholder(
         "https://images.unsplash.com/photo-1518837695005-2083093ee35b",
       ),
       src: "https://images.unsplash.com/photo-1518837695005-2083093ee35b",
     },
     {
-      preview: preview(
+      preview: placeholder(
         "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5",
       ),
       src: "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5",
