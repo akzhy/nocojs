@@ -141,6 +141,82 @@ export const getCacheFileDirName = (randomize = false) => {
   );
 };
 
+export interface ImageAssignment {
+  identifier: string;
+  value: string;
+}
+
+export const getImageAssignments = (code: string): ImageAssignment[] => {
+  return Array.from(
+    code.matchAll(/const\s+(img\d*)\s*=\s*"(.*?)";/g),
+    ([, identifier, value]) => ({
+      identifier,
+      value,
+    }),
+  );
+};
+
+export const extractImageSource = (code: string): string => {
+  const assignments = getImageAssignments(code);
+  if (assignments.length === 0) {
+    throw new Error("Placeholder assignment not found");
+  }
+
+  return assignments[0].value;
+};
+
+export const getDataUriFromCode = (code: string): string => {
+  const dataUri = extractImageSource(code);
+  if (!dataUri.startsWith("data:image")) {
+    throw new Error("Expected placeholder to be a data URI");
+  }
+
+  return dataUri;
+};
+
+export const decodeDataUri = (dataUri: string): string => {
+  const commaIndex = dataUri.indexOf(",");
+  if (commaIndex === -1) {
+    throw new Error("Invalid data URI");
+  }
+
+  return Buffer.from(dataUri.slice(commaIndex + 1), "base64").toString("utf8");
+};
+
+export const ensureSingleColorImage = async (dataUri: string) => {
+  const sharpInstance = base64ToSharpImage(dataUri);
+  const solidColor = await isImageSingleColor(sharpInstance);
+  expect(solidColor).toBe(true);
+};
+
+export const ensureGrayscaleImage = async (dataUri: string) => {
+  const sharpInstance = base64ToSharpImage(dataUri);
+  const { data, info } = await sharpInstance
+    .png()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const channels = info.channels || 1;
+  let isGrayscale = true;
+  for (let i = 0; i < data.length; i += channels) {
+    const r = data[i];
+    const g = data[i + 1] ?? r;
+    const b = data[i + 2] ?? g;
+    if (!(r === g && g === b)) {
+      isGrayscale = false;
+      break;
+    }
+  }
+
+  expect(isGrayscale).toBe(true);
+};
+
+export const ensureTransparentImage = async (dataUri: string) => {
+  const sharpInstance = base64ToSharpImage(dataUri);
+  const transparent = await isFullyTransparent(sharpInstance);
+  expect(transparent).toBe(true);
+};
+
 export function verifyPlaceholderCall(code: string) {
   const parsed = parseSync("verify-preview-call.ts", code);
 

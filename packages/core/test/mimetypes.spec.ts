@@ -3,9 +3,15 @@ import { describe, expect, test } from "vitest";
 import type { PlaceholderImageType } from "../src/placeholder-image";
 import { Transformer } from "../src/transform";
 import {
+  checkPreviewImage,
+  decodeDataUri,
   defaultTransformOptions,
+  ensureGrayscaleImage,
+  ensureSingleColorImage,
   getCacheFileDirName,
+  getDataUriFromCode,
   getInput,
+  verifyPlaceholderCall,
 } from "./utils";
 
 const fileTypes = ["avif", "webp", "jpg", "png", "gif"];
@@ -40,7 +46,25 @@ describe.for(fileTypes)("Process image type %s", (fileType) => {
         throw new Error("No transform result");
       }
 
-      expect(result).toMatchSnapshot();
+      expect(checkPreviewImage(result.code)).toBe(true);
+      const placeholderCall = verifyPlaceholderCall(result.code);
+      expect(placeholderCall.found).toBe(false);
+
+      const dataUri = getDataUriFromCode(result.code);
+      expect(dataUri.startsWith("data:image")).toBe(true);
+      const svgContent = decodeDataUri(dataUri);
+
+      if (placeholderType === "normal") {
+        expect(svgContent).toContain("<image");
+        expect(svgContent).not.toContain("feGaussianBlur");
+      } else if (placeholderType === "blurred") {
+        expect(svgContent).toContain("feGaussianBlur");
+      } else if (placeholderType === "grayscale") {
+        await ensureGrayscaleImage(dataUri);
+      } else {
+        await ensureSingleColorImage(dataUri);
+        expect(svgContent).toContain("<rect");
+      }
     },
   );
 });
