@@ -1,0 +1,34 @@
+{
+  "name": "nocojs",
+  "author": "akzhy <hi@akzhy.com>",
+  "version": "0.0.1",
+  "description": "Create optimized and placeholder images with ease",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "repository": "git@github.com:akzhy/nocojs.git",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "rolldown -c",
+    "dev": "rolldown -w -c",
+    "biome:check": "biome check",
+    "biome:check:fix": "biome check --fix",
+    "lint": "biome lint",
+    "format": "biome format"
+  },
+  "dependencies": {
+    "@nocojs/core": "*"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.6",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@types/node": "^24.7.2",
+    "lefthook": "^1.13.6",
+    "rolldown": "^1.0.0-beta.44",
+    "typescript": "^5.9.3"
+  }
+}
