@@ -1,4 +1,7 @@
-import { Transformer as NocoTransformer, TransformOptions } from "@nocojs/core";
+import {
+  Transformer as NocoTransformer,
+  type TransformOptions,
+} from "@nocojs/core";
 import { Transformer } from "@parcel/plugin";
 import SourceMapImport from "@parcel/source-map";
 import path from "path";
@@ -79,7 +82,7 @@ export default new Transformer({
       !shouldProcessFile(
         filePath,
         config.include ?? ["**/*.{js,jsx,ts,tsx,vue,svelte}"],
-        config.exclude ?? ["**/node_modules/**"]
+        config.exclude ?? ["**/node_modules/**"],
       )
     ) {
       return [asset];
@@ -127,7 +130,7 @@ export default new Transformer({
 function shouldProcessFile(
   id: string,
   include: string[],
-  exclude: string[]
+  exclude: string[],
 ): boolean {
   // Create matchers for include and exclude patterns
   const isIncluded = picomatch(include);

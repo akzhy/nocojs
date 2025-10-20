@@ -6,19 +6,19 @@ function createImageGallery() {
   const images = [
     {
       preview: preview(
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4"
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
       ),
       src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
     },
     {
       preview: preview(
-        "https://images.unsplash.com/photo-1518837695005-2083093ee35b"
+        "https://images.unsplash.com/photo-1518837695005-2083093ee35b",
       ),
       src: "https://images.unsplash.com/photo-1518837695005-2083093ee35b",
     },
     {
       preview: preview(
-        "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5"
+        "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5",
       ),
       src: "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5",
     },
@@ -46,7 +46,7 @@ function createImageGallery() {
       }
     });
 
-    img.addEventListener('mouseleave', (e) => {
+    img.addEventListener("mouseleave", (e) => {
       const target = e.target as HTMLImageElement;
       if (target.dataset.src) {
         const temp = target.dataset.src;

@@ -1,7 +1,7 @@
-import { Plugin } from "rollup";
-import { Transformer, TransformOptions } from "@nocojs/core";
+import { Transformer, type TransformOptions } from "@nocojs/core";
 import path from "path";
 import picomatch from "picomatch";
+import type { Plugin } from "rollup";
 
 export interface RollupNocoOptions
   extends Omit<TransformOptions, "publicDir" | "cacheFileDir"> {
@@ -48,7 +48,7 @@ const defaultOptions: Required<
 function shouldProcessFile(
   id: string,
   include: string[],
-  exclude: string[]
+  exclude: string[],
 ): boolean {
   // Create matchers for include and exclude patterns
   const isIncluded = picomatch(include);
@@ -73,7 +73,9 @@ function shouldProcessFile(
  * @param options - Plugin configuration options
  * @returns Rollup plugin instance
  */
-async function rollupNocoPlugin(options: RollupNocoOptions = {}): Promise<Plugin> {
+async function rollupNocoPlugin(
+  options: RollupNocoOptions = {},
+): Promise<Plugin> {
   const {
     include = defaultOptions.include,
     exclude = defaultOptions.exclude,
@@ -127,7 +129,7 @@ async function rollupNocoPlugin(options: RollupNocoOptions = {}): Promise<Plugin
     },
     async buildEnd() {
       await nocoTransformer.postTransform({ closeDb: true });
-    }
+    },
   };
 }
 

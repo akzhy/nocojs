@@ -1,6 +1,6 @@
-import { Transformer, TransformOptions } from "@nocojs/core";
+import { Transformer, type TransformOptions } from "@nocojs/core";
 import path from "path";
-import { LoaderContext } from "webpack";
+import type { LoaderContext } from "webpack";
 
 export interface NocoLoaderOptions
   extends Omit<TransformOptions, "publicDir" | "cacheFileDir"> {
@@ -25,7 +25,7 @@ let transformer: Transformer | null = null;
 export default async function nocoLoader(
   this: LoaderContext<NocoLoaderOptions>,
   source: string,
-  sourceMap: string
+  sourceMap: string,
 ) {
   const callback = this.async();
 
