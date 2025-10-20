@@ -12,9 +12,6 @@
   "scripts": {
     "build:all": "lerna run build",
     "build:packages": "lerna run build --ignore '@nocojs/*example*' --ignore '*example*'",
-    "build:non-core-packages": "lerna run build --ignore '@nocojs/*example*' --ignore '*example*' --ignore '@nocojs/core' --no-bail",
-    "build:core-rust": "lerna run build --scope '@nocojs/core'",
-    "build:core-js": "lerna run build:js --scope '@nocojs/core'",
     "changeset": "changeset",
     "biome:check": "lerna run biome:check",
     "biome:check:fix": "lerna run biome:check -- --fix",
