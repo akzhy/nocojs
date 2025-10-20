@@ -70,13 +70,13 @@ export class Transformer {
   ) {
     const parsedResult = parseSync(filePath, code);
 
-    const previewFnName = this.getPreviewFnName(parsedResult);
-    if (!previewFnName) {
+    const placeholderFnName = this.getPlaceholderFnName(parsedResult);
+    if (!placeholderFnName) {
       return null;
     }
 
     const foundCalls = this.visitCallExpressions(parsedResult, {
-      previewFnName,
+      previewFnName: placeholderFnName,
     });
 
     const processed = await Promise.allSettled(
@@ -214,14 +214,14 @@ export class Transformer {
     }
   }
 
-  private getPreviewFnName(parseResult: ParseResult): string | null {
+  private getPlaceholderFnName(parseResult: ParseResult): string | null {
     for (const importDecl of parseResult.module.staticImports) {
-      if (importDecl.moduleRequest.value !== "@nocojs/client") {
+      if (importDecl.moduleRequest.value !== "nocojs") {
         continue;
       }
 
       for (const specifier of importDecl.entries) {
-        if (specifier.importName.name === "preview") {
+        if (specifier.importName.name === "placeholder") {
           return specifier.localName.value;
         }
       }

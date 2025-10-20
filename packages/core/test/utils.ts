@@ -23,34 +23,34 @@ interface GetInputProps {
 
 export const getInput = (props?: GetInputProps | GetInputProps[]): string => {
   if (Array.isArray(props)) {
-    const previewStatements = props
+    const placeholderStatements = props
       .map((prop, i) => {
-        const previewOptions = prop?.previewOptions
+        const placeholderOptions = prop?.previewOptions
           ? `, ${JSON.stringify(prop.previewOptions)}`
           : "";
         const url =
           prop?.url ||
           "https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg";
 
-        return `const img${i} = preview("${url}"${previewOptions});`;
+        return `const img${i} = placeholder("${url}"${placeholderOptions});`;
       })
       .join("\n");
 
-    return `import { preview } from '@nocojs/client';
+    return `import { placeholder } from 'nocojs';
 
-${previewStatements}`;
+${placeholderStatements}`;
   }
 
-  const previewOptions = props?.previewOptions
+  const placeholderOptions = props?.previewOptions
     ? `, ${JSON.stringify(props.previewOptions)}`
     : "";
   const url =
     props?.url ||
     "https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg";
 
-  return `import { preview } from '@nocojs/client';
+  return `import { placeholder } from 'nocojs';
 
-const img = preview("${url}"${previewOptions});`;
+const img = placeholder("${url}"${placeholderOptions});`;
 };
 
 export const base64ToSharpImage = (base64: string) => {
@@ -141,7 +141,7 @@ export const getCacheFileDirName = (randomize = false) => {
   );
 };
 
-export function verifyPreviewCall(code: string) {
+export function verifyPlaceholderCall(code: string) {
   const parsed = parseSync("verify-preview-call.ts", code);
 
   let found = false;
@@ -153,7 +153,7 @@ export function verifyPreviewCall(code: string) {
         return;
       }
 
-      if (node.callee.type === "Identifier" && node.callee.name === "preview") {
+      if (node.callee.type === "Identifier" && node.callee.name === "placeholder") {
         found = true;
         const firstArg = node.arguments[0];
 

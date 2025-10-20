@@ -8,7 +8,7 @@ import {
   getInput,
   isFullyTransparent,
   isImageSingleColor,
-  verifyPreviewCall,
+  verifyPlaceholderCall,
 } from "./utils";
 
 describe("Preview options", async () => {
@@ -263,7 +263,7 @@ describe("Preview options", async () => {
     const imageSrc = result!.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
 
-    const { found } = verifyPreviewCall(result!.code);
+    const { found } = verifyPlaceholderCall(result!.code);
     expect(found).toBe(false);
   });
 
@@ -287,7 +287,8 @@ describe("Preview options", async () => {
     const imageSrc = result!.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
 
-    const { found, imageUpdated } = verifyPreviewCall(result!.code);
+    console.log(result!.code);
+    const { found, imageUpdated } = verifyPlaceholderCall(result!.code);
 
     expect(found).toBe(true);
     expect(imageUpdated).toBe(true);

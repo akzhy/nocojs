@@ -2,20 +2,20 @@
 
 exports[`Process image type avif > placeholderType - average-color 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbGw9J3JnYigxOTEsIDE5NSwgMTk3KScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gPAAyB",
+    "mappings": "AAAA;;AAEA,YAAY,gPAA6B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.avif");",
+const img = placeholder("/good_boy.avif");",
     ],
     "version": 3,
   },
@@ -24,20 +24,20 @@ const img = preview("/good_boy.avif");",
 
 exports[`Process image type avif > placeholderType - blurred 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxmaWx0ZXIgaWQ9J2InIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0nc1JHQic+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0nMTI5Jy8+PGZlQ29sb3JNYXRyaXggdmFsdWVzPScxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxMDAgLTEnIHJlc3VsdD0ncycvPjxmZUZsb29kIHg9JzAnIHk9JzAnIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnLz48ZmVDb21wb3NpdGUgb3BlcmF0b3I9J291dCcgaW49J3MnLz48ZmVDb21wb3NpdGUgaW4yPSdTb3VyY2VHcmFwaGljJy8+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0nMTI5Jy8+PC9maWx0ZXI+PGltYWdlIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHg9JzAnIHk9JzAnIHByZXNlcnZlQXNwZWN0UmF0aW89J25vbmUnIHN0eWxlPSdmaWx0ZXI6IHVybCgjYik7JyBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBODFCTVZFWC8vLy8rK3VuLzg5Yi8vdmYvL3ZSc283LzIrLy8vLy92OS92NzYvZi8rL08zLzl0dXowZTZvd3VQQTIvcisrdUd5eDlITDNldG5tN1o0cHIxZWtiQzQxZksvMXVkTGZaUnZOdzZobVpxMnllR0ljV1NmditLSm1ibjA0Yy9RNHU5VWhaOTRyY2w5ZDRMWDVPN0VsMnA4bTZoM1FUWkNJUkowUVJXUGFVbTh6ZDJhdE5wOVpWZDFSeUo5Ym1EUDZQNlVxODEyZ0ptbHFyanU0TkwyNU1UcjFMSC83Tmp4MXJhbHc4K09yZGpWcjQrNjFQU0tpWmVLVUNKNFpGR2Z2TXlQdDlCbUxnR1pWaTVkS2dLTm9hWnJpcENHZUdPY2dHRnJQeHlwdDlXR2lweGxVVCtPajV0c1hsMnN1Y3hpWUcyam9LcDVUMXdNQUFBQUNYQklXWE1BQUFQb0FBQUQ2QUcxZTFKckFBQUF3VWxFUVZSNG5EWEhoWExDVUFCRTBjMFRraEIzUnhQY3BWNmtoYnI4Lzk5MFF1SE0zSmxkU1BKSnBRUUowajlabG5GeS91VVVMeUNLbEZMS0dHV01nVEZXRllReVFZQmhLSWFockZlRUVBVUtJZGQ1L25oM1Zhc3RZWm8zay9BcExHeUhjM0RlZERxZDNvRTNIUTQ3Q0k1djNmQWxhTGdOdUxaYjlMcjcxOTNXSEtCdStYNS8vTnh2dDYwNkxEK2VSdU5vRkt1cUI4OVQ5WjlFYTBYM1dncE5UVk10bm1mdnM5c2g5S211RDdOWk52OTRhR0d3V0h6OWZrOCtrOUVtK1FOYi94UlVxZlA2M2dBQUFBQkpSVTVFcmtKZ2dnPT0nLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,4qDAAyB",
+    "mappings": "AAAA;;AAEA,YAAY,4qDAA6B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.avif");",
+const img = placeholder("/good_boy.avif");",
     ],
     "version": 3,
   },
@@ -46,20 +46,20 @@ const img = preview("/good_boy.avif");",
 
 exports[`Process image type avif > placeholderType - dominant-color 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbGw9J3JnYigyNDgsIDI0OCwgMjQ4KScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gPAAyB",
+    "mappings": "AAAA;;AAEA,YAAY,gPAA6B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.avif");",
+const img = placeholder("/good_boy.avif");",
     ],
     "version": 3,
   },
@@ -68,20 +68,20 @@ const img = preview("/good_boy.avif");",
 
 exports[`Process image type avif > placeholderType - grayscale 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxpbWFnZSBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBUzFCTVZFWC8vLy8xOWZXZm41L0R3OFBqNCtOOWZYM1IwZEg5L2YzNit2cWFtcHAwZEhTS2lvcTF0YlZtWm1aRlJVVlNVbExLeXNxcXFxclgxOWVUazVQYzNOeTh2THlpb3FJdUxpN3M3T3dVZmV2SkFBQUFDWEJJV1hNQUFBUG9BQUFENkFHMWUxSnJBQUFBamtsRVFWUjRuRjJNU1JLRU1Bd0RIU2QyWW1mZmdQKy9kQW9vTHRPM1Zra0MveEFlNE9ZTnZIL2tzei81T3JlODYvY0NRakRCbStHTU1RYUNNZXZBbkM3bkhGaHJ0ZVFpZ29LQWNoeTFGc1NPQXBNMGxyT1FVaVNJTTg1NmxwaVNiYkFHczlaVG5Wc0xGamNuVmJMbHhzRE1JK2ttWkx2QnRyMXRJMG05SnhqWEdrbTZVSXdFcmZlWnMxYk5tWDduQ3dlMnoycEprQUFBQUFCSlJVNUVya0pnZ2c9PScgd2lkdGg9JzI1NzYnIGhlaWdodD0nMzg1OScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,4xBAAyB",
+    "mappings": "AAAA;;AAEA,YAAY,4xBAA6B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.avif");",
+const img = placeholder("/good_boy.avif");",
     ],
     "version": 3,
   },
@@ -90,20 +90,20 @@ const img = preview("/good_boy.avif");",
 
 exports[`Process image type avif > placeholderType - normal 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxpbWFnZSBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBODFCTVZFWC8vLy8rK3VuLzg5Yi8vdmYvL3ZSc283LzIrLy8vLy92OS92NzYvZi8rL08zLzl0dXowZTZvd3VQQTIvcisrdUd5eDlITDNldG5tN1o0cHIxZWtiQzQxZksvMXVkTGZaUnZOdzZobVpxMnllR0ljV1NmditLSm1ibjA0Yy9RNHU5VWhaOTRyY2w5ZDRMWDVPN0VsMnA4bTZoM1FUWkNJUkowUVJXUGFVbTh6ZDJhdE5wOVpWZDFSeUo5Ym1EUDZQNlVxODEyZ0ptbHFyanU0TkwyNU1UcjFMSC83Tmp4MXJhbHc4K09yZGpWcjQrNjFQU0tpWmVLVUNKNFpGR2Z2TXlQdDlCbUxnR1pWaTVkS2dLTm9hWnJpcENHZUdPY2dHRnJQeHlwdDlXR2lweGxVVCtPajV0c1hsMnN1Y3hpWUcyam9LcDVUMXdNQUFBQUNYQklXWE1BQUFQb0FBQUQ2QUcxZTFKckFBQUF3VWxFUVZSNG5EWEhoWExDVUFCRTBjMFRraEIzUnhQY3BWNmtoYnI4Lzk5MFF1SE0zSmxkU1BKSnBRUUowajlabG5GeS91VVVMeUNLbEZMS0dHV01nVEZXRllReVFZQmhLSWFockZlRUVBVUtJZGQ1L25oM1Zhc3RZWm8zay9BcExHeUhjM0RlZERxZDNvRTNIUTQ3Q0k1djNmQWxhTGdOdUxaYjlMcjcxOTNXSEtCdStYNS8vTnh2dDYwNkxEK2VSdU5vRkt1cUI4OVQ5WjlFYTBYM1dncE5UVk10bm1mdnM5c2g5S211RDdOWk52OTRhR0d3V0h6OWZrOCtrOUVtK1FOYi94UlVxZlA2M2dBQUFBQkpSVTVFcmtKZ2dnPT0nIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gqCAAyB",
+    "mappings": "AAAA;;AAEA,YAAY,gqCAA6B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.avif");",
+const img = placeholder("/good_boy.avif");",
     ],
     "version": 3,
   },
@@ -112,20 +112,20 @@ const img = preview("/good_boy.avif");",
 
 exports[`Process image type gif > placeholderType - average-color 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbGw9J3JnYigxOTEsIDE5NSwgMTk3KScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gPAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,gPAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.gif");",
+const img = placeholder("/good_boy.gif");",
     ],
     "version": 3,
   },
@@ -134,20 +134,20 @@ const img = preview("/good_boy.gif");",
 
 exports[`Process image type gif > placeholderType - blurred 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxmaWx0ZXIgaWQ9J2InIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0nc1JHQic+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0nMTI5Jy8+PGZlQ29sb3JNYXRyaXggdmFsdWVzPScxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxMDAgLTEnIHJlc3VsdD0ncycvPjxmZUZsb29kIHg9JzAnIHk9JzAnIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnLz48ZmVDb21wb3NpdGUgb3BlcmF0b3I9J291dCcgaW49J3MnLz48ZmVDb21wb3NpdGUgaW4yPSdTb3VyY2VHcmFwaGljJy8+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0nMTI5Jy8+PC9maWx0ZXI+PGltYWdlIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHg9JzAnIHk9JzAnIHByZXNlcnZlQXNwZWN0UmF0aW89J25vbmUnIHN0eWxlPSdmaWx0ZXI6IHVybCgjYik7JyBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBM2xCTVZFWDkvZi8vOXR5NTF2UC8vZS80L1AvKyt1ci84dGY3L2YvKy92di8vdmZ6NGMxc29MdlAzKzV3T1JDejBPMkZjV0dveE9QRTN2ci8vZlgrK3VSMFFodTR6ZUoxUkRDMnlOcW92TkNmd09KOFpscUptN2kweGMxeXBjRm5tYlNTdE50cnBNTllpNlpmbExONXE4bDhwTHA5ZUlGVGdaaSsxZWpYNVBCK21xaEllNWFRc2M1aExBSkNJUktobXAyUWFVcHpZRmVLalp1bHFyanIwN0tNZFdyRzJlbngxcmZWcjQ3Q21IQ0pVU0tLaXBhZnZNeU9vS2ZFbFdtV1dTN0IxdWVjZ0dKcmg1SjBmNVdmbDVSM2hKdlU2LzVqWVcyZHRkT1hyc3huVGtBV3p1OFFBQUFBQ1hCSVdYTUFBQVBvQUFBRDZBRzFlMUpyQUFBQXMwbEVRVlI0bkdYSDFRN0NRQUJFMGRsQ0YycGJkNkFGaXJ1NysvLy9FS0Y5NUNTVHlVVWhsVThoaTh4L0FNWFU3d1JCTUZJd2pGeU81My9qZVpnbUlTYVppWlJTQWtMcGNuM1lyS2dvaWlpVlBGVTVLaDBwa2NxSXBUaHhIR1VmMThzU0tzM3V4Um9vYXJkWnJhSldxWFdzUWYvYzI3azI1RVhyTkxMNm8zWmJsaUczYlAzbURBT1hNUTRjWTdxbmFvMGhwL25RbU85cjlqMzBlbEVFN3FIcnIvQWRYaWZiQnR6cGRQSWNCeDgxR00rL1BmOFRFUTlPQlY4QUFBQUFTVVZPUks1Q1lJST0nLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,4mDAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,4mDAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.gif");",
+const img = placeholder("/good_boy.gif");",
     ],
     "version": 3,
   },
@@ -156,20 +156,20 @@ const img = preview("/good_boy.gif");",
 
 exports[`Process image type gif > placeholderType - dominant-color 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbGw9J3JnYigyNDgsIDI0OCwgMjQ4KScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gPAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,gPAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.gif");",
+const img = placeholder("/good_boy.gif");",
     ],
     "version": 3,
   },
@@ -178,20 +178,20 @@ const img = preview("/good_boy.gif");",
 
 exports[`Process image type gif > placeholderType - grayscale 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxpbWFnZSBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBVGxCTVZFWDgvUHk3dTd2ajQrTjlmWDJhbXBxZW5wN1cxdGIrL3Y3TnpjMzI5dmJEdzhObVptYmQzZDJJaUloU1VsS3JxNnVRa0pCSVNFaDJkbmFob2FHMHRMUnhjWEU1T1RucjYrc3RMUzBwS1NuaXNJZjdBQUFBQ1hCSVdYTUFBQVBvQUFBRDZBRzFlMUpyQUFBQWhVbEVRVlI0bkhXS1d3cENNUXdGa3phTlNacStlNis2LzQyS3FDQ0ljejRPREFQd244dDczK3JKYjZtZlNsVVZsTVByVlgybHZLOGhCRERET2ZJZ1NwUWcwVnExamtSdEVmUjVsSEViY2NZU29mZE85WDZXalNiZ3pEenJlUVIzQnhkeHFwUk5SRUJFR0NmR3hJWmdnbWhTQ0Z2YndGZm5UWTFpS1JHc3RaN3pVWStjNHdQL1BnWXN1QmFFUVFBQUFBQkpSVTVFcmtKZ2dnPT0nIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gxBAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,gxBAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.gif");",
+const img = placeholder("/good_boy.gif");",
     ],
     "version": 3,
   },
@@ -200,20 +200,20 @@ const img = preview("/good_boy.gif");",
 
 exports[`Process image type gif > placeholderType - normal 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxpbWFnZSBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBM2xCTVZFWDkvZi8vOXR5NTF2UC8vZS80L1AvKyt1ci84dGY3L2YvKy92di8vdmZ6NGMxc29MdlAzKzV3T1JDejBPMkZjV0dveE9QRTN2ci8vZlgrK3VSMFFodTR6ZUoxUkRDMnlOcW92TkNmd09KOFpscUptN2kweGMxeXBjRm5tYlNTdE50cnBNTllpNlpmbExONXE4bDhwTHA5ZUlGVGdaaSsxZWpYNVBCK21xaEllNWFRc2M1aExBSkNJUktobXAyUWFVcHpZRmVLalp1bHFyanIwN0tNZFdyRzJlbngxcmZWcjQ3Q21IQ0pVU0tLaXBhZnZNeU9vS2ZFbFdtV1dTN0IxdWVjZ0dKcmg1SjBmNVdmbDVSM2hKdlU2LzVqWVcyZHRkT1hyc3huVGtBV3p1OFFBQUFBQ1hCSVdYTUFBQVBvQUFBRDZBRzFlMUpyQUFBQXMwbEVRVlI0bkdYSDFRN0NRQUJFMGRsQ0YycGJkNkFGaXJ1NysvLy9FS0Y5NUNTVHlVVWhsVThoaTh4L0FNWFU3d1JCTUZJd2pGeU81My9qZVpnbUlTYVppWlJTQWtMcGNuM1lyS2dvaWlpVlBGVTVLaDBwa2NxSXBUaHhIR1VmMThzU0tzM3V4Um9vYXJkWnJhSldxWFdzUWYvYzI3azI1RVhyTkxMNm8zWmJsaUczYlAzbURBT1hNUTRjWTdxbmFvMGhwL25RbU85cjlqMzBlbEVFN3FIcnIvQWRYaWZiQnR6cGRQSWNCeDgxR00rL1BmOFRFUTlPQlY4QUFBQUFTVVZPUks1Q1lJST0nIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gmCAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,gmCAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.gif");",
+const img = placeholder("/good_boy.gif");",
     ],
     "version": 3,
   },
@@ -222,20 +222,20 @@ const img = preview("/good_boy.gif");",
 
 exports[`Process image type jpg > placeholderType - average-color 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbGw9J3JnYigxOTEsIDE5NSwgMTk3KScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gPAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,gPAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.jpg");",
+const img = placeholder("/good_boy.jpg");",
     ],
     "version": 3,
   },
@@ -244,20 +244,20 @@ const img = preview("/good_boy.jpg");",
 
 exports[`Process image type jpg > placeholderType - blurred 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxmaWx0ZXIgaWQ9J2InIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0nc1JHQic+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0nMTI5Jy8+PGZlQ29sb3JNYXRyaXggdmFsdWVzPScxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxMDAgLTEnIHJlc3VsdD0ncycvPjxmZUZsb29kIHg9JzAnIHk9JzAnIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnLz48ZmVDb21wb3NpdGUgb3BlcmF0b3I9J291dCcgaW49J3MnLz48ZmVDb21wb3NpdGUgaW4yPSdTb3VyY2VHcmFwaGljJy8+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0nMTI5Jy8+PC9maWx0ZXI+PGltYWdlIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHg9JzAnIHk9JzAnIHByZXNlcnZlQXNwZWN0UmF0aW89J25vbmUnIHN0eWxlPSdmaWx0ZXI6IHVybCgjYik7JyBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBNTFCTVZFWDcvZjc0L1A5cW9NQzJ5ZUQvL2ZiKyt1ci85ZGYrL3YzLy8vLy8vL3IrK04vTTN1NnowdkdjdnVTKzIvdjIrdjcvL2ZIdzRNNy83OVM5MU9oZGtMRjlaMWFpdk01NFBBNXdncGlKYzJDSW1icXh4TTFzcGNpUHN0OWRrN2kyMC9WMXJNMllmR1RYNU85T2ZKYXd6dTJYVmlONWw2ZVZiRWlkbHBSOFNodDFRUmZONS82bXcrZDFTUzlFSXhGQWRKTjhiVjZVck5DanR0ZUpqWjFtWG1La3E3bDRlSVoycGNCUWhLYjM1TVBEMmVuczFiSHoyTFNxdzlUWXNJdUtpcGZGbW15bG5xV0NkMzJPdXRuR2xtVnFMd0NIbktSL283TmtMQUNIUmplcXZ0NXFWVUptbWJwK3FYYjJBQUFBQ1hCSVdYTUFBQXNUQUFBTEV3RUFtcHdZQUFBQXUwbEVRVlI0bkRYSUJRN0NRQUJFMGVtVzNWS0Z1aURGM2QzZHVmOTl5RUo0eVNTVER3QVFCQ0hGUVpJa2lZZXZKTWNMajc4bmYwR1c1Y1FmRXVrMHBaU1BVbEJGVVJTMlhqTEdHSmhsYlE2WDZzNHlUUk9aakRmd3E2MGFtUk9DTENuY3UwLy9SZ3BaQXFmY0QxbzlQK3lYblFYeWVhZlc3RjJMWjI4clFsM1pkcjM1cUpkS3FnclZGdHVOYnNOOWFWb01UYXNZWHZnNkhXTmRSNmVpNngweGlFYkRYQTVHMnpCRzBUQUt4dnNaeE9sMFBKa00zcUhyRmo5MkNoTzhqRWVhYlFBQUFBQkpSVTVFcmtKZ2dnPT0nLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,4oDAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,4oDAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.jpg");",
+const img = placeholder("/good_boy.jpg");",
     ],
     "version": 3,
   },
@@ -266,20 +266,20 @@ const img = preview("/good_boy.jpg");",
 
 exports[`Process image type jpg > placeholderType - dominant-color 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbGw9J3JnYigyNDgsIDI0OCwgMjQ4KScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gPAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,gPAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.jpg");",
+const img = placeholder("/good_boy.jpg");",
     ],
     "version": 3,
   },
@@ -288,20 +288,20 @@ const img = preview("/good_boy.jpg");",
 
 exports[`Process image type jpg > placeholderType - grayscale 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxpbWFnZSBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBVGxCTVZFWC8vLy9RME5EMTlmV2hvYUhaMmRuNysvdTN0N2Y5L2YyYW1wcjUrZm5Bd01CM2QzZmk0dUtLaW9wL2YzL0p5Y2x0YlcxV1ZsWk5UVTJxcXFycDZlbVFrSkJoWVdFOFBEd3ZMeThxS2lxY2RnUlJBQUFBQ1hCSVdYTUFBQXNUQUFBTEV3RUFtcHdZQUFBQWpFbEVRVlI0bkYyTVNSTERJQXdFSlZDRWtOanhrdnovb3lsc245eTNudW9hQ09HemlBc0lOOWNDRjgveWtydTZaZFV4d3ZVQTBia1lIRzNPT2JlRXZEOTRTeW1CcXRwb1E4U0xnQmZ2ZTM4a1d5dmpPMHF6WENEdmVlKy9Nek5yQlNKRTY2ZWxSQVNFTlVtWHBvZ0lpSlhZdEhoVUJxMnJMc0p6TXRCR3hES2w1R3hRNTl5UG8zVnJyZndCNUxrSGhyQVVBVUVBQUFBQVNVVk9SSzVDWUlJPScgd2lkdGg9JzI1NzYnIGhlaWdodD0nMzg1OScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,4xBAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,4xBAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.jpg");",
+const img = placeholder("/good_boy.jpg");",
     ],
     "version": 3,
   },
@@ -310,20 +310,20 @@ const img = preview("/good_boy.jpg");",
 
 exports[`Process image type jpg > placeholderType - normal 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxpbWFnZSBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBNTFCTVZFWDcvZjc0L1A5cW9NQzJ5ZUQvL2ZiKyt1ci85ZGYrL3YzLy8vLy8vL3IrK04vTTN1NnowdkdjdnVTKzIvdjIrdjcvL2ZIdzRNNy83OVM5MU9oZGtMRjlaMWFpdk01NFBBNXdncGlKYzJDSW1icXh4TTFzcGNpUHN0OWRrN2kyMC9WMXJNMllmR1RYNU85T2ZKYXd6dTJYVmlONWw2ZVZiRWlkbHBSOFNodDFRUmZONS82bXcrZDFTUzlFSXhGQWRKTjhiVjZVck5DanR0ZUpqWjFtWG1La3E3bDRlSVoycGNCUWhLYjM1TVBEMmVuczFiSHoyTFNxdzlUWXNJdUtpcGZGbW15bG5xV0NkMzJPdXRuR2xtVnFMd0NIbktSL283TmtMQUNIUmplcXZ0NXFWVUptbWJwK3FYYjJBQUFBQ1hCSVdYTUFBQXNUQUFBTEV3RUFtcHdZQUFBQXUwbEVRVlI0bkRYSUJRN0NRQUJFMGVtVzNWS0Z1aURGM2QzZHVmOTl5RUo0eVNTVER3QVFCQ0hGUVpJa2lZZXZKTWNMajc4bmYwR1c1Y1FmRXVrMHBaU1BVbEJGVVJTMlhqTEdHSmhsYlE2WDZzNHlUUk9aakRmd3E2MGFtUk9DTENuY3UwLy9SZ3BaQXFmY0QxbzlQK3lYblFYeWVhZlc3RjJMWjI4clFsM1pkcjM1cUpkS3FnclZGdHVOYnNOOWFWb01UYXNZWHZnNkhXTmRSNmVpNngweGlFYkRYQTVHMnpCRzBUQUt4dnNaeE9sMFBKa00zcUhyRmo5MkNoTzhqRWVhYlFBQUFBQkpSVTVFcmtKZ2dnPT0nIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,goCAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,goCAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.jpg");",
+const img = placeholder("/good_boy.jpg");",
     ],
     "version": 3,
   },
@@ -332,20 +332,20 @@ const img = preview("/good_boy.jpg");",
 
 exports[`Process image type png > placeholderType - average-color 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbGw9J3JnYigxOTEsIDE5NSwgMTk3KScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gPAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,gPAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.png");",
+const img = placeholder("/good_boy.png");",
     ],
     "version": 3,
   },
@@ -354,20 +354,20 @@ const img = preview("/good_boy.png");",
 
 exports[`Process image type png > placeholderType - blurred 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxmaWx0ZXIgaWQ9J2InIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0nc1JHQic+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0nMTI5Jy8+PGZlQ29sb3JNYXRyaXggdmFsdWVzPScxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxMDAgLTEnIHJlc3VsdD0ncycvPjxmZUZsb29kIHg9JzAnIHk9JzAnIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnLz48ZmVDb21wb3NpdGUgb3BlcmF0b3I9J291dCcgaW49J3MnLz48ZmVDb21wb3NpdGUgaW4yPSdTb3VyY2VHcmFwaGljJy8+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0nMTI5Jy8+PC9maWx0ZXI+PGltYWdlIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHg9JzAnIHk9JzAnIHByZXNlcnZlQXNwZWN0UmF0aW89J25vbmUnIHN0eWxlPSdmaWx0ZXI6IHVybCgjYik7JyBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBODFCTVZFWC8vLy8rK3VuLzg5Yi8vdmYvL3ZSc283LzIrLy8vLy92OS92NzYvZi8rL08zLzl0dXowZTZvd3VQQTIvcisrdUd5eDlITDNldG5tN1o0cHIxZWtiQzQxZksvMXVkTGZaUnZOdzZobVpxMnllR0ljV1NmditLSm1ibjA0Yy9RNHU5VWhaOTRyY2w5ZDRMWDVPN0VsMnA4bTZoM1FUWkNJUkowUVJXUGFVbTh6ZDJhdE5wOVpWZDFSeUo5Ym1EUDZQNlVxODEyZ0ptbHFyanU0TkwyNU1UcjFMSC83Tmp4MXJhbHc4K09yZGpWcjQrNjFQU0tpWmVLVUNKNFpGR2Z2TXlQdDlCbUxnR1pWaTVkS2dLTm9hWnJpcENHZUdPY2dHRnJQeHlwdDlXR2lweGxVVCtPajV0c1hsMnN1Y3hpWUcyam9LcDVUMXdNQUFBQUNYQklXWE1BQUFzVEFBQUxFd0VBbXB3WUFBQUF3VWxFUVZSNG5EWEhoWExDVUFCRTBjMFRraEIzUnhQY3BWNmtoYnI4Lzk5MFF1SE0zSmxkU1BKSnBRUUowajlabG5GeS91VVVMeUNLbEZMS0dHV01nVEZXRllReVFZQmhLSWFockZlRUVBVUtJZGQ1L25oM1Zhc3RZWm8zay9BcExHeUhjM0RlZERxZDNvRTNIUTQ3Q0k1djNmQWxhTGdOdUxaYjlMcjcxOTNXSEtCdStYNS8vTnh2dDYwNkxEK2VSdU5vRkt1cUI4OVQ5WjlFYTBYM1dncE5UVk10bm1mdnM5c2g5S211RDdOWk52OTRhR0d3V0h6OWZrOCtrOUVtK1FOYi94UlVxZlA2M2dBQUFBQkpSVTVFcmtKZ2dnPT0nLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,4qDAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,4qDAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.png");",
+const img = placeholder("/good_boy.png");",
     ],
     "version": 3,
   },
@@ -376,20 +376,20 @@ const img = preview("/good_boy.png");",
 
 exports[`Process image type png > placeholderType - dominant-color 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbGw9J3JnYigyNDgsIDI0OCwgMjQ4KScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gPAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,gPAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.png");",
+const img = placeholder("/good_boy.png");",
     ],
     "version": 3,
   },
@@ -398,20 +398,20 @@ const img = preview("/good_boy.png");",
 
 exports[`Process image type png > placeholderType - grayscale 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxpbWFnZSBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBUzFCTVZFWC8vLy8xOWZXZm41L0R3OFBqNCtOOWZYM1IwZEg5L2YzNit2cWFtcHAwZEhTS2lvcTF0YlZtWm1aRlJVVlNVbExLeXNxcXFxclgxOWVUazVQYzNOeTh2THlpb3FJdUxpN3M3T3dVZmV2SkFBQUFDWEJJV1hNQUFBc1RBQUFMRXdFQW1wd1lBQUFBamtsRVFWUjRuRjJNU1JLRU1Bd0RIU2QyWW1mZmdQKy9kQW9vTHRPM1Zra0MveEFlNE9ZTnZIL2tzei81T3JlODYvY0NRakRCbStHTU1RYUNNZXZBbkM3bkhGaHJ0ZVFpZ29LQWNoeTFGc1NPQXBNMGxyT1FVaVNJTTg1NmxwaVNiYkFHczlaVG5Wc0xGamNuVmJMbHhzRE1JK2ttWkx2QnRyMXRJMG05SnhqWEdrbTZVSXdFcmZlWnMxYk5tWDduQ3dlMnoycEprQUFBQUFCSlJVNUVya0pnZ2c9PScgd2lkdGg9JzI1NzYnIGhlaWdodD0nMzg1OScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,4xBAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,4xBAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.png");",
+const img = placeholder("/good_boy.png");",
     ],
     "version": 3,
   },
@@ -420,20 +420,20 @@ const img = preview("/good_boy.png");",
 
 exports[`Process image type png > placeholderType - normal 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxpbWFnZSBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBODFCTVZFWC8vLy8rK3VuLzg5Yi8vdmYvL3ZSc283LzIrLy8vLy92OS92NzYvZi8rL08zLzl0dXowZTZvd3VQQTIvcisrdUd5eDlITDNldG5tN1o0cHIxZWtiQzQxZksvMXVkTGZaUnZOdzZobVpxMnllR0ljV1NmditLSm1ibjA0Yy9RNHU5VWhaOTRyY2w5ZDRMWDVPN0VsMnA4bTZoM1FUWkNJUkowUVJXUGFVbTh6ZDJhdE5wOVpWZDFSeUo5Ym1EUDZQNlVxODEyZ0ptbHFyanU0TkwyNU1UcjFMSC83Tmp4MXJhbHc4K09yZGpWcjQrNjFQU0tpWmVLVUNKNFpGR2Z2TXlQdDlCbUxnR1pWaTVkS2dLTm9hWnJpcENHZUdPY2dHRnJQeHlwdDlXR2lweGxVVCtPajV0c1hsMnN1Y3hpWUcyam9LcDVUMXdNQUFBQUNYQklXWE1BQUFzVEFBQUxFd0VBbXB3WUFBQUF3VWxFUVZSNG5EWEhoWExDVUFCRTBjMFRraEIzUnhQY3BWNmtoYnI4Lzk5MFF1SE0zSmxkU1BKSnBRUUowajlabG5GeS91VVVMeUNLbEZMS0dHV01nVEZXRllReVFZQmhLSWFockZlRUVBVUtJZGQ1L25oM1Zhc3RZWm8zay9BcExHeUhjM0RlZERxZDNvRTNIUTQ3Q0k1djNmQWxhTGdOdUxaYjlMcjcxOTNXSEtCdStYNS8vTnh2dDYwNkxEK2VSdU5vRkt1cUI4OVQ5WjlFYTBYM1dncE5UVk10bm1mdnM5c2g5S211RDdOWk52OTRhR0d3V0h6OWZrOCtrOUVtK1FOYi94UlVxZlA2M2dBQUFBQkpSVTVFcmtKZ2dnPT0nIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gqCAAwB",
+    "mappings": "AAAA;;AAEA,YAAY,gqCAA4B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.png");",
+const img = placeholder("/good_boy.png");",
     ],
     "version": 3,
   },
@@ -442,20 +442,20 @@ const img = preview("/good_boy.png");",
 
 exports[`Process image type webp > placeholderType - average-color 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbGw9J3JnYigxOTEsIDE5NSwgMTk3KScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gPAAyB",
+    "mappings": "AAAA;;AAEA,YAAY,gPAA6B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.webp");",
+const img = placeholder("/good_boy.webp");",
     ],
     "version": 3,
   },
@@ -464,20 +464,20 @@ const img = preview("/good_boy.webp");",
 
 exports[`Process image type webp > placeholderType - blurred 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxmaWx0ZXIgaWQ9J2InIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0nc1JHQic+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0nMTI5Jy8+PGZlQ29sb3JNYXRyaXggdmFsdWVzPScxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxMDAgLTEnIHJlc3VsdD0ncycvPjxmZUZsb29kIHg9JzAnIHk9JzAnIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnLz48ZmVDb21wb3NpdGUgb3BlcmF0b3I9J291dCcgaW49J3MnLz48ZmVDb21wb3NpdGUgaW4yPSdTb3VyY2VHcmFwaGljJy8+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0nMTI5Jy8+PC9maWx0ZXI+PGltYWdlIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHg9JzAnIHk9JzAnIHByZXNlcnZlQXNwZWN0UmF0aW89J25vbmUnIHN0eWxlPSdmaWx0ZXI6IHVybCgjYik7JyBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBN1ZCTVZFWC8vLys4MXZHTW5iMy85ZHovL092Ky92WC84ZGY4L3YvLy8vcjUvZi9KM2V6ODU5VEQyT1Z5cDhPMjAvQmlsckdteE9XQnNNZTgwT0xFMi9OUWY1TnJPQTlrTUFpQ2JGMkVkR2FmdnQreXdkajArLzMrK3VSdHBiNmN2ZWF6eHM1cm9Mci83ZEpTZzUyeXpON0ExdXZRM3VqejJycVBzdEZubWJaN1lsR1NlR2Q0bzdtTVpFS25xcmxMS0JOM1JTQjVSenFMa0orZHFiUDI1TlplanFseGNYNnl5K25Scm95a3c5YWJ0OENDZ1lxTVZDZCtuYUxBbFdtZmxKT2puNXQ2Y0hXb3RkSFM1ZnBzT3llallUZkltV3RxaTVOOFRTSjdoWjEwZnBadVdFUmlZR3Facjg5bVdGYU9wOHliSFNZMkFBQUFDWEJJV1hNQUFBUG9BQUFENkFHMWUxSnJBQUFBdGtsRVFWUjRuRVhIeDBMQ1FBQkYwVGVKbVNHOVYwb29LUkI2VllxaW9CVEwvLzhPaTZDZTFiMWdUTHlyVmdIMlMyVDR4KzVUS1pVaGxDQUlEMzlRcS9FOHBWbUxVc3FEMGxiMi9MRjlsR1Y1ampoZSsrTjNiNmZYbTNXb3Fta2VKKzZzYnpaVjZJNXpja2R1NExRWGJlamRibjg4OG9yOHFhTkFVaXhyY1BZR2FhcElrSkpPc3ArODlJaEdOQkNiMkpFZnZRNVhSZ09HRm9aaGRPWGV1THdCY2lDMndYMXpsK2xtQ1dzNG0zNzkrSjlCMEN0dVNEY1RNQk9mUVd3QUFBQUFTVVZPUks1Q1lJST0nLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,4oDAAyB",
+    "mappings": "AAAA;;AAEA,YAAY,4oDAA6B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.webp");",
+const img = placeholder("/good_boy.webp");",
     ],
     "version": 3,
   },
@@ -486,20 +486,20 @@ const img = preview("/good_boy.webp");",
 
 exports[`Process image type webp > placeholderType - dominant-color 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbGw9J3JnYigyNDgsIDI0OCwgMjQ4KScvPjwvc3ZnPg==";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,gPAAyB",
+    "mappings": "AAAA;;AAEA,YAAY,gPAA6B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.webp");",
+const img = placeholder("/good_boy.webp");",
     ],
     "version": 3,
   },
@@ -508,20 +508,20 @@ const img = preview("/good_boy.webp");",
 
 exports[`Process image type webp > placeholderType - grayscale 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxpbWFnZSBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBUWxCTVZFWCsvdjZxcXFwd2NIQ1ptWm1mbjUrL3Y3OTZlbnI3Ky92UzB0THk4dktRa0pEWjJkbTF0YlZEUTBQSXlNaUVoSVRxNnVyZjM5OWtaR1JUVTFOYVdsb3hNVEZ3WDduc0FBQUFDWEJJV1hNQUFBUG9BQUFENkFHMWUxSnJBQUFBZ2tsRVFWUjRuSVhNT1JhRE1CQkV3ZGsxMG1oRGd2dGZsWWR4NE13Vi9hUWI0SkZlbjM3OTlqL2Y5WE9RVXNvNVIzNUF6dk1RV1hYT09hRnJwVTJOaXpDRENHTGJEUVZab0ppTmRqVXpHd2FsRk41WEcxVzdRN2c3blkwaVBDQzh1MnhlN3U3ZzRhR2toRjBWdEd1dGFsd0ZLL2pob1l3eXlpRG9pR1dkZEpJdHV3SHduQVdNbjBDV3dRQUFBQUJKUlU1RXJrSmdnZz09JyB3aWR0aD0nMjU3NicgaGVpZ2h0PSczODU5Jy8+PC9zdmc+";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,ovBAAyB",
+    "mappings": "AAAA;;AAEA,YAAY,ovBAA6B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.webp");",
+const img = placeholder("/good_boy.webp");",
     ],
     "version": 3,
   },
@@ -530,20 +530,20 @@ const img = preview("/good_boy.webp");",
 
 exports[`Process image type webp > placeholderType - normal 1`] = `
 {
-  "code": "import { preview } from '@nocojs/client';
+  "code": "import { placeholder } from 'nocojs';
 
 const img = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNTc2IDM4NTknIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknPjxpbWFnZSBocmVmPSdkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF3QUFBQVNDQU1BQUFCWWQ4OCtBQUFBN1ZCTVZFWC8vLys4MXZHTW5iMy85ZHovL092Ky92WC84ZGY4L3YvLy8vcjUvZi9KM2V6ODU5VEQyT1Z5cDhPMjAvQmlsckdteE9XQnNNZTgwT0xFMi9OUWY1TnJPQTlrTUFpQ2JGMkVkR2FmdnQreXdkajArLzMrK3VSdHBiNmN2ZWF6eHM1cm9Mci83ZEpTZzUyeXpON0ExdXZRM3VqejJycVBzdEZubWJaN1lsR1NlR2Q0bzdtTVpFS25xcmxMS0JOM1JTQjVSenFMa0orZHFiUDI1TlplanFseGNYNnl5K25Scm95a3c5YWJ0OENDZ1lxTVZDZCtuYUxBbFdtZmxKT2puNXQ2Y0hXb3RkSFM1ZnBzT3llallUZkltV3RxaTVOOFRTSjdoWjEwZnBadVdFUmlZR3Facjg5bVdGYU9wOHliSFNZMkFBQUFDWEJJV1hNQUFBUG9BQUFENkFHMWUxSnJBQUFBdGtsRVFWUjRuRVhIeDBMQ1FBQkYwVGVKbVNHOVYwb29LUkI2VllxaW9CVEwvLzhPaTZDZTFiMWdUTHlyVmdIMlMyVDR4KzVUS1pVaGxDQUlEMzlRcS9FOHBWbUxVc3FEMGxiMi9MRjlsR1Y1ampoZSsrTjNiNmZYbTNXb3Fta2VKKzZzYnpaVjZJNXpja2R1NExRWGJlamRibjg4OG9yOHFhTkFVaXhyY1BZR2FhcElrSkpPc3ArODlJaEdOQkNiMkpFZnZRNVhSZ09HRm9aaGRPWGV1THdCY2lDMndYMXpsK2xtQ1dzNG0zNzkrSjlCMEN0dVNEY1RNQk9mUVd3QUFBQUFTVVZPUks1Q1lJST0nIHdpZHRoPScyNTc2JyBoZWlnaHQ9JzM4NTknLz48L3N2Zz4=";",
   "map": SourceMap {
     "file": "index.ts.map",
-    "mappings": "AAAA;;AAEA,YAAY,goCAAyB",
+    "mappings": "AAAA;;AAEA,YAAY,goCAA6B",
     "names": [],
     "sources": [
       "index.ts",
     ],
     "sourcesContent": [
-      "import { preview } from '@nocojs/client';
+      "import { placeholder } from 'nocojs';
 
-const img = preview("/good_boy.webp");",
+const img = placeholder("/good_boy.webp");",
     ],
     "version": 3,
   },
