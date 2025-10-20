@@ -1,3 +1,5 @@
+export * from "./get-optimized-image";
+export * from "./get-placeholder";
 export * from "./image";
 export * from "./logger";
 export * from "./placeholder-image";
