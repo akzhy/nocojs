@@ -1,6 +1,6 @@
 {
-  "name": "rollup-plugin-example",
-  "version": "1.0.0",
+  "name": "@nocojs/rollup-plugin-example",
+  "version": "1.0.1-beta.0",
   "private": true,
   "scripts": {
     "build": "rollup -c",
@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@nocojs/client": "*",
-    "@nocojs/rollup-plugin": "*",
+    "@nocojs/rollup-plugin": "1.0.1-beta.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "rollup": "^4.0.0",
     "serve": "^14.0.0"

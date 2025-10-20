@@ -1,0 +1,18 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@nocojs/core": "1.0.0",
+    "nocojs": "1.0.0",
+    "@nocojs/parcel-transformer": "1.0.0",
+    "@nocojs/parcel-transformer-example": "1.0.0",
+    "@nocojs/rollup-plugin": "1.0.0",
+    "@nocojs/rollup-plugin-example": "1.0.0",
+    "@nocojs/rspack-loader": "1.0.0",
+    "@nocojs/webpack-loader": "1.0.0",
+    "@nocojs/webpack-loader-example": "1.0.1"
+  },
+  "changesets": [
+    "dry-heads-reply"
+  ]
+}
