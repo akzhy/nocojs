@@ -22,14 +22,15 @@
     "format": "biome format"
   },
   "dependencies": {
+    "better-sqlite3": "^12.4.1",
     "magic-string": "^0.30.19",
     "oxc-parser": "^0.94.0",
-    "sharp": "^0.34.4",
-    "sqlite3": "^5.1.7"
+    "sharp": "^0.34.4"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.6",
     "@rollup/plugin-typescript": "^12.1.4",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.7.2",
     "rolldown": "^1.0.0-beta.42",
     "typescript": "^5.9.3",

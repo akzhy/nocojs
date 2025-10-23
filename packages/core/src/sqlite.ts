@@ -1,13 +1,15 @@
-import { type Database, type RunResult, verbose } from "sqlite3";
+import DatabaseConstructor, {
+  type Database as SqliteDatabase,
+} from "better-sqlite3";
 import { logger } from "./logger";
 
-const sqlite3 = verbose();
+export type { SqliteDatabase };
 
-export const initSqlite = (dbPath: string): Database => {
-  const db = new sqlite3.Database(dbPath);
+export const initSqlite = (dbPath: string): SqliteDatabase => {
+  const db = new DatabaseConstructor(dbPath);
 
-  db.serialize(() => {
-    db.run(
+  try {
+    db.exec(
       /*sql*/
       `CREATE TABLE IF NOT EXISTS placeholder_images (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -19,26 +21,26 @@ export const initSqlite = (dbPath: string): Database => {
         original_height INTEGER NOT NULL,
         UNIQUE(cache_key)
       )`,
-      (_: RunResult, err: Error) => {
-        if (err) {
-          console.error("Error creating placeholder_images table", err);
-        }
-      },
     );
+  } catch (error) {
+    logger.error(
+      `Error creating placeholder_images table: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 
-    db.run(
+  try {
+    db.exec(
       /*sql*/
       `CREATE TABLE IF NOT EXISTS metadata (
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
       )`,
-      (_: RunResult, err: Error) => {
-        if (err) {
-          console.error("Error creating metadata table", err);
-        }
-      },
     );
-  });
+  } catch (error) {
+    logger.error(
+      `Error creating metadata table: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 
   return db;
 };
@@ -52,24 +54,22 @@ interface PlaceholderImageRow {
   original_height: number;
 }
 
-export const insertPlaceholderImages = (
-  db: Database,
+export const insertPlaceholderImages = async (
+  db: SqliteDatabase,
   items: PlaceholderImageRow[],
 ): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const stmt = db.prepare(
-      /*sql*/
-      `INSERT INTO placeholder_images (url, placeholder, preview_type, cache_key, original_width, original_height)
-      VALUES (?, ?, ?, ?, ?, ?)`,
-      (err) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-      },
-    );
+  if (items.length === 0) {
+    return;
+  }
 
-    for (const item of items) {
+  const stmt = db.prepare(
+    /*sql*/
+    `INSERT INTO placeholder_images (url, placeholder, preview_type, cache_key, original_width, original_height)
+    VALUES (?, ?, ?, ?, ?, ?)`,
+  );
+
+  for (const item of items) {
+    try {
       stmt.run(
         item.url,
         item.placeholder,
@@ -77,63 +77,40 @@ export const insertPlaceholderImages = (
         item.cache_key,
         item.original_width,
         item.original_height,
-        (err: Error) => {
-          if (err) {
-            logger.error(
-              `Error inserting placeholder image for URL ${item.url}: ${err.message}`,
-            );
-          }
-        },
+      );
+    } catch (error) {
+      logger.error(
+        `Error inserting placeholder image for URL ${item.url}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
       );
     }
-
-    stmt.finalize((err) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve();
-    });
-  });
+  }
 };
 
-export const getAllPlaceholderImages = (
-  db: Database,
+export const getAllPlaceholderImages = async (
+  db: SqliteDatabase,
 ): Promise<PlaceholderImageRow[]> => {
-  return new Promise((resolve, reject) => {
-    db.all(
-      /*sql*/
-      `SELECT url, placeholder, preview_type, cache_key, original_width, original_height
-      FROM placeholder_images`,
-      (err, rows) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(rows as PlaceholderImageRow[]);
-      },
-    );
-  });
+  const stmt = db.prepare(
+    /*sql*/
+    `SELECT url, placeholder, preview_type, cache_key, original_width, original_height
+    FROM placeholder_images`,
+  );
+
+  return stmt.all() as PlaceholderImageRow[];
 };
 
-export const getPlaceholderImageByCacheKey = (
-  db: Database,
+export const getPlaceholderImageByCacheKey = async (
+  db: SqliteDatabase,
   cacheKey: string,
 ): Promise<PlaceholderImageRow | null> => {
-  return new Promise((resolve, reject) => {
-    db.get(
-      /*sql*/
-      `SELECT url, placeholder, preview_type, cache_key, original_width, original_height
-      FROM placeholder_images
-      WHERE cache_key = ?`,
-      [cacheKey],
-      (err, row) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(row as PlaceholderImageRow | null);
-      },
-    );
-  });
+  const stmt = db.prepare(
+    /*sql*/
+    `SELECT url, placeholder, preview_type, cache_key, original_width, original_height
+    FROM placeholder_images
+    WHERE cache_key = ?`,
+  );
+
+  const row = stmt.get(cacheKey) as PlaceholderImageRow | undefined;
+  return row ?? null;
 };

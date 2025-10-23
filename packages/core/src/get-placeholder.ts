@@ -1,6 +1,5 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
-import type { Database } from "sqlite3";
 import {
   getPlaceholderImage,
   type PlaceholderOptions,
@@ -9,6 +8,7 @@ import {
   getPlaceholderImageByCacheKey,
   initSqlite,
   insertPlaceholderImages,
+  type SqliteDatabase,
 } from "./sqlite";
 import { Store } from "./store";
 
@@ -21,7 +21,7 @@ export const getPlaceholder = async (
   url: string,
   options: GetPlaceholderOptions,
 ) => {
-  let db: Database | null = null;
+  let db: SqliteDatabase | null = null;
   if (options.cache ?? true) {
     const cacheFileDir = options.cacheFileDir ?? ".nocojs";
     const cacheDir = path.resolve(cacheFileDir);
