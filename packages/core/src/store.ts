@@ -87,6 +87,12 @@ export class Store {
     return itemsToSync;
   }
 
+  clearItemsToSync(): void {
+    for (const item of this.data.values()) {
+      item.dbAction = "none";
+    }
+  }
+
   getData(): Map<string, StoreDataItem> {
     return this.data;
   }
