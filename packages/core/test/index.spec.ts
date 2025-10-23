@@ -130,7 +130,7 @@ describe("Basic Transform Tests", () => {
     expect(validPlaceholder.startsWith("data:image")).toBe(true);
     const svgContent = decodeDataUri(validPlaceholder);
     expect(svgContent).toContain("feGaussianBlur");
-  }, 20000);
+  }, 30000);
 });
 
 describe("Global placeholderType option tests with remote image", () => {

@@ -30,7 +30,6 @@ describe("Preview options", async () => {
 
     const imageSrc = result!.code.match(/const img\s*=\s*"(.*?)";/);
     expect(imageSrc).toBeDefined();
-    console.log(imageSrc![1]);
     const sharpInstance = base64ToSharpImage(imageSrc![1]);
     const metadata = await sharpInstance.metadata();
 

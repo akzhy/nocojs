@@ -36,7 +36,7 @@ export const getInput = (props?: GetInputProps | GetInputProps[]): string => {
       })
       .join("\n");
 
-    return `import { placeholder } from 'nocojs';
+    return `import { placeholder } from 'nocojs/client';
 
 ${placeholderStatements}`;
   }
@@ -48,7 +48,7 @@ ${placeholderStatements}`;
     props?.url ||
     "https://raw.githubusercontent.com/akzhy/nocojs/refs/heads/master/packages/core/__test__/public/good_boy_4x5.jpg";
 
-  return `import { placeholder } from 'nocojs';
+  return `import { placeholder } from 'nocojs/client';
 
 const img = placeholder("${url}"${placeholderOptions});`;
 };
