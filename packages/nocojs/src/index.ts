@@ -1,31 +1,27 @@
 import {
-  GetOptimizedImageOptions,
-  GetOptimizedImageOutput,
-  GetPlaceholderImageResult,
-  GetPlaceholderOptions,
+  type GetOptimizedImageOptions,
+  type GetOptimizedImageOutput,
+  type GetPlaceholderImageResult,
+  type GetPlaceholderOptions,
   getOptimizedImage,
   getPlaceholder,
-  ImageMeta,
-  LogLevel,
-  PlaceholderImageType,
+  type ImageMeta,
+  type LogLevel,
+  type PlaceholderImageType,
   type PlaceholderOptions,
-  SrcsetImage,
+  type SrcsetImage,
 } from "@nocojs/core";
 
-// biome-ignore lint/correctness/noUnusedFunctionParameters: Options used by consumer
-const placeholder = (url: string, options?: PlaceholderOptions): string => url;
-
 export {
-  placeholder,
   getOptimizedImage,
-  GetOptimizedImageOptions,
-  GetOptimizedImageOutput,
   getPlaceholder,
-  GetPlaceholderImageResult,
-  GetPlaceholderOptions,
-  ImageMeta,
-  LogLevel,
-  PlaceholderImageType,
+  type GetOptimizedImageOptions,
+  type GetOptimizedImageOutput,
+  type GetPlaceholderImageResult,
+  type GetPlaceholderOptions,
+  type ImageMeta,
+  type LogLevel,
+  type PlaceholderImageType,
   type PlaceholderOptions,
-  SrcsetImage,
+  type SrcsetImage,
 };

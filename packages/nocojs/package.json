@@ -8,6 +8,18 @@
   "types": "dist/types/index.d.ts",
   "repository": "git@github.com:akzhy/nocojs.git",
   "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./client": {
+      "types": "./dist/types/client.d.ts",
+      "import": "./dist/esm/client/client.js",
+      "require": "./dist/cjs/client/client.js"
+    }
+  },
   "files": [
     "dist",
     "src"
