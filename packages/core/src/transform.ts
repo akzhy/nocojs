@@ -7,7 +7,6 @@ import {
   parseSync,
   Visitor,
 } from "oxc-parser";
-import type { Database } from "sqlite3";
 import { type LogLevel, logger } from "./logger";
 import {
   getPlaceholderImage,
@@ -20,6 +19,7 @@ import {
   getAllPlaceholderImages,
   initSqlite,
   insertPlaceholderImages,
+  type SqliteDatabase,
 } from "./sqlite";
 import { Store } from "./store";
 
@@ -35,7 +35,7 @@ export class Transformer {
 
   store: Store = new Store();
 
-  database: Database | null = null;
+  database: SqliteDatabase | null = null;
 
   constructor(options?: TransformOptions) {
     this.options = {
@@ -193,6 +193,7 @@ export class Transformer {
             original_height: item.originalHeight,
           })),
         );
+        this.store.clearItemsToSync();
       }
 
       if (options?.closeDb ?? true) {
@@ -216,7 +217,7 @@ export class Transformer {
 
   private getPlaceholderFnName(parseResult: ParseResult): string | null {
     for (const importDecl of parseResult.module.staticImports) {
-      if (importDecl.moduleRequest.value !== "nocojs") {
+      if (importDecl.moduleRequest.value !== "nocojs/client") {
         continue;
       }
 
@@ -300,15 +301,20 @@ export class Transformer {
 
     if (argument.type === "ObjectExpression") {
       for (const prop of argument.properties) {
-        if (
-          prop.type === "Property" &&
-          prop.key.type === "Literal" &&
-          prop.value.type === "Literal"
-        ) {
-          const keyName = prop.key.value as keyof PlaceholderOptions;
-          if (Object.hasOwn(options, keyName)) {
-            // @ts-expect-error
-            options[keyName] = prop.value.value;
+        if (prop.type === "Property") {
+          let keyName: keyof PlaceholderOptions | null = null;
+
+          if (prop.key.type === "Literal") {
+            keyName = prop.key.value as keyof PlaceholderOptions;
+          } else if (prop.key.type === "Identifier") {
+            keyName = prop.key.name as keyof PlaceholderOptions;
+          }
+
+          if (keyName && prop.value.type === "Literal") {
+            if (Object.hasOwn(options, keyName)) {
+              // @ts-expect-error
+              options[keyName] = prop.value.value;
+            }
           }
         }
       }
