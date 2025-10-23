@@ -8,7 +8,7 @@ export const getSharpInstance = async (
       throw new Error(`Invalid URL: ${urlOrPath}`);
     }
     const response = await fetch(urlOrPath, {
-      signal: AbortSignal.timeout(10000),
+      signal: AbortSignal.timeout(20000),
     });
     const buffer = await response.arrayBuffer();
     const image = sharp(Buffer.from(buffer));
