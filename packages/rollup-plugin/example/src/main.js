@@ -1,5 +1,5 @@
 // Basic example of how to use the plugin in a JavaScript project
-import { placeholder } from "nocojs";
+import { placeholder } from "nocojs/client";
 
 // src/main.js
 console.log("Starting application...");
