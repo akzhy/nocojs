@@ -1,5 +1,11 @@
 # @nocojs/core
 
+## 1.0.1-beta.1
+
+### Patch Changes
+
+- Update packages
+
 ## 1.0.1-beta.0
 
 ### Patch Changes

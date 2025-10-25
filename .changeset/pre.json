@@ -13,6 +13,7 @@
     "@nocojs/webpack-loader-example": "1.0.1"
   },
   "changesets": [
-    "dry-heads-reply"
+    "dry-heads-reply",
+    "funky-heads-sniff"
   ]
 }

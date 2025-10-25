@@ -1,6 +1,6 @@
 {
   "name": "@nocojs/parcel-transformer-example",
-  "version": "1.0.1-beta.0",
+  "version": "1.0.1-beta.1",
   "private": true,
   "description": "Example usage of @nocojs/parcel-transformer",
   "scripts": {

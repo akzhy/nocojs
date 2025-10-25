@@ -1,7 +1,7 @@
 {
   "name": "nocojs",
   "author": "akzhy <hi@akzhy.com>",
-  "version": "1.0.1-beta.0",
+  "version": "1.0.1-beta.1",
   "description": "Create optimized and placeholder images with ease",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
