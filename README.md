@@ -165,6 +165,43 @@ interface GetOptimizedImageOptions {
 }
 ```
 
+## Important Guidelines (for bundler integration)
+
+### DOs ✅
+
+- **Use static, analyzable paths**: Always provide fixed string literals or easily resolvable paths
+  ```typescript
+  placeholder('/images/hero.jpg')           // ✅ Good
+  placeholder('https://cdn.example.com/image.jpg') // ✅ Good
+  ```
+
+- **Use with lazy loading libraries**: Combine with libraries like `react-intersection-observer`, `lozad.js`, or `lazysizes`
+- **Keep placeholders small**: Default 12px width is optimized for performance
+- **Use consistent placeholder types**: Stick to one type across your application for visual consistency
+
+### DON'Ts ❌
+
+- **Avoid dynamic arguments**: The build-time parser cannot resolve dynamic values
+  ```typescript
+  const imagePath = '/images/photo.jpg';
+  placeholder(imagePath)                    // ❌ Bad - dynamic variable
+  placeholder(`/images/${filename}`)        // ❌ Bad - template literal with variables
+  placeholder(getImagePath())               // ❌ Bad - function call result
+  ```
+
+- **Don't use with conditionals**: Build-time analysis requires static calls
+  ```typescript
+  placeholder(condition ? 'img1.jpg' : 'img2.jpg') // ❌ Bad - conditional expression
+  ```
+
+- **Avoid runtime modifications**: The `placeholder()` function is replaced at build time
+  ```typescript
+  const result = placeholder('/image.jpg');
+  const modified = result + '?v=1';     // ❌ Bad - modifying the result
+  ```
+
+**Important**: All `placeholder()` function calls must be statically analyzable at build time. The arguments must be string literals or easily resolvable static expressions that the build tool can evaluate without executing your code.
+
 ## Best Practices for client side usage
 
 - Use static string literals for `placeholder()` so the transformer can resolve paths.
