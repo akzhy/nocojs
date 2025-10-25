@@ -41,7 +41,7 @@ npm install nocojs @nocojs/parcel-transformer # Parcel
 ### Client usage
 
 ```tsx
-import { placeholder } from "nocojs";
+import { placeholder } from "nocojs/client";
 
 export function HeroImage() {
   return <img src={placeholder("/images/hero.jpg")} alt="Hero" />;
@@ -171,6 +171,10 @@ interface GetOptimizedImageOptions {
 - Point relative paths to your `publicDir` (for example `placeholder("/images/photo.jpg")`).
 - Combine the generated placeholders with a lazy-loading strategy to avoid layout shifts.
 - Keep the cache directory (default `.nocojs`) between builds for faster CI/CD pipelines.
+
+## Examples
+
+Integration and usage examples can be found in the [examples repo](https://github.com/akzhy/nocojs-examples)
 
 ## Caching
 
