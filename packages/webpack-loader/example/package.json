@@ -9,7 +9,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@nocojs/webpack-loader": "1.0.1-beta.0"
+    "nocojs": "workspace:*",
+    "@nocojs/webpack-loader": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

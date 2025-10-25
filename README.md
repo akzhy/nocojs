@@ -217,14 +217,17 @@ packages/
 ```
 
 ```bash
+# Enable pnpm via Corepack (once per environment)
+corepack enable
+
 # Install dependencies
-yarn install
+pnpm install
 
 # Build all packages
-yarn build:packages
+pnpm build:packages
 
 # Run tests
-yarn test
+pnpm test
 ```
 
 ## Performance
@@ -242,9 +245,9 @@ MIT
 Contributions are welcome! To get started:
 
 1. Fork and clone the repo.
-2. Run `yarn install` to bootstrap dependencies.
-3. Use `yarn build:packages` and `yarn test` to validate changes.
+2. Run `pnpm install` to bootstrap dependencies.
+3. Use `pnpm build:packages` and `pnpm test` to validate changes.
 4. Add or update documentation when introducing new features.
-5. Create a changeset with `yarn changeset` before opening a pull request.
+5. Create a changeset with `pnpm changeset` before opening a pull request.
 
 Create issues for bugs or ideas, or start a discussion if you’re planning a larger feature.

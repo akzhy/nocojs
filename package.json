@@ -2,13 +2,7 @@
   "name": "lazy-workspace",
   "version": "0.0.1",
   "private": true,
-  "workspaces": [
-    "packages/*",
-    "packages/rollup-plugin/example",
-    "packages/webpack-loader/example",
-    "packages/rspack-loader/example",
-    "packages/parcel-transformer/example"
-  ],
+  "packageManager": "pnpm@10.19.0",
   "scripts": {
     "build:all": "lerna run build",
     "build:packages": "lerna run build --ignore '@nocojs/*example*' --ignore '*example*'",

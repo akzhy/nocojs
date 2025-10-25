@@ -28,13 +28,13 @@
     "sharp": "^0.34.4"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.6",
-    "@rollup/plugin-typescript": "^12.1.4",
+    "@biomejs/biome": "catalog:",
+    "@rollup/plugin-typescript": "catalog:",
     "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^24.7.2",
-    "rolldown": "^1.0.0-beta.42",
-    "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "@types/node": "catalog:",
+    "rolldown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "public",

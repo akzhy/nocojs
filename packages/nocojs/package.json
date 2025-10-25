@@ -33,15 +33,15 @@
     "format": "biome format"
   },
   "dependencies": {
-    "@nocojs/core": "1.0.1-beta.0"
+    "@nocojs/core": "workspace:*"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.6",
-    "@rollup/plugin-typescript": "^12.1.4",
-    "@types/node": "^24.7.2",
+    "@biomejs/biome": "catalog:",
+    "@rollup/plugin-typescript": "catalog:",
+    "@types/node": "catalog:",
     "lefthook": "^1.13.6",
-    "rolldown": "^1.0.0-beta.44",
-    "typescript": "^5.9.3"
+    "rolldown": "catalog:",
+    "typescript": "catalog:"
   },
   "publishConfig": {
     "access": "public",

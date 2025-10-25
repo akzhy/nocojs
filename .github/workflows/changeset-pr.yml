@@ -21,9 +21,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
+          cache: pnpm
+
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install Dependencies
-        run: yarn
+        run: pnpm install --frozen-lockfile
 
       - name: Create Release Pull Request
         uses: changesets/action@v1

@@ -2,14 +2,15 @@
   "name": "@nocojs/rollup-plugin-example",
   "version": "1.0.1-beta.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c --watch",
     "serve": "serve ."
   },
   "devDependencies": {
-    "nocojs": "^1.0.1-beta.0",
-    "@nocojs/rollup-plugin": "1.0.1-beta.0",
+    "nocojs": "workspace:*",
+    "@nocojs/rollup-plugin": "workspace:*",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "rollup": "^4.0.0",
     "serve": "^14.0.0"
