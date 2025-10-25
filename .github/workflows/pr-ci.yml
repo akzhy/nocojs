@@ -18,7 +18,7 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Install dependencies
-        run: pnpm install --filter @nocojs/core... --frozen-lockfile
+        run: pnpm install
       - name: Biome check
         run: pnpm biome:check
       - name: Build core package
