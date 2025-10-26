@@ -68,6 +68,10 @@ export class Transformer {
       sourcemapFilePath?: string;
     },
   ) {
+    if (!code.includes("nocojs/client")) {
+      return null;
+    }
+
     const parsedResult = parseSync(filePath, code);
 
     const placeholderFnName = this.getPlaceholderFnName(parsedResult);
