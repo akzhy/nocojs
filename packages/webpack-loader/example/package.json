@@ -1,6 +1,6 @@
 {
   "name": "@nocojs/webpack-loader-example",
-  "version": "1.0.2-beta.1",
+  "version": "1.0.0",
   "private": true,
   "description": "Example project using @nocojs/webpack-loader",
   "scripts": {

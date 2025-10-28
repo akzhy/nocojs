@@ -1,7 +1,7 @@
 {
   "name": "@nocojs/webpack-loader",
   "author": "akzhy <hi@akzhy.com>",
-  "version": "1.0.1-beta.1",
+  "version": "1.0.0",
   "description": "Webpack loader for @nocojs/core transformations",
   "main": "dist/cjs/index.js",
   "types": "dist/types/index.d.ts",
