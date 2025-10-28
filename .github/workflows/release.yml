@@ -1,61 +1,13 @@
-name: Release
+name: Release packages
 
 on:
   workflow_dispatch: {}
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    outputs:
-      has_core: ${{ steps.detect.outputs.has_core }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org
-
-      - run: yarn install --frozen-lockfile
-
-      - name: Get current version
-        id: current_core_version
-        run: echo "current_core_version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
-        working-directory: packages/core
-
-      - name: Get base version
-        id: base_core_version
-        run: |
-          git fetch origin master
-          version=$(npm view @nocojs/core dist-tags.latest)
-          echo "base_core_version=$version" >> $GITHUB_OUTPUT
-
-      - id: detect
-        run: |
-          if [ "${{ steps.base_core_version.outputs.base_core_version }}" = "${{ steps.current_core_version.outputs.current_core_version }}" ]; then
-            echo "Core not changed"
-            echo "has_core=false" >> $GITHUB_OUTPUT
-          else
-            echo "Core changed"
-            echo "has_core=true" >> $GITHUB_OUTPUT
-          fi
-
-  # Case 1: Core changed → delegate to napi CI
-  napi:
-    needs: check
-    if: needs.check.outputs.has_core == 'true'
-    uses: ./.github/workflows/core-ci.yml
-    secrets: inherit
-
-  # Case 2: Only JS packages changed → publish directly here
-  js-release:
+  release:
     permissions:
       contents: write
       id-token: write
-    needs: check
-    if: needs.check.outputs.has_core == 'false'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,14 +16,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: yarn
-      - run: yarn install --frozen-lockfile
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
       - name: Build
-        run: yarn build:non-core-packages
+        run: pnpm build:packages
       - name: Publish JS packages
         uses: changesets/action@v1
         with:
-          publish: yarn changeset publish
+          publish: pnpm changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

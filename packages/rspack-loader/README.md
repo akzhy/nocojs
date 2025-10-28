@@ -1,15 +1,15 @@
 # @nocojs/rspack-loader
 
-A Rspack loader for @nocojs/core transformations.
+Rspack loader that transforms `placeholder()` calls from `nocojs` into inline data URIs using `@nocojs/core` under the hood.
 
 ## Installation
 
 ```bash
-npm install @nocojs/rspack-loader @nocojs/core
-# or
-yarn add @nocojs/rspack-loader @nocojs/core
-# or
-pnpm add @nocojs/rspack-loader @nocojs/core
+# application dependency
+npm install nocojs
+
+# dev dependency for your Rspack build
+npm install --save-dev @nocojs/rspack-loader
 ```
 
 ## Usage
@@ -30,7 +30,6 @@ module.exports = defineConfig({
           {
             loader: '@nocojs/rspack-loader',
             options: {
-              // Loader options
               logLevel: 'info',
               publicDir: 'public',
               cacheFileDir: '.nocojs'
@@ -72,25 +71,25 @@ export default defineConfig({
 
 ## Options
 
-The loader accepts all @nocojs/core `TransformOptions` plus the following additional options:
+The loader accepts the same [`TransformOptions`](../core/README.md#transform-options) as `@nocojs/core`. Common settings include:
 
-### `publicDir`
-- Type: `string`
-- Default: `'public'` (relative to Rspack context)
-- Description: Public directory path for static assets
+- `publicDir` (`string`, default `'public'`): root directory for resolving `/`-prefixed paths.
+- `cacheFileDir` (`string`, default `'.nocojs'`): location of the SQLite cache database.
+- `placeholderType` (`"normal" | "blurred" | ...`, default `'blurred'`): controls placeholder style.
+- `logLevel` (`"none" | "error" | "info" | "verbose"`): adjusts diagnostic output.
+## Using the client helper
 
-### `cacheFileDir`
-- Type: `string`
-- Default: `'.nocojs'` (relative to Rspack context)
-- Description: Cache directory for nocojs transformations
+In your UI code import from `nocojs`:
 
-### Other Options
+```tsx
+import { placeholder } from 'nocojs';
 
-All other options from [@nocojs/core](../core/README.md) are supported:
+export function ProfileImage() {
+  return <img src={placeholder('/images/profile.jpg')} alt="Profile" />;
+}
+```
 
-- `logLevel`: Control logging verbosity
-- `preserveComments`: Whether to preserve comments in transformed code
-- And more...
+When the loader runs it rewrites the call to an inline data URI, so no runtime dependency remains.
 
 ## Examples
 

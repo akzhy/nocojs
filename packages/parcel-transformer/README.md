@@ -1,13 +1,15 @@
 # @nocojs/parcel-transformer
 
-A Parcel plugin for nocojs image optimization and lazy loading.
+Parcel transformer that turns `placeholder()` calls imported from `nocojs` into inline data URIs using the TypeScript implementation of `@nocojs/core`.
 
 ## Installation
 
 ```bash
-npm install @nocojs/parcel-transformer
-# or
-yarn add @nocojs/parcel-transformer
+# application dependency
+npm install nocojs
+
+# add the transformer to your Parcel toolchain
+npm install --save-dev @nocojs/parcel-transformer
 ```
 
 ## Usage
@@ -23,6 +25,18 @@ Add this to your `.parcelrc` file
 }
 ```
 
+Then import from `nocojs` inside your source files:
+
+```tsx
+import { placeholder } from 'nocojs';
+
+export function CardImage() {
+   return <img src={placeholder('/images/card.jpg')} alt="Card" />;
+}
+```
+
+Parcel runs the transformer during builds and replaces the call with a base64 data URI.
+
 ### Configuration Options
 
 You can pass options by adding a `@nocojs/parcel-transformer` field in your package.json
@@ -36,11 +50,11 @@ You can pass options by adding a `@nocojs/parcel-transformer` field in your pack
 }
 ```
 
-Available options are same options as the [@nocojs/core transform function](../core/README.md#transform-options)
+Available options map directly to the [`@nocojs/core` transform options](../core/README.md#transform-options).
 
 ## How it Works
 
-This plugin transforms your JavaScript/TypeScript code to optimize images for lazy loading using the nocojs core library. It processes files during the Parcel build process and replaces preview calls with appropriate placeholders.
+This transformer processes your JavaScript/TypeScript modules during the Parcel build, generates placeholders through `@nocojs/core`, and replaces `placeholder("...")` calls with inline data URLs.
 
 ## License
 

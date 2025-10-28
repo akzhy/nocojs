@@ -1,0 +1,25 @@
+packages:
+  - packages/*
+  - packages/rollup-plugin/example
+  - packages/webpack-loader/example
+  - packages/rspack-loader/example
+  - packages/parcel-transformer/example
+
+catalog:
+  '@biomejs/biome': 2.2.6
+  '@rollup/plugin-typescript': ^12.1.4
+  '@types/node': ^24.7.2
+  '@types/picomatch': ^4.0.2
+  picomatch: ^4.0.3
+  rolldown: ^1.0.0-beta.44
+  typescript: ^5.9.3
+  vitest: ^3.2.4
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@swc/core'
+  - better-sqlite3
+  - esbuild
+  - lefthook
+  - nx
+  - sharp

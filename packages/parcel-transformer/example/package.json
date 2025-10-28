@@ -1,0 +1,24 @@
+{
+  "name": "@nocojs/parcel-transformer-example",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Example usage of @nocojs/parcel-transformer",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html",
+    "clean": "rm -rf dist .parcel-cache"
+  },
+  "devDependencies": {
+    "@nocojs/parcel-transformer": "workspace:*",
+    "@parcel/config-default": "^2.16.0",
+    "nocojs": "workspace:*",
+    "parcel": "^2.12.0",
+    "typescript": "^5.9.2"
+  },
+  "@nocojs/parcel-transformer": {
+    "publicDir": "public",
+    "cacheFileDir": ".nocojs",
+    "placeholderType": "blurred",
+    "logLevel": "info"
+  }
+}

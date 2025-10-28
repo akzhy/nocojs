@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { rollupNocoPlugin } from "../index";
 
 // Mock the @nocojs/core module
@@ -47,7 +47,7 @@ describe("rollupNocoPlugin", () => {
     const result = await transformFn.call(
       {},
       'console.log("test")',
-      "test.txt"
+      "test.txt",
     );
 
     expect(result).toBeNull();
@@ -63,7 +63,7 @@ describe("rollupNocoPlugin", () => {
     const result = await transformFn.call(
       {},
       'console.log("test")',
-      "/path/to/node_modules/package/index.js"
+      "/path/to/node_modules/package/index.js",
     );
 
     expect(result).toBeNull();
@@ -89,7 +89,7 @@ describe("rollupNocoPlugin", () => {
     const result1 = await transformFn.call(
       {},
       'console.log("test")',
-      "/project/src/components/Button.ts"
+      "/project/src/components/Button.ts",
     );
     expect(result1).toEqual({
       code: "transformed code",
@@ -100,7 +100,7 @@ describe("rollupNocoPlugin", () => {
     const result2 = await transformFn.call(
       {},
       'console.log("test")',
-      "/project/dist/bundle.js"
+      "/project/dist/bundle.js",
     );
     expect(result2).toBeNull();
   });
@@ -124,7 +124,7 @@ describe("rollupNocoPlugin", () => {
       expect.objectContaining({
         publicDir: expect.stringContaining("public"),
         cacheFileDir: expect.stringContaining(".nocojs"),
-      })
+      }),
     );
 
     expect(result).toEqual({
@@ -147,9 +147,9 @@ describe("rollupNocoPlugin", () => {
     expect(result).toBeNull();
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining(
-        "[@nocojs/rollup-plugin] Error processing test.js:"
+        "[@nocojs/rollup-plugin] Error processing test.js:",
       ),
-      expect.any(Error)
+      expect.any(Error),
     );
 
     consoleSpy.mockRestore();

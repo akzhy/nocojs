@@ -1,5 +1,5 @@
 import typescript from "@rollup/plugin-typescript";
-import { defineConfig, RolldownOptions } from "rolldown";
+import { defineConfig, type RolldownOptions } from "rolldown";
 import pkg from "./package.json";
 
 const createOptions = (format: "esm" | "cjs"): RolldownOptions => {

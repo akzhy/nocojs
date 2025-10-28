@@ -1,7 +1,7 @@
 {
   "name": "@nocojs/rollup-plugin",
   "author": "akzhy <hi@akzhy.com>",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Rollup plugin for nocojs image optimization",
   "main": "dist/cjs/index.js",
   "types": "dist/types/index.d.ts",
@@ -23,23 +23,27 @@
     "build": "rolldown -c",
     "dev": "rolldown --watch -c",
     "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test:watch": "vitest --watch",
+    "biome:check": "biome check",
+    "biome:check:fix": "biome check --fix",
+    "lint": "biome lint",
+    "format": "biome format"
   },
   "dependencies": {
-    "picomatch": "^4.0.3"
+    "@nocojs/core": "workspace:*",
+    "picomatch": "catalog:"
   },
   "devDependencies": {
-    "@nocojs/core": "0.0.1",
-    "@rollup/plugin-typescript": "^12.1.4",
-    "@types/node": "^24.2.0",
-    "@types/picomatch": "^4.0.2",
-    "rolldown": "^1.0.0-beta.34",
+    "@biomejs/biome": "catalog:",
+    "@rollup/plugin-typescript": "catalog:",
+    "@types/node": "catalog:",
+    "@types/picomatch": "catalog:",
+    "rolldown": "catalog:",
     "rollup": "^4.0.0",
-    "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
-    "@nocojs/core": ">=0.0.1",
     "rollup": "^2.0.0 || ^3.0.0 || ^4.0.0"
   },
   "engines": {

@@ -1,0 +1,50 @@
+{
+  "name": "nocojs",
+  "author": "akzhy <hi@akzhy.com>",
+  "version": "1.0.0",
+  "description": "Create optimized and placeholder images with ease",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "repository": "git@github.com:akzhy/nocojs.git",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./client": {
+      "types": "./dist/types/client.d.ts",
+      "import": "./dist/esm/client/client.js",
+      "require": "./dist/cjs/client/client.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "rolldown -c",
+    "dev": "rolldown -w -c",
+    "biome:check": "biome check",
+    "biome:check:fix": "biome check --fix",
+    "lint": "biome lint",
+    "format": "biome format"
+  },
+  "dependencies": {
+    "@nocojs/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@rollup/plugin-typescript": "catalog:",
+    "@types/node": "catalog:",
+    "lefthook": "^1.13.6",
+    "rolldown": "catalog:",
+    "typescript": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

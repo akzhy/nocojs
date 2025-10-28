@@ -1,6 +1,6 @@
-import { transform, TransformOptions } from "@nocojs/core";
+import { Transformer, type TransformOptions } from "@nocojs/core";
+import type { LoaderContext } from "@rspack/core";
 import path from "path";
-import { LoaderContext } from "@rspack/core";
 
 export interface NocoLoaderOptions
   extends Omit<TransformOptions, "publicDir" | "cacheFileDir"> {
@@ -17,13 +17,15 @@ export interface NocoLoaderOptions
   cacheFileDir?: string;
 }
 
+let transformer: Transformer | null = null;
+
 /**
  * Rspack loader for @nocojs/core transformations
  */
 export default async function nocoLoader(
   this: LoaderContext<NocoLoaderOptions>,
   source: string,
-  sourceMap?: string
+  sourceMap?: string,
 ) {
   const callback = this.async();
 
@@ -42,32 +44,36 @@ export default async function nocoLoader(
     ? path.resolve(context, options.cacheFileDir)
     : path.join(context, ".nocojs");
 
+  if (!transformer) {
+    transformer = new Transformer({
+      ...options,
+      publicDir,
+      cacheFileDir,
+    });
+    await transformer.preTransform();
+  }
+
   let fileName = this.resourcePath;
   let sourcemapFilePath = fileName;
 
   if (fileName.endsWith(".vue") || fileName.endsWith(".svelte")) {
     const fileNameExtension = fileName.split(".").pop()!;
     sourcemapFilePath =
-      fileName.slice(0, -(fileNameExtension.length + 1)) + `.${fileNameExtension}`;
+      fileName.slice(0, -(fileNameExtension.length + 1)) +
+      `.${fileNameExtension}`;
     fileName = `${fileName}.ts`;
   }
 
-  const transformOptions: TransformOptions = {
-    ...options,
-    publicDir,
-    cacheFileDir,
-    logLevel: options.logLevel || "info",
-    sourcemapFilePath,
-  };
-
   try {
-    const transformResult = await transform(source, fileName, transformOptions);
+    const transformResult = await transformer.transform(source, fileName, {
+      sourcemapFilePath,
+    });
 
-    callback(
-      null,
-      transformResult.code,
-      transformResult.map ? JSON.parse(transformResult.map ?? "{}") : sourceMap
-    );
+    if (!transformResult) {
+      return callback(null, source, sourceMap);
+    }
+
+    callback(null, transformResult.code, transformResult.map);
   } catch (error) {
     console.error(error);
     return callback(error as Error, source, sourceMap);

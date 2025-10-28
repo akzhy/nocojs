@@ -1,288 +1,166 @@
 # @nocojs/core
 
-The Rust-powered core engine for nocojs, providing high-performance AST parsing and image processing capabilities via Node.js bindings.
+Core logic that drives image placeholder and optimization workflows across the nocojs ecosystem. It provides the AST transformer, placeholder generator, responsive image builder, and a lightweight SQLite cache used by every bundler integration.
 
 ## Overview
 
-`@nocojs/core` is the heart of the nocojs ecosystem, built in Rust with Node.js bindings via NAPI-RS. It serves two main purposes:
+- **TypeScript implementation** – built with `sharp`, `oxc-parser`, and Node.js primitives
+- **Server utilities** – programmatic helpers for generating placeholders or full responsive image sets.
+- **Bundler transforms** – AST walker that replaces `placeholder()` calls at build time when used with an integration like `@nocojs/rollup-plugin` or `@nocojs/webpack-loader`.
+- **SQLite caching** – deduplicates work across builds while keeping placeholder metadata available to transformers.
 
-### 1. Build Tool Integration
-Powers bundler integrations like `@nocojs/webpack-loader`, `@nocojs/rollup-plugin`, and `@nocojs/parcel-transformer` for build-time image placeholder generation.
 
-### 2. Direct Node.js Usage  
-Provides the `getPlaceholder()` function for server-side frameworks and applications like:
-- **Astro** - Generate placeholders during static site generation
-- **Next.js** - Create placeholders in API routes or server components  
-- **Custom Node.js apps** - Programmatic placeholder generation
-- **Build scripts** - Custom image processing workflows
+The `nocojs` package re-exports everything you need:
 
-## Core Capabilities
+- **Client**: `placeholder()` – converted to inline data URIs by the bundler.
+- **Server / build scripts**: `getPlaceholder()` and the new `getOptimizedImage()` helper.
 
-- **AST Parsing & Transformation** - Uses OXC (Oxc Compiler) for blazing-fast JavaScript/TypeScript parsing
-- **Image Processing** - Leverages Rust's `image`, `avif_decode` and `fast_image_resize` crates for efficient image manipulation
-- **Caching** - SQLite-based caching system to avoid redundant processing
+You should not need to import anything directly from `@nocojs/core` in application code.
+
+## Quick Start
+
+### Client-side components
+
+```tsx
+import { placeholder } from "nocojs";
+
+export function HeroImage() {
+	return <img src={placeholder("/images/hero.jpg")} alt="Hero" />;
+}
+```
+
+With a supported bundler plugin/loader the call above is replaced with the generated placeholder string during the build.
+
+### Server-side rendering or build scripts
+
+```ts
+import { getPlaceholder, getOptimizedImage } from "nocojs";
+
+const thumbnail = await getPlaceholder("./public/blog/cover.jpg", {
+	placeholderType: "blurred",
+	width: 16,
+});
+
+const responsive = await getOptimizedImage("./public/blog/cover.jpg", {
+	outputDir: "./public/generated",
+	widths: [640, 960, 1280],
+	formats: ["webp", "jpg"],
+	baseUrl: "/generated",
+});
+
+console.log(thumbnail.placeholder); // data:image/svg+xml;base64,...
+console.log(responsive.srcset);     // ["/generated/cover-640w.webp 640w", ...]
+```
 
 ## API Reference
 
-### `transform(code, filePath, options?)`
-
-The main transformation function that processes source code and replaces `preview()` function calls with optimized placeholders.
-
-```typescript
-import { transform } from '@nocojs/core';
-
-const result = await transform(
-  'const img = preview("/image.jpg");',
-  '/src/component.tsx',
-  {
-    publicDir: 'public',
-    placeholderType: 'blurred',
-    width: 12
-  }
-);
-
-console.log(result.code); // Transformed code with inlined placeholder
-```
-
-#### Parameters
-
-- **`code`** (`string`) - Source code to transform
-- **`filePath`** (`string`) - Absolute path to the file being processed
-- **`options`** (`TransformOptions`, optional) - Transformation configuration
-
-#### Returns
-
-```typescript
-{
-  code: string;        // Transformed source code
-  map: string | null;  // Source map (if enabled)
-  logs: Log[];        // Processing logs and warnings
-}
-```
-
 ### `getPlaceholder(url, options?)`
 
-Direct function for generating image placeholders programmatically in Node.js environments, perfect for server-side frameworks and custom build scripts.
+Generates a lightweight placeholder for a local file path or remote URL. Results include the base64 data URI and the original dimensions so you can preserve aspect ratio.
 
-```typescript
-import { getPlaceholder } from '@nocojs/core';
+```ts
+import { getPlaceholder } from "nocojs";
 
-const result = await getPlaceholder(
-  '/path/to/image.jpg',
-  {
-    width: 16,
-    placeholderType: 'blurred',
-    cache: true,
-    wrapWithSvg: true
-  }
-);
+const result = await getPlaceholder("/images/team.jpg", {
+	placeholderType: "dominant-color",
+	cacheFileDir: ".nocojs",
+	wrapWithSvg: true,
+});
 
-console.log(result.placeholder); // Base64 data URL
-console.log(result.logs);       // Processing logs
-console.log(result.isError);    // Error status
-```
-
-#### Parameters
-
-- **`url`** (`string`) - Path to local image file or HTTP/HTTPS URL
-- **`options`** (`GetPlaceholderOptions`, optional) - Placeholder generation options
-
-#### Returns
-
-```typescript
-{
-  placeholder: string;  // Base64 data URL of the generated placeholder
-  logs: Log[];         // Processing logs and warnings  
-  isError: boolean;    // Whether an error occurred during processing
-}
+// result: GetPlaceholderImageResult
+// {
+//   placeholder: string;
+//   originalWidth: number;
+//   originalHeight: number;
+//   placeholderPng?: string;
+// }
 ```
 
 #### `GetPlaceholderOptions`
 
-```typescript
+```ts
 interface GetPlaceholderOptions {
-  width?: number;        // Placeholder width in pixels (default: 12)
-  height?: number;       // Placeholder height in pixels (auto-calculated if not provided)
-  placeholderType?: 'normal' | 'blurred' | 'grayscale' | 'dominant-color' | 'average-color' | 'transparent';
-  cacheFileDir?: string; // Cache directory (default: '.nocojs')
-  cache?: boolean;       // Enable caching (default: true)
-  wrapWithSvg?: boolean; // Wrap in SVG for exact aspect ratio (default: true)
+	placeholderType?: "normal" | "blurred" | "grayscale" | "dominant-color" | "average-color" | "transparent";
+	width?: number;
+	height?: number;
+	wrapWithSvg?: boolean;
+	cache?: boolean;
+	cacheFileDir?: string;
+	_enableLogging?: boolean; // diagnostic logging for cache hits
 }
 ```
 
-#### Usage Examples
+### `getOptimizedImage(url, options)`
 
-**Static Site Generation (Astro)**
-```typescript
-// In an Astro component or build script
-const heroPlaceholder = await getPlaceholder('/src/assets/hero.jpg', {
-  placeholderType: 'blurred',
-  width: 20
+Creates responsive image variants, optional format conversions, and an accompanying placeholder in a single call.
+
+```ts
+import { getOptimizedImage } from "nocojs";
+
+const result = await getOptimizedImage("./public/gallery/photo.jpg", {
+	outputDir: "./public/generated/gallery",
+	widths: [480, 768, 1024],
+	formats: ["webp", "avif"],
+	quality: 75,
+	baseUrl: "/generated/gallery",
+	namingPattern: "{name}-{width}w.{format}",
+	placeholderOptions: {
+		placeholderType: "blurred",
+	},
 });
+
+// result: GetOptimizedImageOutput
+// {
+//   srcset: string[];        // one entry per format
+//   images: SrcsetImage[];   // [{ width, height, src, filePath, format }, ...]
+//   placeholder: string | null;
+//   isError: boolean;
+//   meta: { width: number; height: number; format: string };
+// }
 ```
 
-**Server-Side Rendering (Next.js)**
-```typescript
-// In API routes or server components
-export async function getServerSideProps() {
-  const placeholder = await getPlaceholder('https://cdn.example.com/image.jpg', {
-    placeholderType: 'dominant-color'
-  });
-  
-  return {
-    props: { imagePlaceholder: placeholder.placeholder }
-  };
+#### `GetOptimizedImageOptions`
+
+```ts
+interface GetOptimizedImageOptions {
+	outputDir: string;               // required destination for generated files
+	widths?: number[];               // defaults to [320, 640, 960, 1280, 1920]
+	baseUrl?: string;                // appended to generated filenames in srcset entries
+	formats?: string[];              // defaults to the source format when omitted
+	quality?: number;                // passed to sharp encoders (default 80)
+	namingPattern?: string;          // defaults to "{name}-{width}w.{format}"
+	placeholderOptions?: GetPlaceholderOptions | null; // set to null to skip placeholder generation
+	cache?: boolean;                 // skip rewriting existing files when true (default)
 }
 ```
 
-**Custom Build Scripts**
-```typescript
-// Process multiple images programmatically
-const images = ['hero.jpg', 'about.jpg', 'contact.jpg'];
-const placeholders = await Promise.all(
-  images.map(img => getPlaceholder(`/assets/${img}`, { 
-    placeholderType: 'blurred',
-    width: 16 
-  }))
-);
-```
+## Bundler Transformation Flow
 
-### Options
+- Import `placeholder` from `nocojs` inside your UI code.
+- The bundler integration (`@nocojs/rollup-plugin`, `@nocojs/webpack-loader`, `@nocojs/rspack-loader`, `@nocojs/parcel-transformer`) invokes the transformer from `@nocojs/core`.
+- The transformer finds `placeholder("/path")` calls, generates placeholders with the configured options, and replaces the call with the inlined data URI.
 
-#### `TransformOptions`
 
-```typescript
-interface TransformOptions {
-  // Preview generation options
-  placeholderType?: 'normal' | 'blurred' | 'grayscale' | 'dominant-color' | 'average-color' | 'transparent';
-  width?: number;              // Placeholder width in pixels (default: 12)
-  height?: number;             // Placeholder height in pixels (auto-calculated if not provided)
-  
-  // Behavior options
-  replaceFunctionCall?: boolean; // Replace function calls entirely (default: true)
-  cache?: boolean;             // Enable caching (default: true)
-  wrapWithSvg?: boolean;       // Wrap blurred placeholders in SVG (default: true)
-  
-  // Directory options
-  publicDir?: string;          // Public directory path (default: 'public')
-  cacheFileDir?: string;       // Cache directory (default: '.nocojs')
-  
-  // Development options
-  logLevel?: 'none' | 'error' | 'info' | 'verbose'; // Logging verbosity
-  sourcemapFilePath?: string;  // Source map output path
-}
-```
+## Caching & Performance
 
-## Placeholder Types
-
-### `normal`
-Standard downscaled version preserving original colors and details.
-
-### `blurred`
-Heavily blurred version wrapped in SVG with blur filters for smooth loading transitions.
-
-### `grayscale`
-Black and white version of the image, useful for artistic effects.
-
-### `dominant-color`
-Single-color rectangle using the most prominent color from the original image.
-
-### `average-color`
-Single-color rectangle using the mathematical average of all pixel colors.
-
-### `transparent`
-Fully transparent placeholder maintaining aspect ratio, useful for skeleton loading states.
-
-## Performance Characteristics
-
-### Build Time Performance
-- **Fast AST Parsing** - OXC provides near-native parsing speeds
-- **Parallel Processing** - Multi-threaded image processing with Rayon
-- **Smart Caching** - Avoids redundant downloads and processing
-- **Memory Efficient** - Streaming image processing without loading full images into memory
-
-### Runtime Performance
-- **Zero Overhead** - All processing happens at build time
-- **Tiny Payloads** - Generated placeholders are typically < 1KB each
-- **Inlined Data URLs** - No additional network requests for placeholders
-
-## Caching System
-
-The core uses an SQLite database to cache:
-
-## Platform Support
-
-Pre-built binaries are available for:
-
-- **Windows** - `x86_64-pc-windows-msvc`, `i686-pc-windows-msvc`, `aarch64-pc-windows-msvc`
-- **macOS** - `x86_64-apple-darwin`, `aarch64-apple-darwin`
-- **Linux** - `x86_64-unknown-linux-gnu`, `x86_64-unknown-linux-musl`, `aarch64-unknown-linux-gnu`, `aarch64-unknown-linux-musl`
-- **ARM** - `armv7-unknown-linux-gnueabihf`
-- **Android** - `aarch64-linux-android`, `armv7-linux-androideabi`
+- Placeholder metadata is cached in a SQLite database under `.nocojs/cache.db` by default.
+- `Store` handles in-memory caching during a single transform run while the database enables cross-build reuse.
+- Image processing pipelines are powered by `sharp`, and AST traversal uses `oxc-parser` for fast JavaScript/TypeScript parsing.
 
 ## Development
 
 ```bash
-yarn
-# During development
-yarn build:debug 
-
-# Run tests
-yarn test
+npm install
+npm run build --workspace @nocojs/core
+npm run test --workspace @nocojs/core
 ```
 
-### Requirements
-
-- **Rust** 1.70+ with `cargo`
-- **Node.js** 16+ for bindings
-- **NAPI-RS CLI** for cross-compilation
-
-### Architecture Details
-
-```
-src/
-├── lib.rs              # Main library entry point
-├── transform.rs        # Code transformation logic
-├── image_processor.rs  # Image processing utilities
-├── cache.rs           # SQLite caching implementation
-├── download.rs        # HTTP image downloading
-└── placeholder.rs     # Placeholder generation algorithms
-```
-
-## Usage Patterns
-
-### Build Tool Integration
-This package powers build tool integrations for automatic placeholder generation during bundling:
-
-- `@nocojs/rollup-plugin` - For Rollup and Vite projects  
-- `@nocojs/webpack-loader` - For Webpack and Next.js projects
-- `@nocojs/rspack-loader` - For Rspack projects  
-- `@nocojs/parcel-transformer` - For Parcel projects
-
-These integrations require `@nocojs/client` for the `preview()` function calls.
-
-### Direct Node.js Usage
-For server-side applications and custom build scripts, use the `getPlaceholder()` function directly:
-
-```bash
-npm install @nocojs/core
-```
-
-```typescript
-import { getPlaceholder } from '@nocojs/core';
-// Generate placeholders programmatically
-```
-
-Perfect for:
-- **Astro** static site generation
-- **Next.js** server components and API routes
-- **Custom build scripts** and image processing workflows
-- **Node.js applications** with dynamic image handling
+You can also run `rolldown -w -c` inside `packages/core` for watch mode and `vitest` for the test suite. The project targets modern Node.js environments (18+) and relies purely on the TypeScript toolchain.
 
 ## License
 
-MIT - See the main repository LICENSE file for details.
+MIT – see the repository root for details.
 
 ## Contributing
 
-This is part of the nocojs monorepo. See the [main repository](../../README.md) for contribution guidelines and development setup instructions.
+This package lives inside the nocojs monorepo. Refer to the [top-level README](../../README.md) for contribution guidelines and workspace development notes.

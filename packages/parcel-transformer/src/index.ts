@@ -1,4 +1,7 @@
-import { transform, TransformOptions } from "@nocojs/core";
+import {
+  Transformer as NocoTransformer,
+  type TransformOptions,
+} from "@nocojs/core";
 import { Transformer } from "@parcel/plugin";
 import SourceMapImport from "@parcel/source-map";
 import path from "path";
@@ -33,6 +36,8 @@ export interface ParcelNocoOptions
   exclude?: string[];
 }
 
+const transformer = new NocoTransformer();
+
 /**
  * Parcel transformer for nocojs image optimization
  */
@@ -60,6 +65,13 @@ export default new Transformer({
       packageJson?.["@nocojs/parcel-transformer"] ??
       ({} as ParcelNocoOptions | undefined);
 
+    await transformer.preTransform();
+
+    transformer.setOptions({
+      ...defaultOptions,
+      ...pluginOptions,
+    });
+
     return { ...defaultOptions, ...pluginOptions };
   },
   async transform({ asset, config: loadedConfig, logger, options }) {
@@ -70,47 +82,39 @@ export default new Transformer({
       !shouldProcessFile(
         filePath,
         config.include ?? ["**/*.{js,jsx,ts,tsx,vue,svelte}"],
-        config.exclude ?? ["**/node_modules/**"]
+        config.exclude ?? ["**/node_modules/**"],
       )
     ) {
       return [asset];
     }
-
-    const projectRoot = options.projectRoot ?? process.cwd();
-
-    // Resolve public and cache directories relative to project root
-    const publicDir = path.resolve(projectRoot, config?.publicDir ?? "public");
-    const cacheFileDir = path.resolve(
-      projectRoot,
-      config?.cacheFileDir ?? ".nocojs"
-    );
-
-    const transformOptions: TransformOptions = {
-      publicDir,
-      cacheFileDir,
-      logLevel: config?.logLevel || "info",
-      ...config,
-    };
 
     try {
       // Get the source code from the asset
       const code = await asset.getCode();
 
       // Transform the code using nocojs
-      const result = await transform(code, asset.filePath, transformOptions);
+      const result = await transformer.transform(code, asset.filePath);
+
+      await transformer.postTransform({ closeDb: false });
+
+      if (!result) {
+        return [asset];
+      }
 
       // Update the asset with the transformed code
       asset.setCode(result.code);
       if (result.map) {
         const sourcemap = new SourceMap(options.projectRoot);
-        sourcemap.addVLQMap(JSON.parse(result.map));
+        sourcemap.addVLQMap(result.map);
         asset.setMap(sourcemap);
       }
 
       return [asset];
     } catch (error) {
       logger.error({
-        message: `Error during nocojs transformation: ${error instanceof Error ? error.message : String(error)}`,
+        message: `Error during nocojs transformation: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
         origin: "@nocojs/parcel-transformer",
       });
 
@@ -126,7 +130,7 @@ export default new Transformer({
 function shouldProcessFile(
   id: string,
   include: string[],
-  exclude: string[]
+  exclude: string[],
 ): boolean {
   // Create matchers for include and exclude patterns
   const isIncluded = picomatch(include);

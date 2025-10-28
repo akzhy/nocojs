@@ -1,5 +1,31 @@
 # @nocojs/webpack-loader
 
+## 1.0.0
+
+### Patch Changes
+
+- 2716c93: Init JS implementation
+- 0e62ff9: Update packages
+- Updated dependencies [2716c93]
+- Updated dependencies [0e62ff9]
+  - @nocojs/core@1.0.0
+
+## 1.0.1-beta.1
+
+### Patch Changes
+
+- Update packages
+- Updated dependencies
+  - @nocojs/core@1.0.1-beta.1
+
+## 1.0.1-beta.0
+
+### Patch Changes
+
+- Init JS implementation
+- Updated dependencies
+  - @nocojs/core@1.0.1-beta.0
+
 ## 0.0.1
 
 ### Patch Changes

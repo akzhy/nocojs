@@ -1,114 +1,101 @@
 # nocojs
 
-A build-time library to create image previews.
+Build-time image tooling for modern web apps. Generate lightweight placeholders, responsive image variants, and matching client helpers without shipping extra runtime code.
 
 ## Overview
 
-nocojs scans your code during build time to find `preview()` function calls imported from `@nocojs/client`, then replaces these calls with optimized, tiny placeholder images (12px width by default). These placeholders are designed to work seamlessly with popular lazy loading libraries, preventing layout shifts and improving your web application's Core Web Vitals.
+nocojs can work both on the client side during bundling and on the server side in build scripts or SSR frameworks.
 
-**Note**: nocojs generates placeholder images but does not handle lazy loading itself. You'll need to integrate it with a lazy loading library such as:
+For client side, with appropriate bundler integration, nocojs scans your source during bundling, finds calls to `placeholder()`, and replaces them with inline data URLs.
+On the server (Astro, NextJS, Tanstack Start) you can call `getPlaceholder()` or `getOptimizedImage()` to create the same assets programmatically.
+
+
+**Note:** nocojs focuses on build-time generation, you will have to handle lazy-loading yourself. Pair it with your preferred lazy-loading or progressive enhancement strategy, such as:
 - [react-lazy-load-image-component](https://www.npmjs.com/package/react-lazy-load-image-component)
 - [lozad.js](https://github.com/ApoorvSaxena/lozad.js)
 - [lazysizes](https://github.com/aFarkas/lazysizes)
 - [vanilla-lazyload](https://github.com/verlok/vanilla-lazyload)
-- Or any other library that supports placeholder images
 
 ## Features
 
-- **Zero runtime overhead** - Everything happens at build time
-- **Multiple placeholder types** - Normal, blurred, grayscale, dominant color, average color, or transparent
-- **Automatic aspect ratio preservation** - Maintains original image proportions
-- **Intelligent caching** - Avoids redundant processing with SQLite-based caching
-- **Universal build tool support** - Works with Webpack, Rollup/Vite, Parcel, and Next.js
-- **Direct Node.js API** - Use `getPlaceholder()` function in server-side frameworks (Astro, Next.js, etc.)
-- **TypeScript support** - Full type safety out of the box
+- **Zero runtime overhead** – placeholders are inlined during the build.
+- **Multiple placeholder types** – blurred, grayscale, dominant-color, average-color, transparent, or the default miniaturized version.
+- **Responsive outputs** – `getOptimizedImage()` creates multi-format, multi-width srcsets and optional placeholders in one call.
+- **Bundler integrations** – works with Webpack, Rspack, Rollup/Vite, and Parcel.
 
-## How It Works
-
-**Build tool integrations**
-   - Analyze your code for `preview()` function calls using OXC AST parser
-   - Download or access images from specified paths
-   - Generate small, optimized placeholder images using Rust-based image processing
-   - Replace function calls with base64-encoded data URLs
-
-**Server-side**
-
-Use `getPlaceholder()` directly in Node.js for server-side rendering, static generation, or custom workflows
-
-## Packages
-
-This monorepo contains the following packages:
-
-### Core Package
-- **[@nocojs/core](./packages/core)** - Rust-based core engine with Node.js bindings via NAPI-RS
-  - Uses OXC for fast AST parsing and manipulation
-  - `image` and `fast_image_resize` crates for high-performance image processing  
-  - `reqwest` for HTTP image downloading
-  - `rusqlite` for intelligent caching
-  - Exports `getPlaceholder()` function for direct Node.js usage (Astro, Next.js, etc.)
-
-### Client Package
-- **[@nocojs/client](./packages/client)** - TypeScript client library that exports the `preview()` function
-
-### Build Tool Integrations
-- **[@nocojs/rollup-plugin](./packages/plugin-rollup)** - Rollup plugin (works with Vite)
-- **[@nocojs/webpack-loader](./packages/webpack-loader)** - Webpack loader for seamless integration
-- **[@nocojs/rspack-loader](./packages/webpack-loader)** - Webpack loader for seamless integration
-- **[@nocojs/parcel-transformer](./packages/parcel-transformer)** - Parcel transformer plugin
 
 ## Quick Start
 
 ### Installation
 
+Install the main package along with the bundler integration (if you require client-side support) that matches your stack:
+
 ```bash
-# Install the client library
-npm install @nocojs/client
-
-# Install the appropriate build tool integration
-npm install --save-dev @nocojs/rollup-plugin @nocojs/core     # For Rollup/Vite  
-npm install --save-dev @nocojs/webpack-loader @nocojs/core    # For Webpack/Next.js
-npm install --save-dev @nocojs/rspack-loader @nocojs/core    # For Rspack
-npm install --save-dev @nocojs/parcel-transformer @nocojs/core # For Parcel
-
-# Or install core package alone for direct Node.js usage
-npm install @nocojs/core                          # For server-side frameworks (Astro, Next.js, etc.)
+# Pick the integration that matches your bundler
+npm install nocojs @nocojs/rollup-plugin      # Rollup / Vite
+npm install nocojs @nocojs/webpack-loader     # Webpack / Next.js
+npm install nocojs @nocojs/rspack-loader      # Rspack
+npm install nocojs @nocojs/parcel-transformer # Parcel
 ```
 
-### Usage
+### Client usage
 
-```typescript
-import { preview } from '@nocojs/client';
+```tsx
+import { placeholder } from "nocojs/client";
 
-// Basic usage
-const imagePreview = preview('https://example.com/image.jpg');
-
-// With options
-const customPreview = preview('/local-image.png', {
-  width: 16,
-  placeholderType: 'blurred',
-  cache: true
-});
-
-// Use in React components with lazy loading
-function ImageComponent() {
-
-  return (
-    <LazyImage
-      placeholder={preview('/full-image.jpg')}
-      src={'/full-image.jpg'}
-      alt="Example"
-    />
-  );
+export function HeroImage() {
+  return <img src={placeholder("/images/hero.jpg")} alt="Hero" />;
 }
 ```
 
+With an integration configured, the bundler replaces the call above with a base64 data URI during the build.
+
+### Server or build scripts
+
+```ts
+import { getPlaceholder, getOptimizedImage } from "nocojs";
+
+const heroPlaceholder = await getPlaceholder("./public/hero.jpg", {
+  placeholderType: "blurred",
+  width: 16,
+});
+
+const responsive = await getOptimizedImage("./public/hero.jpg", {
+  outputDir: "./public/generated",
+  baseUrl: "/generated",
+  widths: [640, 960, 1280],
+  formats: ["webp", "jpg"],
+});
+
+console.log(heroPlaceholder.placeholder);
+console.log(responsive.srcset);
+```
+
+
 ## Configuration
 
-### Build Tool Setup
+### Vite / Rollup
 
-#### Webpack
+```js
+import { defineConfig } from "vite";
+import { rollupNocoPlugin } from "@nocojs/rollup-plugin";
 
-```javascript
+export default defineConfig({
+  plugins: [
+    rollupNocoPlugin({
+      publicDir: "public",
+      cacheFileDir: ".nocojs",
+      placeholderType: "blurred",
+      width: 12,
+    }),
+  ],
+});
+```
+
+### Webpack / Next.js
+
+```js
+// webpack.config.js
 module.exports = {
   module: {
     rules: [
@@ -116,112 +103,67 @@ module.exports = {
         test: /\.(js|ts|jsx|tsx)$/,
         use: [
           {
-            loader: '@nocojs/webpack-loader',
+            loader: "@nocojs/webpack-loader",
             options: {
-              publicDir: 'public',
-              cacheFileDir: '.nocojs',
-              placeholderType: 'blurred',
-              width: 12
-            }
-          }
-        ]
-      }
-    ]
-  }
+              publicDir: "public",
+              cacheFileDir: ".nocojs",
+              placeholderType: "blurred",
+              width: 12,
+            },
+          },
+        ],
+      },
+    ],
+  },
 };
 ```
 
-#### Vite (Rollup)
-```javascript
-import { defineConfig } from 'vite';
-import { rollupNocoPlugin } from '@nocojs/rollup-plugin';
+### Transform options
 
-export default defineConfig({
-  plugins: [rollupNocoPlugin ({
-    placeholderType: 'blurred',
-    width: 12
-  })]
-});
-```
+Bundler integrations forward these options to the core transformer:
 
-#### Next.js
-```javascript
-const nextConfig = {
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.(js|ts|jsx|tsx)$/,
-      use: [{
-        loader: '@nocojs/webpack-loader',
-        options: {
-          // configuration options
-        }
-      }]
-    });
-    return config;
-  }
-};
-```
-
-## Direct Node.js Usage
-
-For server-side frameworks like Astro, Next.js, or custom Node.js applications, you can use the `getPlaceholder` function directly from `@nocojs/core` to generate placeholders programmatically:
-
-```typescript
-import { getPlaceholder } from '@nocojs/core';
-
-// Generate placeholder for a local image
-const placeholder = await getPlaceholder('/path/to/image.jpg', {
-  width: 16,
-  placeholderType: 'blurred', // 'normal', 'blurred', 'grayscale', 'dominant-color', 'average-color', 'transparent'
-  cache: true,
-  wrapWithSvg: true
-});
-
-console.log(placeholder.placeholder); // Base64 data URL
-
-// Use in Astro components
-const heroPlaceholder = await getPlaceholder('/public/hero.jpg', {
-  width: 12,
-  placeholderType: 'blurred'
-});
-
-// Use in Next.js API routes or server components
-export async function generateStaticProps() {
-  const imagePlaceholder = await getPlaceholder('https://example.com/image.jpg', {
-    placeholderType: 'dominant-color',
-    width: 20
-  });
-  
-  return {
-    props: {
-      placeholder: imagePlaceholder.placeholder
-    }
-  };
+```ts
+interface TransformOptions {
+  placeholderType?: "normal" | "blurred" | "grayscale" | "dominant-color" | "average-color" | "transparent";
+  width?: number;
+  height?: number;
+  wrapWithSvg?: boolean;
+  cache?: boolean;
+  replaceFunctionCall?: boolean;
+  publicDir?: string;
+  cacheFileDir?: string;
+  logLevel?: "none" | "error" | "info" | "verbose";
 }
 ```
 
+### Placeholder options (server APIs)
 
-## Preview Options
-
-```typescript
-interface PreviewOptions {
-  placeholderType?: 'normal' | 'blurred' | 'grayscale' | 'dominant-color' | 'average-color' | 'transparent';
-  width?: number;           // Width in pixels (default: 12)
-  height?: number;          // Height in pixels (calculated from aspect ratio if not provided)
-  cache?: boolean;          // Enable caching (default: true)
-  replaceFunctionCall?: boolean; // Replace function calls entirely (default: true)
-  wrapWithSvg?: boolean;   // Whether to wrap the image in an SVG. Helps keep exact aspect ratio (default: true)
+```ts
+interface GetPlaceholderOptions {
+  placeholderType?: "normal" | "blurred" | "grayscale" | "dominant-color" | "average-color" | "transparent";
+  width?: number;
+  height?: number;
+  wrapWithSvg?: boolean;
+  cache?: boolean;
+  cacheFileDir?: string;
+  _enableLogging?: boolean;
 }
 ```
 
-### Placeholder Types
+### Optimized image options
 
-- **`normal`** - Standard downscaled version of the image
-- **`blurred`** - Blurred version using SVG filters for artistic effect
-- **`grayscale`** - Black and white version of the image
-- **`dominant-color`** - Single color rectangle based on the dominant color
-- **`average-color`** - Single color rectangle based on the average color
-- **`transparent`** - Fully transparent placeholder
+```ts
+interface GetOptimizedImageOptions {
+  outputDir: string;
+  widths?: number[];
+  baseUrl?: string;
+  formats?: string[];
+  quality?: number;
+  namingPattern?: string;
+  placeholderOptions?: GetPlaceholderOptions | null;
+  cache?: boolean;
+}
+```
 
 ## Important Guidelines (for bundler integration)
 
@@ -229,8 +171,8 @@ interface PreviewOptions {
 
 - **Use static, analyzable paths**: Always provide fixed string literals or easily resolvable paths
   ```typescript
-  preview('/images/hero.jpg')           // ✅ Good
-  preview('https://cdn.example.com/image.jpg') // ✅ Good
+  placeholder('/images/hero.jpg')           // ✅ Good
+  placeholder('https://cdn.example.com/image.jpg') // ✅ Good
   ```
 
 - **Use with lazy loading libraries**: Combine with libraries like `react-intersection-observer`, `lozad.js`, or `lazysizes`
@@ -242,196 +184,98 @@ interface PreviewOptions {
 - **Avoid dynamic arguments**: The build-time parser cannot resolve dynamic values
   ```typescript
   const imagePath = '/images/photo.jpg';
-  preview(imagePath)                    // ❌ Bad - dynamic variable
-  preview(`/images/${filename}`)        // ❌ Bad - template literal with variables
-  preview(getImagePath())               // ❌ Bad - function call result
+  placeholder(imagePath)                    // ❌ Bad - dynamic variable
+  placeholder(`/images/${filename}`)        // ❌ Bad - template literal with variables
+  placeholder(getImagePath())               // ❌ Bad - function call result
   ```
 
 - **Don't use with conditionals**: Build-time analysis requires static calls
   ```typescript
-  preview(condition ? 'img1.jpg' : 'img2.jpg') // ❌ Bad - conditional expression
+  placeholder(condition ? 'img1.jpg' : 'img2.jpg') // ❌ Bad - conditional expression
   ```
 
-- **Avoid runtime modifications**: The `preview()` function is replaced at build time
+- **Avoid runtime modifications**: The `placeholder()` function is replaced at build time
   ```typescript
-  const result = preview('/image.jpg');
+  const result = placeholder('/image.jpg');
   const modified = result + '?v=1';     // ❌ Bad - modifying the result
   ```
 
-**Important**: All `preview()` function calls must be statically analyzable at build time. The arguments must be string literals or easily resolvable static expressions that the build tool can evaluate without executing your code.
+**Important**: All `placeholder()` function calls must be statically analyzable at build time. The arguments must be string literals or easily resolvable static expressions that the build tool can evaluate without executing your code.
 
-## Transform Options
+## Best Practices for client side usage
 
-Build tool integrations support additional options:
-
-```typescript
-interface TransformOptions extends PreviewOptions {
-  publicDir?: string;     // Public directory path (default: 'public')
-  cacheFileDir?: string;  // Cache directory (default: '.nocojs')
-  logLevel?: 'none' | 'error' | 'info' | 'verbose'; // Logging level
-}
-```
-
-## Caching
-
-nocojs uses SQLite-based caching to avoid redundant image processing. The cache stores:
-- Downloaded image metadata and processed placeholder data
-- Generated placeholder images and their configurations
-
-### Cache Location
-
-By default, the cache is stored in the `.nocojs` directory (configurable via `cacheFileDir` option). The cache directory contains:
-- `cache.db` - SQLite database with image metadata
-
-### Production Build Optimization
-
-For production builds, preserving the cache between deployments can significantly speed up build times by avoiding re-downloading and re-processing images that haven't changed. The approach varies by deployment provider:
-
-#### Netlify
-
-Use `@netlify/cache-utils` to preserve the cache:
-
-```javascript
-export const onPreBuild = async function ({ utils }) {
-  await utils.cache.restore('./nocojs')
-}
-
-export const onPostBuild = async function ({ utils }) {
-  await utils.cache.save('./nocojs')
-}
-```
-
-Or configure in `netlify.toml`:
-
-```toml
-[build]
-  command = "npm run build"
-  
-[[plugins]]
-  package = "@netlify/plugin-cache"
-  
-  [plugins.inputs]
-    paths = [ ".nocojs" ]
-```
-
-#### GitHub Actions
-
-Cache the directory using `actions/cache`:
-
-```yaml
-# .github/workflows/build.yml
-name: Build
-on: [push, pull_request]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Cache nocojs
-        uses: actions/cache@v3
-        with:
-          path: .nocojs
-          key: nocojs-cache
-          restore-keys: |
-            nocojs-cache
-            
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Build
-        run: npm run build
-```
-
-#### Custom CI/CD
-
-For custom setups, ensure the `.nocojs` directory is:
-1. **Restored** before the build starts
-2. **Saved** after the build completes
-
-```bash
-#!/bin/bash
-# Example build script
-
-# Restore cache if available
-if [ -d "$CACHE_DIR/.nocojs" ]; then
-  cp -r "$CACHE_DIR/.nocojs" .
-fi
-
-# Run build
-npm run build
-
-# Save cache
-mkdir -p "$CACHE_DIR"
-cp -r .nocojs "$CACHE_DIR/"
-```
-
-### Cache Management
-
-#### Cache Invalidation
-The cache automatically updates when:
-- Image URLs change
-- Configuration options change
-
-#### Manual Cache Control
-```bash
-# Clear the cache manually
-rm -rf .nocojs
-
-# Or programmatically in your build script
-const fs = require('fs');
-if (process.env.CLEAR_CACHE) {
-  fs.rmSync('.nocojs', { recursive: true, force: true });
-}
-```
+- Use static string literals for `placeholder()` so the transformer can resolve paths.
+- Point relative paths to your `publicDir` (for example `placeholder("/images/photo.jpg")`).
+- Combine the generated placeholders with a lazy-loading strategy to avoid layout shifts.
+- Keep the cache directory (default `.nocojs`) between builds for faster CI/CD pipelines.
 
 ## Examples
 
-The repository includes comprehensive examples for different frameworks:
+Integration and usage examples can be found in the [examples repo](https://github.com/akzhy/nocojs-examples)
 
-- **Next.js** - [Webpack](./examples/nextjs-webpack) and [Turbopack](./examples/nextjs-turbopack) configurations
-- **Vite + React** - [TypeScript setup](./examples/vite-react-ts)
-- **Vite + Svelte** - [TypeScript setup](./examples/vite-svelte-ts)
-- **Webpack + React** - [Complete configuration](./examples/webpack-react)
-- **Parcel** - [React](./examples/parcel-react) and [Vanilla JS](./examples/parcel-vanilla) setups
-- **Basic Webpack** - [Minimal setup](./examples/webpack-basic)
+## Caching
+
+nocojs stores metadata and generated placeholders in `.nocojs/cache.db` (configurable). Restoring this directory between builds allows the transformer and server APIs to reuse prior results.
+
+### CI examples
+
+**Netlify**
+
+```js
+export const onPreBuild = async ({ utils }) => {
+  await utils.cache.restore(".nocojs");
+};
+
+export const onPostBuild = async ({ utils }) => {
+  await utils.cache.save(".nocojs");
+};
+```
+
+
+## Packages
+
+This monorepo contains the following packages:
+
+- **`nocojs`** – top-level package that re-exports the client `placeholder()` helper and the server utilities `getPlaceholder()` and `getOptimizedImage()`.
+- **`@nocojs/core`** – TypeScript engine that implements the transformer, placeholder generation, optimized image pipeline, and cache management.
+- **`@nocojs/rollup-plugin`** – Rollup/Vite integration.
+- **`@nocojs/webpack-loader`** – Webpack (and Next.js) loader.
+- **`@nocojs/rspack-loader`** – Rspack loader.
+- **`@nocojs/parcel-transformer`** – Parcel integration.
 
 ## Development
 
-This project is a Lerna monorepo with the following structure:
+This is a Lerna workspace with packages written in TypeScript.
 
 ```
 packages/
-├── core/                 # Rust core with Node.js bindings
-├── client/              # TypeScript client library  
-├── webpack-loader/      # Webpack integration
-├── rspac-loader/        # Rspack integration
-├── plugin-rollup/       # Rollup/Vite integration
-└── parcel-transformer/  # Parcel integration
-
-examples/                # Example projects for each build tool
+├── core/               # TypeScript engine shared by all integrations
+├── nocojs/             # Aggregated public API (client + server)
+├── rollup-plugin/      # Rollup / Vite integration + example
+├── webpack-loader/     # Webpack integration + example
+├── rspack-loader/      # Rspack integration
+└── parcel-transformer/ # Parcel integration + example
 ```
 
-### Building from Source
-
 ```bash
+# Enable pnpm via Corepack (once per environment)
+corepack enable
+
 # Install dependencies
-yarn install
+pnpm install
 
 # Build all packages
-lerna run build
+pnpm build:packages
 
 # Run tests
-lerna run test
+pnpm test
 ```
 
 ## Performance
 
-- **Build time**: Fast AST parsing with OXC and efficient image processing with Rust
-- **Runtime**: Zero overhead - placeholders are inlined as base64 data URLs
-- **Cache**: SQLite-based caching prevents redundant processing
-- **Size**: Tiny placeholder images (typically < 1KB each)
+- **Fast builds** – `oxc-parser` provides speedy AST traversal and transformation.
+- **Efficient processing** – `sharp` powers resizing and color extraction.
+- **Tiny payloads** – placeholders are typically under 1 KB and served inline.
 
 ## License
 
@@ -439,58 +283,12 @@ MIT
 
 ## Contributing
 
-We welcome contributions to nocojs! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+Contributions are welcome! To get started:
 
-### Getting Started
+1. Fork and clone the repo.
+2. Run `pnpm install` to bootstrap dependencies.
+3. Use `pnpm build:packages` and `pnpm test` to validate changes.
+4. Add or update documentation when introducing new features.
+5. Create a changeset with `pnpm changeset` before opening a pull request.
 
-1. **Fork the repository** and clone it locally
-2. **Install dependencies**: `yarn install`
-3. **Build all packages**: `lerna run build`
-4. **Run tests**: `lerna run test`
-
-### Development Setup
-
-This is a Lerna monorepo with packages written in both Rust and TypeScript:
-
-#### Prerequisites
-- **Node.js** 16+ and **Yarn** 1.x
-- **Rust** (latest stable version)
-- **NAPI-RS CLI**: `npm install -g @napi-rs/cli`
-
-#### Building the Core Package
-The core package requires Rust compilation:
-
-```bash
-cd packages/core
-yarn build:all        # Builds both Rust and TypeScript
-yarn build:debug  # Debug build for development
-```
-
-### Making Changes
-
-#### Code Style
-- **TypeScript**: Use Prettier and ESLint
-- **Rust**: Use `cargo fmt` and follow Rust conventions
-- **Commits**: Use conventional commit messages
-
-#### Testing
-- Run tests before submitting: `lerna run test`
-- Add tests for new features
-- Ensure examples still work after changes
-
-#### Pull Request Process
-1. **Create a feature branch** from `master`
-2. **Make your changes** with appropriate tests
-3. **Update documentation** if needed
-4. **Run the full test suite**
-3. **Add changeset**. Run `yarn changeset` and update the appropriate packages with proper changelog
-5. **Submit a pull request** with a clear description
-
-
-
-### Getting Help
-
-- **Issues**: For bugs and feature requests
-- **Discussions**: For questions and ideas
-
-Thank you for contributing to nocojs! 🚀
+Create issues for bugs or ideas, or start a discussion if you’re planning a larger feature.
